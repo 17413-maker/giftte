@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gifté+ | Home</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #faf9fa;
+      font-family: 'Poppins', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Fade-in animation */
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fadeIn {
+      animation: fadeIn 1s ease-out forwards;
+    }
+
+    /* Float animation for icons */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .animate-float {
+      animation: float 3s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="text-gray-800">
+
+  <!-- Navbar -->
+  <nav class="flex justify-between items-center px-10 py-5 bg-white shadow-md animate-fadeIn">
+    <h1 class="text-2xl font-bold text-pink-600">🎁 Gifté+</h1>
+    <div class="space-x-4">
+      <a href="login.html" class="text-gray-700 hover:text-pink-600 transition text-lg font-medium">Login</a>
+      <a href="signup.html" class="px-5 py-2 bg-pink-500 text-white rounded-full hover:bg-pink-600 shadow-md transition text-lg font-semibold">Sign Up</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="text-center py-16 px-8 bg-gradient-to-r from-pink-100 to-white animate-fadeIn">
+    <h2 class="text-5xl font-extrabold text-gray-800 mb-4">
+      Welcome to <span class="text-pink-600">Gifté+</span>
+    </h2>
+    <p class="text-lg text-gray-700 max-w-2xl mx-auto">
+      A next-generation platform combining intelligent gifting with ethical OSINT insights.<br />
+      Experience two ways to personalize your gift-finding journey.
+    </p>
+  </section>
+
+  <!-- Mode Showcase Section -->
+  <section class="py-16 bg-white text-center animate-fadeIn">
+    <h3 class="text-3xl font-semibold mb-10 text-gray-800">Choose Your Style</h3>
+    <div class="flex flex-col md:flex-row items-center justify-center gap-10 px-8">
+      
+      <!-- Manual Mode -->
+      <div class="bg-gray-50 shadow-lg rounded-2xl p-6 max-w-sm hover:scale-105 transform transition duration-300">
+        <img src="https://cdn-icons-png.flaticon.com/512/3062/3062600.png" alt="Manual Mode" class="mx-auto w-32 mb-4 animate-float">
+        <h4 class="text-xl font-semibold mb-2 text-gray-800">Manual Mode</h4>
+        <p class="text-gray-600 text-sm">
+          Take full control. Enter preferences, relationships, and details manually.<br>
+          Ideal for users who want to craft a highly personalized gifting experience.
+        </p>
+      </div>
+
+      <!-- Automatic Mode -->
+      <div class="bg-gray-50 shadow-lg rounded-2xl p-6 max-w-sm hover:scale-105 transform transition duration-300">
+        <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" alt="Automatic Mode" class="mx-auto w-32 mb-4 animate-float">
+        <h4 class="text-xl font-semibold mb-2 text-gray-800">Automatic Mode</h4>
+        <p class="text-gray-600 text-sm">
+          Let AI handle the magic. Using OSINT insights, Gifté+ automatically analyzes data to suggest perfect gifts instantly.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="bg-pink-50 py-16 animate-fadeIn">
+    <h3 class="text-3xl font-semibold text-center mb-8 text-pink-600">How It Works</h3>
+    <div class="max-w-5xl mx-auto grid md:grid-cols-3 gap-8 text-center">
+      
+      <div class="hover:scale-105 transform transition duration-300">
+        <img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" alt="Select" class="mx-auto w-14 mb-4 animate-float">
+        <h4 class="font-bold text-lg mb-2">Select Mode</h4>
+        <p class="text-gray-700 text-sm">Start with Manual or Automatic — your choice, your control.</p>
+      </div>
+      
+      <div class="hover:scale-105 transform transition duration-300">
+        <img src="https://cdn-icons-png.flaticon.com/512/2089/2089773.png" alt="Analyze" class="mx-auto w-14 mb-4 animate-float">
+        <h4 class="font-bold text-lg mb-2">Analyze</h4>
+        <p class="text-gray-700 text-sm">Our AI and OSINT tools process personality, interests, and data for deep insights.</p>
+      </div>
+      
+      <div class="hover:scale-105 transform transition duration-300">
+        <img src="https://cdn-icons-png.flaticon.com/512/1031/1031977.png" alt="Gift" class="mx-auto w-14 mb-4 animate-float">
+        <h4 class="font-bold text-lg mb-2">Gift Suggestions</h4>
+        <p class="text-gray-700 text-sm">View curated, data-backed recommendations that truly match the recipient.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Continue Button -->
+  <section class="text-center py-16 bg-white animate-fadeIn">
+    <h3 class="text-2xl font-semibold mb-6 text-gray-800">Ready to begin?</h3>
+    <button onclick="window.location.href='index.html'" 
+      class="px-8 py-4 bg-pink-500 text-white rounded-full text-lg font-semibold hover:bg-pink-600 hover:shadow-lg transform hover:scale-105 transition duration-300">
+      Continue to Gifté+
+    </button>
+  </section>
+
+  <!-- Footer -->
+  <footer class="text-center py-6 bg-gray-900 text-white text-sm">
+    <p>© 2025 Gifté+. Crafted with ❤️ | Confidential Dev Mode Access: Restricted</p>
+  </footer>
+
+</body>
+</html>

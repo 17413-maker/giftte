@@ -43,7 +43,8 @@
     .giftCard{background:linear-gradient(180deg,rgba(255,255,255,0.95),#fff);border-radius:14px;padding:14px;box-shadow:0 12px 30px rgba(15,23,42,0.06);overflow:hidden;transform:translateY(6px);opacity:0;transition:transform .35s ease,opacity .35s ease}
     .giftCard.show{transform:translateY(0);opacity:1}
     .giftTop{display:flex;gap:12px;align-items:center}
-    .giftThumb{width:72px;height:72px;border-radius:10px;flex-shrink:0;background:linear-gradient(135deg,var(--accent-1),var(--accent-2));display:flex;align-items:center;justify-content:center;color:white;font-weight:800}
+    .giftThumb{width:72px;height:72px;border-radius:10px;flex-shrink:0;background:linear-gradient(135deg,var(--accent-1),var(--accent-2));display:flex;align-items:center;justify-content:center;color:white;font-weight:800;overflow:hidden}
+    .giftThumb img{width:100%;height:100%;object-fit:cover;display:block}
     .giftTitle{font-size:16px;margin:0}
     .giftMeta{font-size:13px;color:var(--muted);margin-top:6px}
     .smallBadge{display:inline-block;padding:6px 8px;border-radius:8px;background:rgba(15,23,42,0.04);font-size:12px;color:var(--muted);margin-top:8px}
@@ -55,6 +56,10 @@
 
     /* small footer */
     footer{margin-top:26px;text-align:center;color:var(--muted);font-size:13px}
+
+    /* view button */
+    .viewBtn{display:inline-block;padding:8px 10px;border-radius:8px;background:linear-gradient(90deg,#3b82f6,#06b6d4);color:white;text-decoration:none;font-weight:600;margin-top:8px}
+    .viewBtn:hover{filter:brightness(1.05)}
   </style>
 </head>
 <body>
@@ -167,69 +172,69 @@
 
   <script>
     // --------------------
-    // Catalogue (expanded)
+    // Catalogue (expanded) WITH IMAGES
     // --------------------
     const catalogue = [
-      {id:'g001', title:'Personalized Leather Wallet', tags:['Birthday','Father','Parent','Colleague','Gadgets','Fashion','Just Because','Wallet'], minPrice:500, maxPrice:1500, short:'Classic leather wallet with initials.'},
-      {id:'g002', title:'Handmade Ceramic Mug Set', tags:['Birthday','Friend','Mother','Parent','Home & Kitchen','Just Because','Mugs','Books'], minPrice:400, maxPrice:1200, short:'Cozy mug pair — great with a note.'},
-      {id:'g003', title:'Bluetooth Earbuds', tags:['Birthday','Teen','Son','Daughter','Gadgets','Music','Tech'], minPrice:1200, maxPrice:6000, short:'True wireless earbuds with good sound.'},
-      {id:'g004', title:'Instant Camera (Polaroid)', tags:['Birthday','Friend','Partner','Photography','Travel','Just Because','Memories'], minPrice:3000, maxPrice:12000, short:'Instant prints for memories.'},
-      {id:'g005', title:'Custom Name Necklace', tags:['Anniversary','Partner','Valentine\'s','Jewelry','Personalized','Romantic'], minPrice:800, maxPrice:7000, short:'Gold/rose-gold plated personalized name necklace.'},
-      {id:'g006', title:'Experience Gift Voucher (Spa)', tags:['Anniversary','Partner','Parent','Experience','Luxury','Relaxation'], minPrice:2500, maxPrice:15000, short:'Spa day voucher — relaxation guaranteed.'},
-      {id:'g007', title:'Designer Scented Candle Set', tags:['Housewarming','Friend','Home & Kitchen','Aesthetic','Relaxation'], minPrice:700, maxPrice:2500, short:'Luxury candle set with soothing aromas.'},
-      {id:'g008', title:'Portable Power Bank', tags:['Travel','Tech','Son','Daughter','Gadgets','Colleague'], minPrice:800, maxPrice:3000, short:'High-capacity power bank for travel.'},
-      {id:'g009', title:'Smartwatch (Entry)', tags:['Birthday','Fitness','Gadgets','Teen','Adult','Sports'], minPrice:2500, maxPrice:12000, short:'Fitness tracking & notifications.'},
-      {id:'g010', title:'Premium Planner & Pen Set', tags:['Graduation','Colleague','Teacher','Stationery','Productivity'], minPrice:500, maxPrice:4000, short:'Leather planner and a classy pen.'},
-      {id:'g011', title:'Artisan Chocolate Box', tags:['Valentine\'s','Birthday','Just Because','Food & Drink','Sweet'], minPrice:300, maxPrice:2000, short:'Handcrafted chocolates.'},
-      {id:'g012', title:'Smart Home Bulb Kit', tags:['Housewarming','Home & Kitchen','Tech','Gadgets'], minPrice:1200, maxPrice:4500, short:'Smart bulbs — control mood lighting.'},
-      {id:'g013', title:'Cooking Class Experience', tags:['Birthday','Partner','Food & Drink','Experience','Learning'], minPrice:1500, maxPrice:8000, short:'Hands-on cooking workshop.'},
-      {id:'g014', title:'Designer Scarf', tags:['Anniversary','Mother','Daughter','Fashion','Aesthetic'], minPrice:800, maxPrice:6000, short:'Silk-blend designer scarf.'},
-      {id:'g015', title:'Noise-Cancelling Headphones', tags:['Travel','Music','Gadgets','Partner','Teen','Adult'], minPrice:5000, maxPrice:35000, short:'Premium listening experience.'},
-      {id:'g016', title:'LEGO Advanced Set', tags:['Birthday','Child','Toys & Games','Hobby','Creative'], minPrice:1500, maxPrice:8000, short:'Complex LEGO architecture set.'},
-      {id:'g017', title:'Fitness Gift Pack', tags:['Fitness','Sports','Son','Daughter','Birthday','Health'], minPrice:800, maxPrice:7000, short:'Yoga mat + resistance bands + water bottle.'},
-      {id:'g018', title:'E-Reader (basic)', tags:['Books','Birthday','Parent','Teacher','Reader','Education'], minPrice:4000, maxPrice:15000, short:'Lightweight e-reader for book lovers.'},
-      {id:'g019', title:'Stylish Desk Lamp', tags:['Home & Kitchen','Work From Home','Colleague','Student'], minPrice:900, maxPrice:3500, short:'LED desk lamp with adjustable brightness.'},
-      {id:'g020', title:'Sustainable Plant Kit', tags:['Housewarming','Aesthetic','Home & Kitchen','Gardening','Just Because'], minPrice:400, maxPrice:2500, short:'Indoor plant + care kit.'},
-      {id:'g021', title:'Premium Tea/Coffee Sampler', tags:['Food & Drink','Colleague','Parent','Birthday'], minPrice:500, maxPrice:2500, short:'Sampler of premium blends.'},
-      {id:'g022', title:'Personalized Photo Frame', tags:['Anniversary','Wedding','Partner','Friend','Memories'], minPrice:300, maxPrice:1500, short:'Custom engraved photo frame.'},
-      {id:'g023', title:'Portable Projector (mini)', tags:['Home & Kitchen','Entertainment','Partner','Friend'], minPrice:3500, maxPrice:25000, short:'Mini projector for movie nights.'},
-      {id:'g024', title:'Handmade Jewellery Box', tags:['Wedding','Anniversary','Jewelry','Mother','Keepsake'], minPrice:1200, maxPrice:6000, short:'Beautiful wooden/jewellery box.'},
-      {id:'g025', title:'Board Game (Strategy)', tags:['Friend','Family','Games','Birthday','Social'], minPrice:900, maxPrice:3500, short:'Popular strategy board game for groups.'},
-      {id:'g026', title:'Subscription Box (monthly)', tags:['Just Because','Birthday','Surprise','Hobby'], minPrice:700, maxPrice:5000, short:'Curated monthly box (books/snacks/selfcare).'},
-      {id:'g027', title:'Luxury Skincare Set', tags:['Beauty','Mother','Partner','Anniversary','Selfcare'], minPrice:1200, maxPrice:12000, short:'Premium skincare essentials.'},
-      {id:'g028', title:'Custom Illustration Portrait', tags:['Birthday','Anniversary','Partner','Friend','Art'], minPrice:1000, maxPrice:8000, short:'Hand-drawn custom portrait.'},
-      {id:'g029', title:'High-quality Backpack', tags:['Travel','Student','Colleague','Son','Daughter'], minPrice:1500, maxPrice:8000, short:'Durable backpack for daily use.'},
-      {id:'g030', title:'Kids Storybook Bundle', tags:['Child','Birthday','Books','Education'], minPrice:400, maxPrice:2000, short:'Curated storybooks for kids.'},
-      {id:'g031', title:'Gourmet Gift Hamper', tags:['Festival','Wedding','Parent','Food & Drink','Celebration'], minPrice:1500, maxPrice:10000, short:'Luxury hamper of treats.'},
-      {id:'g032', title:'Stylish Sunglasses', tags:['Fashion','Partner','Friend','Birthday'], minPrice:800, maxPrice:9000, short:'Trending sunglasses with UV protection.'},
-      {id:'g033', title:'Portable Espresso Maker', tags:['Coffee','Food & Drink','Partner','Travel'], minPrice:2500, maxPrice:12000, short:'Make espresso on the go.'},
-      {id:'g034', title:'Thermal Insulated Bottle (Premium)', tags:['Fitness','Travel','Eco','Son','Daughter'], minPrice:600, maxPrice:3000, short:'Keeps drinks hot/cold for hours.'},
-      {id:'g035', title:'Handcrafted Journal', tags:['Writer','Stationery','Teacher','Student','Anniversary'], minPrice:300, maxPrice:2000, short:'Beautiful leather-bound journal.'},
-      {id:'g036', title:'Designer Phone Case', tags:['Gadgets','Fashion','Teen','Friend'], minPrice:300, maxPrice:2500, short:'Stylish protective phone case.'},
-      {id:'g037', title:'Mini Indoor Grill', tags:['Home & Kitchen','Food & Drink','Parent','Gift'], minPrice:2000, maxPrice:12000, short:'Compact grill for balcony cooking.'},
-      {id:'g038', title:'DIY Craft Kit', tags:['Hobby','Child','Creative','Just Because'], minPrice:300, maxPrice:2500, short:'Fun DIY kit for creative time.'},
-      {id:'g039', title:'Wireless Charging Pad', tags:['Gadgets','Office','Colleague','Tech'], minPrice:700, maxPrice:4000, short:'Convenient wireless charger.'},
-      {id:'g040', title:'Luxury Watch (affordable)', tags:['Anniversary','Partner','Luxury','Fashion'], minPrice:8000, maxPrice:50000, short:'Classic wristwatch.'},
-      {id:'g041', title:'Personalized Recipe Book', tags:['Food & Drink','Parent','Friend','Home & Kitchen'], minPrice:500, maxPrice:3000, short:'Custom recipe book with family recipes.'},
-      {id:'g042', title:'Portable Karaoke Mic', tags:['Entertainment','Friend','Party','Music'], minPrice:900, maxPrice:3500, short:'Wireless karaoke mic for parties.'},
-      {id:'g043', title:'Kids Educational Tablet (kid mode)', tags:['Child','Education','Toys & Games'], minPrice:3500, maxPrice:12000, short:'Kid-safe tablet with learning apps.'},
-      {id:'g044', title:'Scratch-off Travel Map', tags:['Travel','Friend','Partner','Adventure'], minPrice:400, maxPrice:1800, short:'Map to track places visited.'},
-      {id:'g045', title:'Customized Pet Portrait', tags:['Pet Owner','Friend','Anniversary','Art'], minPrice:700, maxPrice:5000, short:'Illustration of their pet.'},
-      {id:'g046', title:'Premium Cheese Board', tags:['Hosting','Home & Kitchen','Gift','Friend'], minPrice:800, maxPrice:6000, short:'Elegant cheese & charcuterie board set.'},
-      {id:'g047', title:'Compact Multi-tool', tags:['Travel','Adventure','Son','Dad','Gadget'], minPrice:500, maxPrice:3000, short:'Useful multi-tool for outdoors.'},
-      {id:'g048', title:'Online Course Gift Card', tags:['Education','Graduation','Career','Selfcare'], minPrice:500, maxPrice:20000, short:'Gift a course subscription.'},
-      {id:'g049', title:'Hand-stitched Quilt / Throw', tags:['Home & Kitchen','Mother','Anniversary','Cozy'], minPrice:2000, maxPrice:15000, short:'Warm, handmade throw.'},
-      {id:'g050', title:'Custom Engraved Pen', tags:['Graduation','Colleague','Teacher','Stationery'], minPrice:400, maxPrice:3500, short:'Engraved metal pen — keepsake.'},
-      {id:'g051', title:'Compact Air Fryer', tags:['Home & Kitchen','Parent','Food & Drink','Gadget'], minPrice:3000, maxPrice:12000, short:'Easy, healthy cooking.'},
-      {id:'g052', title:'Smart Garden (Indoor)', tags:['Gardening','Home & Kitchen','Aesthetic','Eco'], minPrice:2500, maxPrice:15000, short:'Self-watering indoor herb garden.'},
-      {id:'g053', title:'Scented Bath Bomb Set', tags:['Selfcare','Relaxation','Mother','Partner','Beauty'], minPrice:300, maxPrice:1500, short:'Relaxing spa bath set.'},
-      {id:'g054', title:'Portable Photo Printer', tags:['Photography','Travel','Memories','Friend'], minPrice:3500, maxPrice:10000, short:'Print phone photos instantly.'},
-      {id:'g055', title:'Vinyl Record Starter Kit', tags:['Music','Hobby','Retro','Friend'], minPrice:3000, maxPrice:15000, short:'Turntable + a few records.'},
-      {id:'g056', title:'Travel Packing Cubes Set', tags:['Travel','Organizing','Partner','Friend'], minPrice:700, maxPrice:3000, short:'Keep luggage tidy and compact.'},
-      {id:'g057', title:'Luxury Bedding Set (Queen)', tags:['Home & Kitchen','Wedding','Anniversary','Cozy'], minPrice:5000, maxPrice:35000, short:'Soft, premium sheets and duvet.'},
-      {id:'g058', title:'Portable Bluetooth Speaker', tags:['Music','Travel','Party','Friend'], minPrice:900, maxPrice:8000, short:'Small speaker with punchy audio.'},
-      {id:'g059', title:'Language Learning Subscription', tags:['Education','Career','Gift','Graduation'], minPrice:600, maxPrice:12000, short:'Months of language lessons.'},
-      {id:'g060', title:'Eco Starter Kit', tags:['Eco','Home & Kitchen','Sustainable','Friend'], minPrice:500, maxPrice:4000, short:'Reusable products + starter guide.'}
+      {id:'g001', title:'Personalized Leather Wallet', img:'https://images.unsplash.com/photo-1542291026-7eec264c27ff', tags:['Birthday','Father','Parent','Colleague','Gadgets','Fashion','Just Because','Wallet'], minPrice:500, maxPrice:1500, short:'Classic leather wallet with initials.'},
+      {id:'g002', title:'Handmade Ceramic Mug Set', img:'https://images.unsplash.com/photo-1514432324607-a09d9b4aef0f', tags:['Birthday','Friend','Mother','Parent','Home & Kitchen','Just Because','Mugs','Books'], minPrice:400, maxPrice:1200, short:'Cozy mug pair — great with a note.'},
+      {id:'g003', title:'Bluetooth Earbuds', img:'https://images.unsplash.com/photo-1580894894514-32e3ad81e5b0', tags:['Birthday','Teen','Son','Daughter','Gadgets','Music','Tech'], minPrice:1200, maxPrice:6000, short:'True wireless earbuds with good sound.'},
+      {id:'g004', title:'Instant Camera (Polaroid)', img:'https://images.unsplash.com/photo-1519183071298-a2962be54a18', tags:['Birthday','Friend','Partner','Photography','Travel','Just Because','Memories'], minPrice:3000, maxPrice:12000, short:'Instant prints for memories.'},
+      {id:'g005', title:'Custom Name Necklace', img:'https://images.unsplash.com/photo-1543163521-1bf539c55a5b', tags:['Anniversary','Partner','Valentine\'s','Jewelry','Personalized','Romantic'], minPrice:800, maxPrice:7000, short:'Gold/rose-gold plated personalized name necklace.'},
+      {id:'g006', title:'Experience Gift Voucher (Spa)', img:'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee', tags:['Anniversary','Partner','Parent','Experience','Luxury','Relaxation'], minPrice:2500, maxPrice:15000, short:'Spa day voucher — relaxation guaranteed.'},
+      {id:'g007', title:'Designer Scented Candle Set', img:'https://images.unsplash.com/photo-1509228627153-6e9f6d5f0c9b', tags:['Housewarming','Friend','Home & Kitchen','Aesthetic','Relaxation'], minPrice:700, maxPrice:2500, short:'Luxury candle set with soothing aromas.'},
+      {id:'g008', title:'Portable Power Bank', img:'https://images.unsplash.com/photo-1496180727794-817822f65950', tags:['Travel','Tech','Son','Daughter','Gadgets','Colleague'], minPrice:800, maxPrice:3000, short:'High-capacity power bank for travel.'},
+      {id:'g009', title:'Smartwatch (Entry)', img:'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9', tags:['Birthday','Fitness','Gadgets','Teen','Adult','Sports'], minPrice:2500, maxPrice:12000, short:'Fitness tracking & notifications.'},
+      {id:'g010', title:'Premium Planner & Pen Set', img:'https://images.unsplash.com/photo-1515879218367-8466d910aaa4', tags:['Graduation','Colleague','Teacher','Stationery','Productivity'], minPrice:500, maxPrice:4000, short:'Leather planner and a classy pen.'},
+      {id:'g011', title:'Artisan Chocolate Box', img:'https://images.unsplash.com/photo-1527515637461-9b3e5b8e6b27', tags:["Valentine's","Birthday","Just Because","Food & Drink","Sweet"], minPrice:300, maxPrice:2000, short:'Handcrafted chocolates.'},
+      {id:'g012', title:'Smart Home Bulb Kit', img:'https://images.unsplash.com/photo-1582719478250-1c1e0d814ecb', tags:['Housewarming','Home & Kitchen','Tech','Gadgets'], minPrice:1200, maxPrice:4500, short:'Smart bulbs — control mood lighting.'},
+      {id:'g013', title:'Cooking Class Experience', img:'https://images.unsplash.com/photo-1524758631624-e2822e304c36', tags:['Birthday','Partner','Food & Drink','Experience','Learning'], minPrice:1500, maxPrice:8000, short:'Hands-on cooking workshop.'},
+      {id:'g014', title:'Designer Scarf', img:'https://images.unsplash.com/photo-1520975911803-7b4b7b0f0df0', tags:['Anniversary','Mother','Daughter','Fashion','Aesthetic'], minPrice:800, maxPrice:6000, short:'Silk-blend designer scarf.'},
+      {id:'g015', title:'Noise-Cancelling Headphones', img:'https://images.unsplash.com/photo-1518444021072-7fa4b2c5a6c4', tags:['Travel','Music','Gadgets','Partner','Teen','Adult'], minPrice:5000, maxPrice:35000, short:'Premium listening experience.'},
+      {id:'g016', title:'LEGO Advanced Set', img:'https://images.unsplash.com/photo-1616627567767-9d7a1c2e2f1b', tags:['Birthday','Child','Toys & Games','Hobby','Creative'], minPrice:1500, maxPrice:8000, short:'Complex LEGO architecture set.'},
+      {id:'g017', title:'Fitness Gift Pack', img:'https://images.unsplash.com/photo-1517836357463-d25dfeac3438', tags:['Fitness','Sports','Son','Daughter','Birthday','Health'], minPrice:800, maxPrice:7000, short:'Yoga mat + resistance bands + water bottle.'},
+      {id:'g018', title:'E-Reader (basic)', img:'https://images.unsplash.com/photo-1513475382585-d06e58bcb0b2', tags:['Books','Birthday','Parent','Teacher','Reader','Education'], minPrice:4000, maxPrice:15000, short:'Lightweight e-reader for book lovers.'},
+      {id:'g019', title:'Stylish Desk Lamp', img:'https://images.unsplash.com/photo-1524758631624-e2822e304c36', tags:['Home & Kitchen','Work From Home','Colleague','Student'], minPrice:900, maxPrice:3500, short:'LED desk lamp with adjustable brightness.'},
+      {id:'g020', title:'Sustainable Plant Kit', img:'https://images.unsplash.com/photo-1501004318641-b39e6451bec6', tags:['Housewarming','Aesthetic','Home & Kitchen','Gardening','Just Because'], minPrice:400, maxPrice:2500, short:'Indoor plant + care kit.'},
+      {id:'g021', title:'Premium Tea/Coffee Sampler', img:'https://images.unsplash.com/photo-1509042239860-f550ce710b93', tags:['Food & Drink','Colleague','Parent','Birthday'], minPrice:500, maxPrice:2500, short:'Sampler of premium blends.'},
+      {id:'g022', title:'Personalized Photo Frame', img:'https://images.unsplash.com/photo-1524594154900-6e7a6f5f9a1b', tags:['Anniversary','Wedding','Partner','Friend','Memories'], minPrice:300, maxPrice:1500, short:'Custom engraved photo frame.'},
+      {id:'g023', title:'Portable Projector (mini)', img:'https://images.unsplash.com/photo-1523475496153-3d6ccf2b0f0d', tags:['Home & Kitchen','Entertainment','Partner','Friend'], minPrice:3500, maxPrice:25000, short:'Mini projector for movie nights.'},
+      {id:'g024', title:'Handmade Jewellery Box', img:'https://images.unsplash.com/photo-1520975698510-3b6b3e9b8a3e', tags:['Wedding','Anniversary','Jewelry','Mother','Keepsake'], minPrice:1200, maxPrice:6000, short:'Beautiful wooden/jewellery box.'},
+      {id:'g025', title:'Board Game (Strategy)', img:'https://images.unsplash.com/photo-1601924578874-3d3e08d436d1', tags:['Friend','Family','Games','Birthday','Social'], minPrice:900, maxPrice:3500, short:'Popular strategy board game for groups.'},
+      {id:'g026', title:'Subscription Box (monthly)', img:'https://images.unsplash.com/photo-1518183214770-9cffbec72538', tags:['Just Because','Birthday','Surprise','Hobby'], minPrice:700, maxPrice:5000, short:'Curated monthly box (books/snacks/selfcare).'},
+      {id:'g027', title:'Luxury Skincare Set', img:'https://images.unsplash.com/photo-1587595431339-6c5a7f0e6d1a', tags:['Beauty','Mother','Partner','Anniversary','Selfcare'], minPrice:1200, maxPrice:12000, short:'Premium skincare essentials.'},
+      {id:'g028', title:'Custom Illustration Portrait', img:'https://images.unsplash.com/photo-1500916434205-33d6f2f0b6c0', tags:['Birthday','Anniversary','Partner','Friend','Art'], minPrice:1000, maxPrice:8000, short:'Hand-drawn custom portrait.'},
+      {id:'g029', title:'High-quality Backpack', img:'https://images.unsplash.com/photo-1520975687735-8f8c6f2d6a1b', tags:['Travel','Student','Colleague','Son','Daughter'], minPrice:1500, maxPrice:8000, short:'Durable backpack for daily use.'},
+      {id:'g030', title:'Kids Storybook Bundle', img:'https://images.unsplash.com/photo-1512820790803-83ca734da794', tags:['Child','Birthday','Books','Education'], minPrice:400, maxPrice:2000, short:'Curated storybooks for kids.'},
+      {id:'g031', title:'Gourmet Gift Hamper', img:'https://images.unsplash.com/photo-1503602642458-232111445657', tags:['Festival','Wedding','Parent','Food & Drink','Celebration'], minPrice:1500, maxPrice:10000, short:'Luxury hamper of treats.'},
+      {id:'g032', title:'Stylish Sunglasses', img:'https://images.unsplash.com/photo-1517841905240-472988babdf9', tags:['Fashion','Partner','Friend','Birthday'], minPrice:800, maxPrice:9000, short:'Trending sunglasses with UV protection.'},
+      {id:'g033', title:'Portable Espresso Maker', img:'https://images.unsplash.com/photo-1509042239860-f550ce710b93', tags:['Coffee','Food & Drink','Partner','Travel'], minPrice:2500, maxPrice:12000, short:'Make espresso on the go.'},
+      {id:'g034', title:'Thermal Insulated Bottle (Premium)', img:'https://images.unsplash.com/photo-1542446659-1b7e3b5f7c7b', tags:['Fitness','Travel','Eco','Son','Daughter'], minPrice:600, maxPrice:3000, short:'Keeps drinks hot/cold for hours.'},
+      {id:'g035', title:'Handcrafted Journal', img:'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2', tags:['Writer','Stationery','Teacher','Student','Anniversary'], minPrice:300, maxPrice:2000, short:'Beautiful leather-bound journal.'},
+      {id:'g036', title:'Designer Phone Case', img:'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9', tags:['Gadgets','Fashion','Teen','Friend'], minPrice:300, maxPrice:2500, short:'Stylish protective phone case.'},
+      {id:'g037', title:'Mini Indoor Grill', img:'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38', tags:['Home & Kitchen','Food & Drink','Parent','Gift'], minPrice:2000, maxPrice:12000, short:'Compact grill for balcony cooking.'},
+      {id:'g038', title:'DIY Craft Kit', img:'https://images.unsplash.com/photo-1526312426976-3d497f4c9e8d', tags:['Hobby','Child','Creative','Just Because'], minPrice:300, maxPrice:2500, short:'Fun DIY kit for creative time.'},
+      {id:'g039', title:'Wireless Charging Pad', img:'https://images.unsplash.com/photo-1510557880182-3b2e0b9f8d9b', tags:['Gadgets','Office','Colleague','Tech'], minPrice:700, maxPrice:4000, short:'Convenient wireless charger.'},
+      {id:'g040', title:'Luxury Watch (affordable)', img:'https://images.unsplash.com/photo-1519741491554-94d6b8a8b7f5', tags:['Anniversary','Partner','Luxury','Fashion'], minPrice:8000, maxPrice:50000, short:'Classic wristwatch.'},
+      {id:'g041', title:'Personalized Recipe Book', img:'https://images.unsplash.com/photo-1504674900247-0877df9cc836', tags:['Food & Drink','Parent','Friend','Home & Kitchen'], minPrice:500, maxPrice:3000, short:'Custom recipe book with family recipes.'},
+      {id:'g042', title:'Portable Karaoke Mic', img:'https://images.unsplash.com/photo-1511376777868-611b54f68947', tags:['Entertainment','Friend','Party','Music'], minPrice:900, maxPrice:3500, short:'Wireless karaoke mic for parties.'},
+      {id:'g043', title:'Kids Educational Tablet (kid mode)', img:'https://images.unsplash.com/photo-1518779578993-ec3579fee39f', tags:['Child','Education','Toys & Games'], minPrice:3500, maxPrice:12000, short:'Kid-safe tablet with learning apps.'},
+      {id:'g044', title:'Scratch-off Travel Map', img:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e', tags:['Travel','Friend','Partner','Adventure'], minPrice:400, maxPrice:1800, short:'Map to track places visited.'},
+      {id:'g045', title:'Customized Pet Portrait', img:'https://images.unsplash.com/photo-1517841905240-472988babdf9', tags:['Pet Owner','Friend','Anniversary','Art'], minPrice:700, maxPrice:5000, short:'Illustration of their pet.'},
+      {id:'g046', title:'Premium Cheese Board', img:'https://images.unsplash.com/photo-1516685018646-5495c2b3b3b6', tags:['Hosting','Home & Kitchen','Gift','Friend'], minPrice:800, maxPrice:6000, short:'Elegant cheese & charcuterie board set.'},
+      {id:'g047', title:'Compact Multi-tool', img:'https://images.unsplash.com/photo-1494891848038-6b6a48b3f1b2', tags:['Travel','Adventure','Son','Dad','Gadget'], minPrice:500, maxPrice:3000, short:'Useful multi-tool for outdoors.'},
+      {id:'g048', title:'Online Course Gift Card', img:'https://images.unsplash.com/photo-1519389950473-47ba0277781c', tags:['Education','Graduation','Career','Selfcare'], minPrice:500, maxPrice:20000, short:'Gift a course subscription.'},
+      {id:'g049', title:'Hand-stitched Quilt / Throw', img:'https://images.unsplash.com/photo-1540574163026-643ea20ade25', tags:['Home & Kitchen','Mother','Anniversary','Cozy'], minPrice:2000, maxPrice:15000, short:'Warm, handmade throw.'},
+      {id:'g050', title:'Custom Engraved Pen', img:'https://images.unsplash.com/photo-1515879218367-8466d910aaa4', tags:['Graduation','Colleague','Teacher','Stationery'], minPrice:400, maxPrice:3500, short:'Engraved metal pen — keepsake.'},
+      {id:'g051', title:'Compact Air Fryer', img:'https://images.unsplash.com/photo-1586201375761-83865001e1f3', tags:['Home & Kitchen','Parent','Food & Drink','Gadget'], minPrice:3000, maxPrice:12000, short:'Easy, healthy cooking.'},
+      {id:'g052', title:'Smart Garden (Indoor)', img:'https://images.unsplash.com/photo-1501004318641-b39e6451bec6', tags:['Gardening','Home & Kitchen','Aesthetic','Eco'], minPrice:2500, maxPrice:15000, short:'Self-watering indoor herb garden.'},
+      {id:'g053', title:'Scented Bath Bomb Set', img:'https://images.unsplash.com/photo-1509395176047-4a66953fd231', tags:['Selfcare','Relaxation','Mother','Partner','Beauty'], minPrice:300, maxPrice:1500, short:'Relaxing spa bath set.'},
+      {id:'g054', title:'Portable Photo Printer', img:'https://images.unsplash.com/photo-1526178611212-86f5d6d0d0ad', tags:['Photography','Travel','Memories','Friend'], minPrice:3500, maxPrice:10000, short:'Print phone photos instantly.'},
+      {id:'g055', title:'Vinyl Record Starter Kit', img:'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4', tags:['Music','Hobby','Retro','Friend'], minPrice:3000, maxPrice:15000, short:'Turntable + a few records.'},
+      {id:'g056', title:'Travel Packing Cubes Set', img:'https://images.unsplash.com/photo-1503602642458-232111445657', tags:['Travel','Organizing','Partner','Friend'], minPrice:700, maxPrice:3000, short:'Keep luggage tidy and compact.'},
+      {id:'g057', title:'Luxury Bedding Set (Queen)', img:'https://images.unsplash.com/photo-1524758631624-e2822e304c36', tags:['Home & Kitchen','Wedding','Anniversary','Cozy'], minPrice:5000, maxPrice:35000, short:'Soft, premium sheets and duvet.'},
+      {id:'g058', title:'Portable Bluetooth Speaker', img:'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f', tags:['Music','Travel','Party','Friend'], minPrice:900, maxPrice:8000, short:'Small speaker with punchy audio.'},
+      {id:'g059', title:'Language Learning Subscription', img:'https://images.unsplash.com/photo-1516251193007-45ef944ab0c6', tags:['Education','Career','Gift','Graduation'], minPrice:600, maxPrice:12000, short:'Months of language lessons.'},
+      {id:'g060', title:'Eco Starter Kit', img:'https://images.unsplash.com/photo-1501004318641-b39e6451bec6', tags:['Eco','Home & Kitchen','Sustainable','Friend'], minPrice:500, maxPrice:4000, short:'Reusable products + starter guide.'}
     ];
 
     // --------------------
@@ -435,7 +440,7 @@
     }
 
     // --------------------
-    // Render results (card format)
+    // Render results (card format) WITH IMAGES + GOOGLE SEARCH
     // --------------------
     function renderResults(list, selections){
       resultGrid.innerHTML = '';
@@ -454,7 +459,7 @@
 
         div.innerHTML = `
           <div class="giftTop">
-            <div class="giftThumb">${(g.title.split(' ').slice(0,2).map(w=>w[0]||'').join('')).toUpperCase()}</div>
+            <div class="giftThumb"><img src="${g.img}" alt="${g.title}"></div>
             <div style="flex:1">
               <div style="display:flex;justify-content:space-between;align-items:flex-start">
                 <div>
@@ -467,12 +472,20 @@
                 </div>
               </div>
               <div class="hint" style="margin-top:10px;font-size:13px;color:var(--muted)">Tags: ${tags}</div>
+              <div style="margin-top:8px">
+                <a href="https://www.google.com/search?q=${encodeURIComponent(g.title)}" target="_blank" class="viewBtn">Search on Google</a>
+              </div>
             </div>
           </div>
         `;
 
-        // click to favourite
-        div.addEventListener('click', ()=>{ toggleFavourite(g.id); div.style.outline = '3px solid rgba(139,92,246,0.12)'; });
+        // click to favourite (keeps behavior)
+        div.addEventListener('click', (e)=>{ 
+          // if user clicked the Search link, don't toggle favourite
+          if(e.target.closest('a')) return;
+          toggleFavourite(g.id); 
+          div.style.outline = '3px solid rgba(139,92,246,0.12)';
+        });
 
         resultGrid.appendChild(div);
       });

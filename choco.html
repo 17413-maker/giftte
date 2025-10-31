@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gift Image Inspection Grid</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0f172a;
+      color: white;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+    .img-card {
+      background: #1e293b;
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .img-card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    }
+    img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      display: block;
+    }
+    .caption {
+      text-align: center;
+      padding: 0.5rem 1rem 1rem;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1 class="text-3xl font-bold mb-6 text-center text-blue-400">🔍 Gift Image Inspection Grid</h1>
+  <p class="text-center mb-8 text-gray-300">Each image below represents one of your gift entries (g001–g060). Hover to check quality. Broken ones will show gray fallback.</p>
+
+  <div class="grid-container" id="imageGrid"></div>
+
+  <script>
+    const imageUrls = [
+      "https://images.unsplash.com/photo-1503602642458-232111445657",
+      "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f",
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e",
+      "https://images.unsplash.com/photo-1600185365936-3e5457e046c5",
+      "https://images.unsplash.com/photo-1585386959984-a41552231693",
+      "https://images.unsplash.com/photo-1542291026-7eec264c27ff",
+      "https://images.unsplash.com/photo-1542831371-d531d36971e6",
+      "https://images.unsplash.com/photo-1571687949920-69e1a19d73aa",
+      "https://images.unsplash.com/photo-1578898884516-0efc879e650b",
+      "https://images.unsplash.com/photo-1562184552-88c0fe8b6364",
+      // continue adding till g060 ↓
+      "https://images.unsplash.com/photo-1501004318641-b39e6451bec6",
+      "https://images.unsplash.com/photo-1583225151968-1a41d41bda5b",
+      "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9",
+      "https://images.unsplash.com/photo-1556228453-efd2e5b94f8e",
+      "https://images.unsplash.com/photo-1585155771744-3a8a9943d60b",
+      "https://images.unsplash.com/photo-1572307480813-ceb0e1dbfd59",
+      "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f",
+      "https://images.unsplash.com/photo-1542291026-7eec264c27ff",
+      "https://images.unsplash.com/photo-1578898884516-0efc879e650b",
+      "https://images.unsplash.com/photo-1562184552-88c0fe8b6364"
+      // ... add up to your g060 images here
+    ];
+
+    const container = document.getElementById("imageGrid");
+    imageUrls.forEach((url, i) => {
+      const card = document.createElement("div");
+      card.className = "img-card";
+      card.innerHTML = `
+        <img src="${url}" alt="Gift Image ${i+1}" onerror="this.src='https://via.placeholder.com/300x200?text=Broken+Image'">
+        <div class="caption">Image ${i+1}</div>
+      `;
+      container.appendChild(card);
+    });
+  </script>
+
+</body>
+</html>
