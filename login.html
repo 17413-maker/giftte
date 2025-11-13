@@ -1,0 +1,162 @@
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+  import {
+    getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup,
+    sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink, onAuthStateChanged,
+    sendPasswordResetEmail
+  } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyD95fHNBVSCl4DPjpfSOrVRYI60pH5_2hE",
+    authDomain: "giftte007.firebaseapp.com",
+    projectId: "giftte007",
+    storageBucket: "giftte007.firebasestorage.app",
+    messagingSenderId: "168284349265",
+    appId: "1:168284349265:web:d4b30126efc7f52450a970"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  const debugLog = (...args) => {
+    const log = document.getElementById('debugLog');
+    if (log) {
+      log.textContent += `[${new Date().toTimeString().split(' ')[0]}] ${args.join(' ')}\n`;
+      log.scrollTop = log.scrollHeight;
+    }
+  };
+
+  // Toggle debug panel with Ctrl+D
+  document.addEventListener('keydown', e => {
+    if (e.ctrlKey && e.key === 'd') {
+      const panel = document.getElementById('debugPanel');
+      if (panel) {
+        panel.classList.toggle('visible');
+        debugLog('Debug panel toggled');
+      }
+    }
+  });
+
+  // Close debug panel
+  const closeBtn = document.getElementById('closeDebug');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      document.getElementById('debugPanel').classList.remove('visible');
+    });
+  }
+
+  // AUTO REDIRECT IF USER IS ALREADY LOGGED IN
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      debugLog('User already logged in:', user.email);
+      setTimeout(() => {
+        window.location.href = "info.html";  // REDIRECT TO info.html
+      }, 500);
+    }
+  });
+
+  // EMAIL + PASSWORD LOGIN
+  const loginForm = document.getElementById('loginForm');
+  if (loginForm) {
+    loginForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const email = document.getElementById('email')?.value.trim();
+      const password = document.getElementById('password')?.value;
+      const btn = e.target.querySelector('button');
+
+      if (!email || !password) return alert('Please enter email and password');
+
+      btn.disabled = true;
+      btn.textContent = 'Signing in...';
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        debugLog('Login success:', email);
+        window.location.href = "info.html";  // REDIRECT TO info.html
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
+        alert('Login failed: ' + err.message);
+        debugLog('Login error:', err.code, err.message);
+      }
+    });
+  }
+
+  // GOOGLE SIGN-IN
+  const googleBtn = document.getElementById('googleBtn');
+  if (googleBtn) {
+    googleBtn.addEventListener('click', async () => {
+      try {
+        await signInWithPopup(auth, provider);
+        debugLog('Google login success');
+        window.location.href = "info.html";  // REDIRECT TO info.html
+      } catch (err) {
+        if (err.code !== 'auth/popup-closed-by-user') {
+          alert('Google login failed: ' + err.message);
+        }
+      }
+    });
+  }
+
+  // MAGIC LINK SEND
+  const magicBtn = document.getElementById('magicBtn');
+  if (magicBtn) {
+    magicBtn.addEventListener('click', async () => {
+      const email = document.getElementById('magicEmail')?.value.trim();
+      if (!email) return alert('Enter your email first');
+
+      magicBtn.disabled = true;
+      magicBtn.textContent = 'Sending...';
+
+      try {
+        await sendSignInLinkToEmail(auth, email, {
+          url: window.location.href.split('?')[0] + '?magic=1', // Clean URL
+          handleCodeInApp: true
+        });
+        localStorage.setItem('emailForSignIn', email);
+        debugLog('Magic link sent to:', email);
+        magicBtn.textContent = 'Check your email!';
+        alert('Magic link sent! Check your inbox.');
+      } catch (err) {
+        magicBtn.disabled = false;
+        magicBtn.textContent = 'Send Magic Link';
+        alert('Failed: ' + err.message);
+      }
+    });
+  }
+
+  // HANDLE MAGIC LINK RETURN
+  if (isSignInWithEmailLink(auth, window.location.href)) {
+    let email = localStorage.getItem('emailForSignIn');
+    if (!email) {
+      email = prompt('Please confirm your email address:');
+    }
+    if (email) {
+      try {
+        await signInWithEmailLink(auth, email, window.location.href);
+        localStorage.removeItem('emailForSignIn');
+        debugLog('Magic link login success');
+        window.location.href = "info.html";  // REDIRECT TO info.html
+      } catch (err) {
+        alert('Invalid or expired link. Please try again.');
+        debugLog('Magic link error:', err.message);
+      }
+    }
+  }
+
+  // FORGOT PASSWORD
+  const forgotBtn = document.getElementById('forgotBtn');
+  if (forgotBtn) {
+    forgotBtn.addEventListener('click', async () => {
+      const email = document.getElementById('email')?.value.trim();
+      if (!email) return alert('Enter your email first');
+      try {
+        await sendPasswordResetEmail(auth, email);
+        alert('Password reset link sent to ' + email);
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    });
+  }
+</script>

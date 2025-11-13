@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gifté+ | Sign Up</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD95fHNBVSCl4DPjpfSOrVRYI60pH5_2hE",
+      authDomain: "giftte007.firebaseapp.com",
+      projectId: "giftte007",
+      storageBucket: "giftte007.firebasestorage.app",
+      messagingSenderId: "168284349265",
+      appId: "1:168284349265:web:d4b30126efc7f52450a970"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    // === DEBUG LOG ===
+    const debugLog = (...args) => {
+      const log = document.getElementById('debugLog');
+      const line = args.join(' ');
+      log.textContent += `[${new Date().toTimeString().split(' ')[0]}] ${line}\n`;
+      log.scrollTop = log.scrollHeight;
+    };
+
+    // === TOGGLE DEBUG PANEL (Ctrl+D) ===
+    document.addEventListener('keydown', e => {
+      if (e.ctrlKey && e.key === 'd') {
+        document.getElementById('debugPanel').classList.toggle('visible');
+        debugLog('Debug panel toggled');
+      }
+    });
+    document.getElementById('closeDebug')?.addEventListener('click', () => {
+      document.getElementById('debugPanel').classList.remove('visible');
+    });
+
+    // === AUTO REDIRECT IF LOGGED IN ===
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        debugLog('User already signed in:', user.email);
+        setTimeout(() => window.location.href = "index.html", 800);
+      }
+    });
+
+    // === STRONG PASSWORD CHECK ===
+    function isStrongPassword(pw) {
+      return pw.length >= 8 && /[a-zA-Z]/.test(pw) && /[0-9]/.test(pw);
+    }
+
+    // === EMAIL + PASSWORD SIGNUP ===
+    document.getElementById('signupForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirm = document.getElementById('confirm').value;
+      const terms = document.getElementById('terms').checked;
+
+      if (!name || !email || !password || !confirm) {
+        alert('All fields are required!');
+        return;
+      }
+      if (!terms) {
+        alert('You must agree to Terms & Conditions');
+        return;
+      }
+      if (password !== confirm) {
+        alert('Passwords do not match!');
+        return;
+      }
+      if (!isStrongPassword(password)) {
+        alert('Password must be 8+ characters with letters and numbers!');
+        return;
+      }
+
+      const btn = e.target.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.textContent = 'Creating Account...';
+
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        debugLog('Signup success:', email);
+        // Redirect handled by onAuthStateChanged
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Sign Up';
+
+        if (err.code === 'auth/email-already-in-use') {
+          alert('Account already exists! Redirecting to login...');
+          setTimeout(() => window.location.href = 'login.html', 1500);
+        } else if (err.code === 'auth/weak-password') {
+          alert('Password is too weak!');
+        } else {
+          alert('Signup failed: ' + err.message);
+          debugLog('Signup error:', err.code, err.message);
+        }
+      }
+    });
+
+    // === GOOGLE SIGNUP ===
+    document.getElementById('googleBtn').addEventListener('click', async () => {
+      try {
+        await signInWithPopup(auth, provider);
+        debugLog('Google signup success');
+      } catch (err) {
+        if (err.code === 'auth/popup-closed-by-user') return;
+        alert('Google signup failed: ' + err.message);
+      }
+    });
+
+    // === MAGIC LINK ===
+    document.getElementById('magicBtn').addEventListener('click', async () => {
+      const email = document.getElementById('magicEmail').value.trim();
+      if (!email) return alert('Enter your email!');
+
+      const btn = document.getElementById('magicBtn');
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+
+      try {
+        await sendSignInLinkToEmail(auth, email, {
+          url: window.location.href,
+          handleCodeInApp: true
+        });
+        localStorage.setItem('emailForSignIn', email);
+        debugLog('Magic link sent to:', email);
+        btn.textContent = 'Check your email!';
+        setTimeout(() => {
+          btn.textContent = 'Send Magic Link';
+          btn.disabled = false;
+        }, 3000);
+      } catch (err) {
+        btn.textContent = 'Send Magic Link';
+        btn.disabled = false;
+        alert('Failed: ' + err.message);
+      }
+    });
+
+    // === HANDLE MAGIC LINK RETURN ===
+    if (isSignInWithEmailLink(auth, window.location.href)) {
+      let email = localStorage.getItem('emailForSignIn');
+      if (!email) email = prompt('Enter your email to confirm:');
+      if (email) {
+        try {
+          await signInWithEmailLink(auth, email, window.location.href);
+          localStorage.removeItem('emailForSignIn');
+          debugLog('Magic link verified');
+        } catch (err) {
+          alert('Invalid or expired link');
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { font-family: 'Poppins', sans-serif; background: linear-gradient(to bottom right, #dbeafe, #fce7f3, #ffe4e6); }
+    .animate-fade-in { animation: fade-in 0.7s ease-out forwards; }
+    @keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .link-anim { position: relative; color: #f43f5e; font-weight: 500; }
+    .link-anim::after { content: ""; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #f43f5e; transition: width 0.3s; }
+    .link-anim:hover { color: #e11d48; }
+    .link-anim:hover::after { width: 100%; }
+    #debugPanel { position: fixed; bottom: 1rem; right: 1rem; width: 380px; max-height: 80vh; background: #0c0c0c; color: #0f0; border-radius: 12px; font-family: 'Courier New'; font-size: .82rem; box-shadow: 0 10px 30px rgba(0,0,0,.5); transform: translateY(120%); transition: transform .4s; z-index: 9999; border: 1px solid #0f0; }
+    #debugPanel.visible { transform: translateY(0); }
+    .debug-header { background: #1a1a1a; padding: .7rem 1rem; display: flex; justify-content: space-between; border-bottom: 1px solid #0f0; }
+    #closeDebug { background: none; border: none; color: #0f0; font-size: 1.3rem; cursor: pointer; }
+    #debugLog { padding: 1rem; max-height: calc(80vh - 50px); overflow-y: auto; line-height: 1.5; white-space: pre-wrap; }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+  <div class="w-full max-w-md bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl p-8 animate-fade-in">
+    <div class="text-center mb-7">
+      <h1 class="text-4xl font-extrabold text-rose-600 tracking-wide drop-shadow-sm">Gifté+</h1>
+      <p class="text-gray-600 text-sm mt-1">Create your account and join the joy!</p>
+    </div>
+
+    <form id="signupForm" class="space-y-5">
+      <input id="name" type="text" placeholder="Full Name" required class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-rose-400 transition">
+      
+      <input id="email" type="email" placeholder="Email" required class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-rose-400 transition">
+      
+      <input id="password" type="password" placeholder="Password (8+ chars, letters + numbers)" required minlength="8" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-rose-400 transition">
+      
+      <input id="confirm" type="password" placeholder="Confirm Password" required class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-rose-400 transition">
+
+      <div class="flex items-center text-sm">
+        <input type="checkbox" id="terms" required class="accent-rose-500 mr-2 h-4 w-4">
+        <label for="terms" class="text-gray-600">
+          I agree to the <a href="terms.html" target="_blank" class="link-anim">Terms & Conditions</a>
+        </label>
+      </div>
+
+      <button type="submit" class="w-full py-3 bg-rose-500 text-white font-bold rounded-xl shadow-md hover:bg-rose-600 hover:shadow-lg transition text-lg">
+        Sign Up
+      </button>
+    </form>
+
+    <div class="my-6 flex items-center justify-center">
+      <div class="border-t border-gray-300 flex-grow"></div>
+      <span class="px-3 text-gray-500 text-sm font-medium">or</span>
+      <div class="border-t border-gray-300 flex-grow"></div>
+    </div>
+
+    <button id="googleBtn" class="w-full py-2.5 bg-white text-gray-700 font-medium rounded-xl border border-gray-300 shadow-sm hover:shadow-md transition flex items-center justify-center gap-3">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5">
+      Continue with Google
+    </button>
+
+    <div class="mt-5">
+      <input id="magicEmail" type="email" placeholder="Enter email for magic link" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-rose-400 transition text-sm">
+      <button id="magicBtn" class="mt-2 w-full py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium rounded-xl shadow-md hover:shadow-lg transition">
+        Send Magic Link
+      </button>
+    </div>
+
+    <div class="text-center mt-7">
+      <p class="text-sm text-gray-600">
+        Already have an account?
+        <a href="login.html" class="link-anim font-medium">Sign in</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- DEBUG PANEL -->
+  <div id="debugPanel">
+    <div class="debug-header">
+      <strong>Gifté+ SIGNUP DEBUG</strong>
+      <button id="closeDebug">×</button>
+    </div>
+    <pre id="debugLog">Ready. Press Ctrl+D to toggle.\n</pre>
+  </div>
+
+</body>
+</html>

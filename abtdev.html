@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>About Developer — Aditya Tomar | Gifté+</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Base */
+    :root{
+      --pink-1:#ffe4ec;
+      --pink-2:#ffd1e6;
+      --accent:#ff6fa3;
+      --muted:#6b7280;
+      --glass: rgba(255,255,255,0.6);
+    }
+    body{
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(180deg,var(--pink-1),#ffffff 30%);
+      color:#111827;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* Floating / gentle bob */
+    @keyframes floatSlow {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+
+    /* Typing effect */
+    .typewriter {
+      overflow: hidden;
+      white-space: nowrap;
+      border-right: .15em solid rgba(0,0,0,0.12);
+      animation: typing 4s steps(60,end), blink .8s step-end infinite;
+      font-weight:600;
+    }
+    @keyframes typing {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+    @keyframes blink {
+      from, to { border-color: transparent; }
+      50% { border-color: rgba(0,0,0,0.12); }
+    }
+
+    /* Reveal on scroll */
+    .reveal {
+      opacity: 0;
+      transform: translateY(12px) scale(.995);
+      transition: all 700ms cubic-bezier(.2,.9,.3,1);
+    }
+    .reveal.show {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* Gradient heading */
+    .grad-text {
+      background: linear-gradient(90deg,#ff8ab4,#6aa8ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Card */
+    .glass-card {
+      background: rgba(255,255,255,0.8);
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(2,6,23,0.08);
+      border: 1px solid rgba(0,0,0,0.04);
+    }
+
+    /* small animated underline */
+    .underline-anim {
+      position: relative;
+      padding-bottom: 6px;
+    }
+    .underline-anim::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%) scaleX(0);
+      bottom: 0;
+      width: 60%;
+      height: 4px;
+      background: linear-gradient(90deg,#ff8ab4,#6aa8ff);
+      transform-origin: center left;
+      transition: transform 350ms cubic-bezier(.2,.9,.3,1);
+      border-radius: 6px;
+      opacity: .95;
+    }
+    .underline-anim:hover::after{ transform: translateX(-50%) scaleX(1); }
+
+    /* timeline */
+    .timeline {
+      position: relative;
+      padding-left: 28px;
+    }
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 9px;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg,#ffd1e6,#ffe4ec);
+      border-radius: 6px;
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 28px;
+      padding-left: 18px;
+    }
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      left: -3px;
+      top: 6px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      border: 4px solid var(--accent);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    /* responsive image round */
+    .dev-img {
+      width: 320px;
+      height: 320px;
+      object-fit: cover;
+      border-radius: 20px;
+      border: 6px solid rgba(255,255,255,0.9);
+      box-shadow: 0 18px 40px rgba(2,6,23,0.12);
+      animation: floatSlow 6s ease-in-out infinite;
+    }
+
+    /* little shimmer CTA */
+    .cta-shimmer {
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-shimmer::after {
+      content: "";
+      position: absolute;
+      left: -80%;
+      top: 0;
+      bottom: 0;
+      width: 60%;
+      background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.5), rgba(255,255,255,0));
+      transform: skewX(-18deg);
+      transition: all 900ms ease;
+    }
+    .cta-shimmer:hover::after { left: 120%; }
+
+    /* small helpers */
+    .muted { color: var(--muted); }
+    .lead { font-size: 1.05rem; line-height: 1.6; }
+  </style>
+</head>
+<body class="antialiased">
+
+  <!-- NAV -->
+  <header class="sticky top-0 bg-white/80 backdrop-blur z-50">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <div class="text-2xl font-extrabold text-pink-600">Gifté+</div>
+        <div class="text-sm text-muted">— by Aditya Tomar (Class 9G)</div>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="home.html" class="px-4 py-2 rounded-full bg-gradient-to-r from-pink-100 to-pink-200 hover:from-pink-300 hover:to-pink-500 transition transform hover:scale-105">Home</a>
+        <a href="usage.html" class="px-4 py-2 rounded-full bg-gradient-to-r from-pink-100 to-pink-200 hover:from-pink-300 hover:to-pink-500 transition transform hover:scale-105">Usage</a>
+        <a href="contact.html" class="px-4 py-2 rounded-full bg-gradient-to-r from-pink-100 to-pink-200 hover:from-pink-300 hover:to-pink-500 transition transform hover:scale-105">Contact</a>
+        <a href="home.html" class="px-5 py-2 rounded-full bg-pink-500 text-white hover:bg-pink-600 transition">Back</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO / INTRO -->
+  <main class="max-w-6xl mx-auto px-6 pt-10 pb-24">
+    <section class="grid md:grid-cols-2 gap-10 items-center">
+      <!-- Left: text -->
+      <div>
+        <div class="text-sm text-muted mb-2">DEVELOPER JOURNEY</div>
+        <h1 class="text-4xl md:text-5xl font-extrabold leading-tight grad-text">
+          I built Gifté+ because I wanted gifting to be simple, personal, and honest.
+        </h1>
+
+        <p class="mt-6 lead text-gray-700">
+          Hi — I’m <strong>Aditya Tomar</strong>, a student from <strong>Class 9G</strong> with an obsession for making tools that help people. I love code, I love the internet, and I love solving everyday problems with clever, ethical technology.
+        </p>
+
+        <div class="mt-6 space-y-4">
+          <p class="muted">This page is my story — the messy, exciting, stubborn journey from a wild idea to a working website that actually helps people pick meaningful gifts.</p>
+
+          <div class="glass-card p-5">
+            <div class="flex items-start gap-4">
+              <div>
+                <div class="text-sm text-muted">Role</div>
+                <div class="font-semibold">Developer, Designer, Product Thinker</div>
+              </div>
+              <div class="ml-auto text-right">
+                <div class="text-sm text-muted">Location</div>
+                <div class="font-semibold">My school, my room — and the internet</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- typing intro -->
+        <div class="mt-8">
+          <div class="typewriter text-lg">
+            I code because curiosity won’t let me stop — I tinker, break things, learn, and then build something better.
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: image -->
+      <div class="flex justify-center md:justify-end">
+        <div class="relative">
+          <!-- placeholder image; replace with your photo at images/dev-placeholder.png -->
+<img 
+  src="images/dev-placeholder.png" 
+  alt="Aditya Tomar" 
+  class="dev-img" 
+  onerror="this.src='https://cdn-icons-png.flaticon.com/512/4140/4140048.png'"
+>
+
+          <div class="absolute -bottom-4 left-6 glass-card p-3 rounded-lg">
+            <div class="text-sm muted">Aditya Tomar</div>
+            <div class="font-semibold">Class 9G — Creator of Gifté+</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LONG STORY: chunks and paragraphs to fill the page -->
+    <section class="mt-16 space-y-10">
+
+      <!-- WHY I STARTED -->
+      <article class="reveal p-6 glass-card">
+        <h2 class="text-2xl font-bold underline-anim">Why I started Gifté+</h2>
+        <p class="mt-4 lead text-gray-700">
+          The idea started from watching family and friends struggle to pick gifts. I would see messages like "What should I get for Ma's birthday?" or "He already has everything, what now?" That stuck with me. I wanted a tool that didn't feel like a robot and didn't rely on random ads — something that actually understood people.
+        </p>
+
+        <p class="mt-4 text-gray-700">
+          I sketched a simple flow on paper: ask a few smart questions, or — if the user prefers — analyze public patterns ethically to suggest gifts. The name “Gifté+” came because I wanted the product to feel friendly and a little fancy.
+        </p>
+
+        <p class="mt-4 muted">
+          The early prototype was embarrassing — very basic HTML and broken CSS — but it taught me that building something is the only way to learn how to make it better.
+        </p>
+      </article>
+
+      <!-- HOW I LEARNED -->
+      <article class="reveal p-6 glass-card">
+        <h2 class="text-2xl font-bold underline-anim">How I learned to build it</h2>
+
+        <p class="mt-4 text-gray-700 lead">
+          Between school, homework, and late-night coding sessions, I learned:
+        </p>
+
+        <ul class="mt-4 list-disc list-inside text-gray-700 space-y-2">
+          <li><strong>HTML & CSS:</strong> The foundation. Layouts, responsive design, making things look good on phones and desktops.</li>
+          <li><strong>Javascript & UI:</strong> For interactive elements, button states, and small animations that make the app feel alive.</li>
+          <li><strong>Python & FastAPI:</strong> For backend logic, APIs, and connecting AI-powered features.</li>
+          <li><strong>OSINT tools:</strong> To ethically fetch public signals (only where allowed and with consent), then safely use those signals to personalize suggestions.</li>
+        </ul>
+
+        <p class="mt-4 muted">I read docs, watched tutorials, and broke things many times. Every bug was a lesson — and occasionally, a victory dance.</p>
+      </article>
+
+      <!-- A TIMELINE (detailed) -->
+      <article class="reveal p-6 glass-card">
+        <h2 class="text-2xl font-bold underline-anim">Timeline — the journey in steps</h2>
+
+        <div class="timeline mt-6">
+          <div class="timeline-item">
+            <h4 class="font-semibold">Idea (Jan)</h4>
+            <div class="text-sm muted">A sketch on a notepad — simple landing page idea.</div>
+            <p class="mt-2 text-gray-700">I wrote down pain points: "people don't know recipients well," "too many options," "gifts often feel generic." The idea: a small, friendly assistant for gifts.</p>
+          </div>
+
+          <div class="timeline-item">
+            <h4 class="font-semibold">Prototype (Feb)</h4>
+            <div class="text-sm muted">First HTML/CSS prototype.</div>
+            <p class="mt-2 text-gray-700">A one-page form that took inputs and returned a hard-coded list. It worked enough to test the concept with friends.</p>
+          </div>
+
+          <div class="timeline-item">
+            <h4 class="font-semibold">Learn & Build (Mar - Apr)</h4>
+            <div class="text-sm muted">Learning backend and smarter logic.</div>
+            <p class="mt-2 text-gray-700">I learned FastAPI and built a simple backend to serve recommendations. I integrated Sherlock and Holehe tools to test safe OSINT pipelines (ethical rules applied).</p>
+          </div>
+
+          <div class="timeline-item">
+            <h4 class="font-semibold">Design & Polish (May)</h4>
+            <div class="text-sm muted">Made the UI nicer, added Tailwind.</div>
+            <p class="mt-2 text-gray-700">I improved the UI, added animations, and created the dual-mode (Manual vs Automatic) experience so users can choose their comfort level.</p>
+          </div>
+
+          <div class="timeline-item">
+            <h4 class="font-semibold">Testing & Feedback (Jun)</h4>
+            <div class="text-sm muted">Shared with classmates and family.</div>
+            <p class="mt-2 text-gray-700">They gave ideas — add consent flows, show sources, and make suggestions friendly. I iterated and improved the UX.</p>
+          </div>
+
+          <div class="timeline-item">
+            <h4 class="font-semibold">Current (Now)</h4>
+            <div class="text-sm muted">Gifté+ on GitHub pages.</div>
+            <p class="mt-2 text-gray-700">A working site that helps people pick gifts and gives me a platform to keep learning.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- DEEP DIVE: TECHNICAL STUFF -->
+      <article class="reveal p-6 glass-card">
+        <h2 class="text-2xl font-bold underline-anim">Technical deep dive (for curious humans)</h2>
+        <p class="mt-4 text-gray-700 lead">
+          If you like how things work — here’s a friendly explanation of the stack and my approach:
+        </p>
+
+        <div class="mt-4 grid md:grid-cols-2 gap-4">
+          <div class="p-4 rounded-lg border">
+            <h4 class="font-semibold">Frontend</h4>
+            <p class="mt-2 text-gray-700">Built with simple, semantic HTML and styled with Tailwind for fast iteration. Animations are CSS-first — subtle transitions, hover states, and micro-interactions to make the app pleasant to use.</p>
+          </div>
+
+          <div class="p-4 rounded-lg border">
+            <h4 class="font-semibold">Backend</h4>
+            <p class="mt-2 text-gray-700">FastAPI serves endpoints for recommendations and stores minimal session data (only when users opt in). Logic is modular so that I can plug in new recommendation modules later.</p>
+          </div>
+
+          <div class="p-4 rounded-lg border">
+            <h4 class="font-semibold">Ethical OSINT</h4>
+            <p class="mt-2 text-gray-700">Only public, consented, and non-sensitive sources are considered. The pipeline follows strict rules: transparency, minimal retention, no scraping behind auth walls, and user consent before any analysis.</p>
+          </div>
+
+          <div class="p-4 rounded-lg border">
+            <h4 class="font-semibold">AI & Recommendation Logic</h4>
+            <p class="mt-2 text-gray-700">A combination of rules and AI prompts. For manual mode, the rules give shortlists and filters. For automatic mode, small models analyze signals and produce human-readable suggestions.</p>
+          </div>
+        </div>
+
+        <p class="mt-4 muted">(If you’re technical and want to collaborate — ping me by email on the Contact page.)</p>
+      </article>
+
+      <!-- A TON OF PERSONAL TEXT — long-form, reflective -->
+      <article class="reveal p-6 glass-card">
+        <h2 class="text-2xl font-bold underline-anim">Personal notes — the messy part of building</h2>
+
+        <p class="mt-4 text-gray-700 leading-relaxed">
+          Building something you care about is equal parts joyful and frustrating. There were nights writing a small function and wondering if it even mattered. There were days when the layout broke on mobile, and I panicked. There were also small victories — when an animation felt right or a friend said "I actually liked that suggestion" — those victories kept me going.
+        </p>
+
+        <p class="mt-4 text-gray-700">
+          I always remind myself: the goal isn't perfect code or shiny animations — it's making something that helps someone pick a gift that makes another person smile. If one tiny connection happens because of Gifté+, that means the whole thing was worth it.
+        </p>
+
+        <p class="mt-4 text-gray-700">
+          My school projects, my notes in margins, the late-night tutorials — it's all a part of this. I'm learning, iterating, and trying to be better every day.
+        </p>
+
+        <p class="mt-4 muted">I often keep a small notebook beside my bed for ideas — the best ones always come when I'm not trying too hard.</p>
+      </article>
+
+      <!-- FEATURES & FUTURE PLANS -->
+      <article class="reveal p-6 glass-card">
+        <h2 class="text-2xl font-bold underline-anim">What Gifté+ can do today — and what I want next</h2>
+
+        <ul class="mt-4 list-disc list-inside text-gray-700 space-y-2">
+          <li><strong>Manual Mode:</strong> Precise, step-by-step inputs that produce curated recommendations.</li>
+          <li><strong>Automatic Mode:</strong> Ethical OSINT-assisted suggestions (with user consent) for faster ideas.</li>
+          <li><strong>Profiles & Save:</strong> Save preferences and past gifts to learn over time.</li>
+        </ul>
+
+        <p class="mt-4 text-gray-700">Future plans (wishlist):</p>
+        <ol class="list-decimal list-inside mt-2 text-gray-700 space-y-2">
+          <li>Stronger personalization with short surveys and empathy prompts.</li>
+          <li>Better vendor links and price tracking to surface deals (carefully, not spammy).</li>
+          <li>Shareable gift boards for groups — plan events together.</li>
+          <li>Localization & language support so Gifté+ is useful worldwide.</li>
+        </ol>
+      </article>
+
+      <!-- SKILLS & TOOLS -->
+      <article class="reveal p-6 glass-card">
+        <h2 class="text-2xl font-bold underline-anim">Skills, tools, and learning resources</h2>
+
+        <p class="mt-4 text-gray-700">Technologies I used and recommend:</p>
+
+        <div class="mt-4 grid sm:grid-cols-2 md:grid-cols-3 gap-4 text-gray-700">
+          <div class="p-4 rounded border">HTML & CSS — foundation of every webpage</div>
+          <div class="p-4 rounded border">Tailwind CSS — fast styling & nice utilities</div>
+          <div class="p-4 rounded border">JavaScript — for interactivity</div>
+          <div class="p-4 rounded border">Python & FastAPI — backend APIs</div>
+          <div class="p-4 rounded border">Git & GitHub — version control and deployment</div>
+          <div class="p-4 rounded border">OSINT tools — Sherlock, Holehe (ethical use only)</div>
+        </div>
+
+        <p class="mt-4 muted">If you’re learning, pick one project and finish it. That’s how you learn faster than any tutorial.</p>
+      </article>
+
+      <!-- LONG, FRIENDLY CALL-TO-ACTION -->
+      <article class="reveal p-6 glass-card text-center">
+        <h2 class="text-2xl font-bold grad-text">If you want to talk, help, or build together</h2>
+        <p class="mt-4 text-gray-700 lead">
+          I love meeting people who want to build. If you have an idea, a bug report, or just want to chat about code, reach out on the Contact page. Collaboration is how small projects become bigger and better.
+        </p>
+
+        <div class="mt-6 flex flex-col sm:flex-row gap-4 items-center justify-center">
+          <a href="contact.html" class="px-6 py-3 rounded-full bg-gradient-to-r from-pink-500 to-pink-600 text-white cta-shimmer">Contact Me</a>
+          <a href="home.html" class="px-6 py-3 rounded-full border border-pink-400 text-pink-600 hover:bg-pink-50">Back to Gifté+</a>
+        </div>
+      </article>
+
+      <!-- LONG PERSONAL THREAD (FILLER FOR 500+ lines) -->
+      <article class="reveal p-6 glass-card">
+        <h2 class="text-2xl font-bold underline-anim">A long note — things I’ve learned</h2>
+
+        <p class="mt-4 text-gray-700">
+          Patience matters. When I started, I wanted everything to work right away. That never happens. Instead, I learned to break tasks into tiny pieces, ship small improvements, and measure progress. Celebrate the tiny wins.
+        </p>
+
+        <p class="mt-4 text-gray-700">
+          Read. Not just docs, but other people's code. Seeing how someone else structured a project or solved a small problem is worth hours of trial and error.
+        </p>
+
+        <p class="mt-4 text-gray-700">
+          Share early. My friends gave feedback that led to better features. If you hide your project until it's "perfect" you'll miss the chance to learn what real users want.
+        </p>
+
+        <p class="mt-4 text-gray-700">
+          Be kind to yourself. Mistakes are proof you're trying. Bugs are proof you're learning. If you find a bug and fix it, you just became better than yesterday.
+        </p>
+
+        <p class="mt-4 text-gray-700">
+          Build with empathy. Technical excellence is great — but building something that helps people requires understanding the humans who will use it.
+        </p>
+
+        <p class="mt-4 muted">These notes are not a list of rules. They're reminders I leave on my desk to help me focus when I feel stuck.</p>
+      </article>
+
+      <!-- CLOSING REMARKS -->
+      <article class="reveal p-6 glass-card">
+        <h2 class="text-2xl font-bold underline-anim">Thank you for reading</h2>
+        <p class="mt-4 text-gray-700 lead">
+          If you read this far — thank you. That means you're curious and patient, like the people I want to build for. I’m just getting started, and I hope Gifté+ grows into something that helps many people give more meaningful gifts.
+        </p>
+
+        <p class="mt-4 text-gray-700">— Aditya Tomar, Class 9G</p>
+
+        <div class="mt-6">
+          <a href="home.html" class="px-6 py-3 bg-pink-500 text-white rounded-full hover:bg-pink-600 transition">Return to Home</a>
+        </div>
+      </article>
+
+    </section>
+  </main>
+
+  <footer class="bg-white/90 border-t py-6">
+    <div class="max-w-6xl mx-auto px-6 text-center text-sm muted">
+      © 2025 Gifté+ — Built with curiosity, coffee, and code by Aditya Tomar (Class 9G).
+    </div>
+  </footer>
+
+  <script>
+    // simple reveal on scroll
+    function revealOnScroll(){
+      const reveals = document.querySelectorAll('.reveal');
+      for(const el of reveals){
+        const rect = el.getBoundingClientRect();
+        if(rect.top < window.innerHeight - 80){
+          el.classList.add('show');
+        }
+      }
+    }
+    window.addEventListener('scroll', revealOnScroll);
+    window.addEventListener('load', revealOnScroll);
+
+    // fallback: if dev-placeholder.png is missing, let the img's onerror handle it
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Phone Lookup Tool</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --pink: #ec4899;
+      --dark: #1a0033;
+      --card: #ffffff;
+      --text: #1f2937;
+    }
+
+    [data-theme="dark"] {
+      --card: #1a1730;
+      --text: #e2e8f0;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #fff0f5, #fde2e4);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      transition: background 0.5s;
+    }
+
+    [data-theme="dark"] body {
+      background: linear-gradient(135deg, #1a0033, #0f0a1a);
+    }
+
+    .container {
+      background: var(--card);
+      padding: 2rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--pink);
+      margin-bottom: 0.5rem;
+    }
+
+    p.subtitle {
+      color: #666;
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 1rem 1rem 0.5rem;
+      font-size: 1rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 1rem;
+      background: rgba(255,255,255,0.9);
+      transition: border 0.3s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--pink);
+    }
+
+    label {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      font-size: 1rem;
+      color: #9ca3af;
+      pointer-events: none;
+      transition: all 0.3s;
+    }
+
+    input:focus + label,
+    input:not(:placeholder-shown) + label {
+      top: 0.5rem;
+      left: 0.75rem;
+      font-size: 0.75rem;
+      color: var(--pink);
+      font-weight: 600;
+    }
+
+    button {
+      width: 100%;
+      background: linear-gradient(to right, var(--pink), #f472b6);
+      color: white;
+      border: none;
+      padding: 1rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 1rem;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(236, 72, 153, 0.3);
+    }
+
+    button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .result {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: #f9fafb;
+      border-radius: 1rem;
+      text-align: left;
+      font-family: monospace;
+      font-size: 0.9rem;
+      max-height: 300px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    [data-theme="dark"] .result {
+      background: #2d1b3d;
+      color: #e2e8f0;
+    }
+
+    .toggle {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: #ddd;
+      width: 50px;
+      height: 26px;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .toggle::before {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+
+    [data-theme="dark"] .toggle {
+      background: var(--pink);
+    }
+
+    [data-theme="dark"] .toggle::before {
+      transform: translateX(24px);
+      background: #1f2937;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .spinner {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="toggle" id="themeToggle"></div>
+    
+    <h1>Phone Lookup</h1>
+    <p class="subtitle">Enter phone number → Get carrier, location, type & more</p>
+
+    <div class="input-group">
+      <input type="tel" id="phone" placeholder=" " />
+      <label for="phone">Phone Number (e.g. +14152007986)</label>
+    </div>
+
+    <button id="lookupBtn">
+      <span id="btnText">Lookup Phone</span>
+    </button>
+
+    <div id="result" class="result"></div>
+  </div>
+
+  <script>
+    // === PHONE LOOKUP FUNCTION ===
+    const API_KEY = "521155e18b15415aadd705a035a57fd9";
+    const API_URL = "https://phoneintelligence.abstractapi.com/v1/";
+
+    function httpGetAsync(url, callback) {
+      const xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            try {
+              callback(null, JSON.parse(xhr.responseText));
+            } catch (e) {
+              callback(new Error("Invalid response"), null);
+            }
+          } else {
+            callback(new Error(`API Error: ${xhr.status}`), null);
+          }
+        }
+      };
+      xhr.open("GET", url, true);
+      xhr.timeout = 10000;
+      xhr.ontimeout = () => callback(new Error("Timeout"), null);
+      xhr.send();
+    }
+
+    function lookupPhone(phone, onSuccess, onError) {
+      const clean = phone.replace(/[\s\-()]/g, "");
+      const formatted = clean.startsWith("+") ? clean : "+" + clean;
+      const url = `${API_URL}?api_key=${API_KEY}&phone=${encodeURIComponent(formatted)}`;
+
+      httpGetAsync(url, (err, data) => {
+        if (err) onError(err);
+        else onSuccess(data);
+      });
+    }
+
+    // === DOM ELEMENTS ===
+    const phoneInput = document.getElementById("phone");
+    const lookupBtn = document.getElementById("lookupBtn");
+    const btnText = document.getElementById("btnText");
+    const resultDiv = document.getElementById("result");
+    const themeToggle = document.getElementById("themeToggle");
+
+    // === THEME TOGGLE ===
+    themeToggle.addEventListener("click", () => {
+      const isDark = document.documentElement.hasAttribute("data-theme");
+      if (isDark) {
+        document.documentElement.removeAttribute("data-theme");
+        localStorage.removeItem("theme");
+      } else {
+        document.documentElement.setAttribute("data-theme", "dark");
+        localStorage.setItem("theme", "dark");
+      }
+    });
+
+    if (localStorage.getItem("theme") === "dark") {
+      document.documentElement.setAttribute("data-theme", "dark");
+    }
+
+    // === LOOKUP ON CLICK ===
+    lookupBtn.addEventListener("click", () => {
+      const phone = phoneInput.value.trim();
+      if (!phone) {
+        alert("Enter a phone number!");
+        return;
+      }
+
+      // UI: Loading
+      lookupBtn.disabled = true;
+      btnText.innerHTML = `<i class="fas fa-spinner spinner"></i> Looking up...`;
+      resultDiv.style.display = "none";
+
+      // API CALL
+      lookupPhone(
+        phone,
+        (data) => {
+          // SUCCESS
+          resultDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+          resultDiv.style.display = "block";
+          btnText.innerHTML = `<i class="fas fa-check"></i> Done!`;
+          setTimeout(() => {
+            lookupBtn.disabled = false;
+            btnText.innerHTML = `Lookup Phone`;
+          }, 1500);
+        },
+        (err) => {
+          // ERROR
+          resultDiv.innerHTML = `<pre style="color: #ef4444;">Error: ${err.message}</pre>`;
+          resultDiv.style.display = "block";
+          btnText.innerHTML = `Try Again`;
+          lookupBtn.disabled = false;
+        }
+      );
+    });
+
+    // Optional: Press Enter
+    phoneInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") lookupBtn.click();
+    });
+  </script>
+
+  <!-- Font Awesome -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
+</body>
+</html>

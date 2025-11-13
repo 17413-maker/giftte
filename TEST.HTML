@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gifté+ | Choose Mode</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- LIGHTWEIGHT face-api.js v0.22.2 (NO TF.JS!) -->
+  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+
+  <!-- Orbitron Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+    body { 
+      font-family: 'Poppins', sans-serif; 
+      background: linear-gradient(135deg, #fff5f7, #ffe4ec, #ffd5e3); 
+      overflow-x: hidden; 
+    }
+
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in-up { opacity: 0; animation: fadeInUp 1s ease forwards; }
+    .fade-delay-1 { animation-delay: 0.4s; }
+    .fade-delay-2 { animation-delay: 0.8s; }
+
+    /* GLOWING BUTTONS */
+    .btn-dashboard {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ff6b6b, #ff8fab);
+      padding: 12px 28px;
+      border-radius: 50px;
+      color: white;
+      font-size: 1rem;
+      text-transform: uppercase;
+      box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-dashboard:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 10px 30px rgba(255, 69, 0, 0.4); }
+      50% { box-shadow: 0 15px 45px rgba(255, 69, 0, 0.7); }
+    }
+    .btn-ai {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      background: linear-gradient(135deg, #ff4500, #ff8c00);
+      padding: 14px 32px;
+      border-radius: 50px;
+      color: white;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      box-shadow: 0 10px 30px rgba(255, 69, 0, 0.4);
+      animation: pulseGlow 2s infinite;
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-ai:hover {
+      transform: translateY(-5px) scale(1.08);
+      box-shadow: 0 20px 50px rgba(255, 69, 0, 0.6);
+    }
+    .btn-ai::before {
+      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: 0.7s;
+    }
+    .btn-ai:hover::before { left: 100%; }
+
+    #secretDev { position: fixed; right: 12px; bottom: 12px; width: 40px; height: 40px; background: transparent; border: 0; opacity: 0; cursor: pointer; z-index: 9999; }
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); align-items: center; justify-content: center; z-index: 10000; padding: 18px; }
+    .overlay.show { display: flex; }
+    .dev-modal { background: white; border-radius: 12px; padding: 18px; width: 360px; max-width: calc(100% - 40px); box-shadow: 0 26px 80px rgba(2,6,23,0.18); }
+    .dev-input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #e6e9f2; margin-top: 8px; font-size: 16px; }
+    .dev-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+    .dev-btn { padding: 8px 12px; border-radius: 10px; cursor: pointer; font-weight: 600; }
+    .dev-btn.primary { background: linear-gradient(90deg,#ffafcc,#ffd166); color:#111; border:0; }
+    .dev-btn.ghost { background:transparent; border:1px solid #eef2ff; color:#444; }
+
+    .quantum-glass { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(20px); border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+    .quantum-ring { position: absolute; top: 50%; left: 50%; width: 300px; height: 300px; border: 3px solid transparent; border-top: 3px solid #00ffff; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; opacity: 0; transition: all 0.6s; }
+    .ring-active { opacity: 0.6; animation: spin 3s linear infinite; }
+    .ring-success { border-color: #00ff88; box-shadow: 0 0 40px #00ff88; animation: successPulse 1.5s; }
+    .ring-fail { border-color: #ff3b3b; animation: failShake 0.5s; }
+    @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+    @keyframes successPulse { 0% { box-shadow: 0 0 40px #00ff88; } 100% { box-shadow: 0 0 80px #00ff88; } }
+    @keyframes failShake { 0%,100% { transform: translate(-50%, -50%); } 25% { transform: translate(-55%, -48%); } 75% { transform: translate(-45%, -52%); } }
+
+    .badge { position: absolute; top: 16px; right: 16px; padding: 6px 12px; border-radius: 30px; font-size: 12px; font-weight: 900; text-transform: uppercase; box-shadow: 0 0 15px currentColor; }
+    .happy { background: #00ff88; color: #000; }
+    .sad { background: #4a90e2; }
+    .angry { background: #ff3b3b; }
+    .neutral { background: #aaa; }
+    .surprised { background: #ffcc00; color: #000; }
+
+    .confidence-container { height: 10px; background: #111; border-radius: 5px; overflow: hidden; margin: 12px 0; border: 1px solid #0ff; }
+    .confidence-bar { height: 100%; width: 0%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); background: #10b981; }
+
+    .continue-btn { 
+      margin: 60px auto 40px; display: block; width: fit-content; 
+      padding: 16px 32px; background: linear-gradient(135deg, #ff3b3b, #ff6b6b); 
+      color: white; font-weight: 700; font-size: 1.25rem; text-transform: uppercase; 
+      border-radius: 50px; box-shadow: 0 10px 30px rgba(255, 59, 59, 0.3); 
+      transition: all 0.3s ease; text-decoration: none; text-align: center; 
+    }
+    .continue-btn:hover { 
+      transform: translateY(-4px) scale(1.05); 
+      box-shadow: 0 15px 40px rgba(255, 59, 59, 0.4); 
+    }
+  </style>
+</head>
+<body class="text-gray-800">
+
+  <!-- NAVBAR -->
+  <nav class="flex justify-between items-center px-6 md:px-10 py-5 bg-white/70 backdrop-blur-md shadow-sm sticky top-0 z-50">
+    <h1 class="text-3xl font-bold text-pink-600 tracking-tight">Gifté+</h1>
+    <div class="flex items-center gap-4 md:gap-6 flex-wrap">
+      <a href="home.html" class="text-gray-600 hover:text-pink-600 transition text-lg">Home</a>
+      <a href="login.html" class="text-gray-600 hover:text-pink-600 transition text-lg">Login</a>
+      <a href="profile.html" class="btn-dashboard text-sm md:text-base">My Dashboard</a>
+      <a href="ai.html" class="btn-ai text-sm md:text-base">TRY OUR NEW AI</a>
+      <a href="signup.html" class="bg-gradient-to-r from-pink-400 to-yellow-300 text-white px-5 py-2 rounded-full font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300">Sign Up</a>
+    </div>
+  </nav>
+
+  <!-- Intro -->
+  <section class="text-center py-20 px-8 bg-gradient-to-r from-pink-100 via-pink-50 to-white">
+    <h2 class="text-5xl font-extrabold text-gray-800 mb-4 fade-in-up">Choose Your Mode</h2>
+    <p class="text-lg text-gray-700 max-w-2xl mx-auto fade-in-up fade-delay-1 leading-relaxed">
+      Pick: <strong>Manual Mode</strong> or <strong>Automatic Mode</strong>.
+    </p>
+  </section>
+
+  <!-- Modes -->
+  <section class="py-20 bg-white relative overflow-hidden">
+    <div class="flex flex-col md:flex-row justify-center items-center gap-12 px-6">
+      <div onclick="goWithConsent('manual')" class="cursor-pointer bg-pink-50 shadow-2xl rounded-2xl p-10 text-center max-w-sm hover:-translate-y-3 transition-all duration-500 fade-in-up fade-delay-1">
+        <img src="https://cdn-icons-png.flaticon.com/512/3062/3062600.png" alt="Manual" class="mx-auto w-28 mb-6 animate-bounce">
+        <h3 class="text-2xl font-semibold mb-3 text-gray-800">Manual Mode</h3>
+        <p class="text-gray-600 text-sm">You control the AI.</p>
+      </div>
+      <div onclick="goWithConsent('automatic')" class="cursor-pointer bg-pink-50 shadow-2xl rounded-2xl p-10 text-center max-w-sm hover:-translate-y-3 transition-all duration-500 fade-in-up fade-delay-2">
+        <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" alt="Auto" class="mx-auto w-28 mb-6 animate-bounce">
+        <h3 class="text-2xl font-semibold mb-3 text-gray-800">Automatic Mode</h3>
+        <p class="text-gray-600 text-sm">AI reads your face.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTINUE -->
+  <a href="face.html" class="continue-btn block mx-auto">CONTINUE TO FACE DETECTION</a>
+
+  <!-- Footer -->
+  <footer class="text-center py-8 text-gray-500 text-sm">
+    © 2025 Gifté+. By Delta-1 & Commander.
+  </footer>
+
+  <!-- DEV BUTTON -->
+  <button id="secretDev" title="Dev"></button>
+
+  <!-- DEV MODAL -->
+  <div id="devOverlay" class="overlay" aria-hidden="true">
+    <div class="dev-modal">
+      <h3>Developer Access</h3>
+      <div class="text-xs text-gray-500 mb-2">Enter password</div>
+      <input id="devPassword" class="dev-input" type="password" placeholder="Password" />
+      <div class="dev-actions">
+        <button id="devCancel" class="dev-btn ghost">Cancel</button>
+        <button id="devSubmit" class="dev-btn primary">Unlock</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUANTUM FACE LOCK -->
+  <div id="quantumOverlay" class="overlay" style="display:none;">
+    <div class="quantum-glass p-8 max-w-2xl w-full relative overflow-hidden">
+      <div id="quantumRing" class="quantum-ring"></div>
+      <h2 class="text-3xl font-bold text-center mb-2 text-cyan-400">QUANTUM FACE LOCK</h2>
+      <p class="text-center text-sm mb-6 text-gray-300">Identity: <span class="font-mono">COMMANDER</span></p>
+      <div class="relative mb-6">
+        <video id="video" autoplay muted playsinline class="w-full rounded-xl border-2 border-cyan-400"></video>
+        <canvas id="canvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+        <div id="emotionBadge" class="badge">—</div>
+      </div>
+      <div class="text-center space-y-3">
+        <button id="loadModelsBtn" class="bg-gradient-to-r from-purple-400 to-pink-500 text-white px-8 py-3 rounded-full font-bold text-lg shadow-lg hover:shadow-purple-500/50 transition-all">LOAD MODELS</button>
+        <button id="startCameraBtn" class="bg-gradient-to-r from-cyan-400 to-blue-500 text-white px-8 py-3 rounded-full font-bold text-lg shadow-lg hover:shadow-cyan-500/50 transition-all" disabled>START CAMERA</button>
+        <button id="verifyBtn" class="bg-gradient-to-r from-green-400 to-emerald-500 text-black px-8 py-3 rounded-full font-bold text-lg shadow-lg hover:shadow-green-500/50 transition-all" disabled>VERIFY LIVE FACE</button>
+      </div>
+      <div id="status" class="text-center mt-6 text-lg font-medium text-cyan-300">Loading face-api.js...</div>
+      <div class="confidence-container mx-auto max-w-md"><div id="confidenceBar" class="confidence-bar"></div></div>
+      <div id="logConsole" class="mt-6 h-40 overflow-y-auto bg-black/50 p-4 rounded-lg text-xs font-mono text-green-400"></div>
+    </div>
+  </div>
+
+  <!-- SCRIPT: LIGHTWEIGHT + WORKING -->
+  <script>
+    const DEV_PASSWORD = "ADITYA123";
+    const MODEL_URL = "https://cdn.jsdelivr.net/gh/vladmandic/face-api/model/";
+    const HARDCODED_DESCRIPTOR = new Float32Array([
+      -0.16083209216594696, 0.05017932504415512, 0.0459735281765461, -0.032153140753507614, -0.10642893612384796, -0.024279797449707985,
+      -0.016587749123573303, -0.04459153860807419, 0.13998326659202576, -0.1387113630771637, 0.223501056432724, -0.056238848716020584,
+      -0.18469607830047607, -0.11640550941228867, 0.005373072344809771, 0.1628466248512268, -0.047109201550483704, -0.12886977195739746,
+      -0.13172012567520142, -0.1144687682390213, 0.01690208911895752, -0.012262754142284393, -0.049030851572752, 0.03428465127944946,
+      -0.153143510222435, -0.37606585025787354, -0.04421274736523628, -0.0779731422662735, -0.086550273001194, -0.12482056766748428,
+      -0.06573786586523056, 0.03942761570215225, -0.19311876595020294, -0.10329786688089371, -0.02990395948290825, 0.09545929729938507,
+      -0.01545440312474966, 0.00020492446492426097, 0.12953104078769684, 0.011241099797189236, -0.14734318852424622, -0.03318653628230095,
+      0.06391007453203201, 0.24473276734352112, 0.16301532089710236, 0.03514790162444115, 0.011051108129322529, -0.005247571039944887,
+      0.1143452525138855, -0.31002387404441833, 0.02509089931845665, 0.07733290642499924, 0.09638552367687225, 0.025838328525424004,
+      0.12882199883460999, -0.04652315005660057, -0.04739919304847717, 0.10262274742126465, -0.15974248945713043, 0.04056687653064728,
+      -0.02864958345890045, -0.025212692096829414, -0.11007564514875412, -0.10185778886079788, 0.2285195142030716, 0.1837681084871292,
+      -0.07742070406675339, -0.049442701041698456, 0.1426328867673874, -0.13016308844089508, -0.013879837468266487, 0.0117546571418643,
+      -0.07039899379014969, -0.22863149642944336, -0.25684207677841187, 0.10420946776866913, 0.4301004409790039, 0.17615945637226105,
+      -0.19640059769153595, -0.0016248059691861272, -0.04472290724515915, -0.03912454470992088, 0.12125562131404877, -0.015991147607564926,
+      -0.03612816333770752, 0.030750785022974014, -0.03667951375246048, 0.09984487295150757, 0.2004861980676651, -0.01684415526688099,
+      -0.0015315029304474592, 0.19162426888942719, -0.019811443984508514, 0.03945521265268326, 0.02930379845201969, 0.012698017992079258,
+      -0.07267976552248001, 0.0052163791842758656, -0.12764707207679749, 0.0024211627896875143, 0.10561194270849228, -0.06062479317188263,
+      0.048583898693323135, 0.038937002420425415, -0.12366019189357758, 0.07551024109125137, -0.020718086510896683, -0.017041103914380074,
+      -0.0041695511899888515, 0.05901838093996048, -0.11841798573732376, -0.06615568697452545, 0.10755658149719238, -0.17166779935359955,
+      0.13085755705833435, 0.14842034876346588, -0.10567540675401688, 0.15291355550289154, 0.06675660610198975, 0.04313988238573074,
+      0.031687021255493164, -0.016043340787291527, -0.09562312066555023, -0.058347828686237335, 0.09513852000236511, -0.007848993875086308,
+      0.05679747089743614, -0.0028732847422361374
+    ]);
+
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const status = document.getElementById('status');
+    const logConsole = document.getElementById('logConsole');
+    const quantumRing = document.getElementById('quantumRing');
+    const emotionBadge = document.getElementById('emotionBadge');
+    const confidenceBar = document.getElementById('confidenceBar');
+    const loadModelsBtn = document.getElementById('loadModelsBtn');
+    const startCameraBtn = document.getElementById('startCameraBtn');
+    const verifyBtn = document.getElementById('verifyBtn');
+    let stream = null;
+    let modelsLoaded = false;
+
+    function log(msg) {
+      const t = new Date().toLocaleTimeString();
+      logConsole.innerHTML += `<div>[${t}] ${msg}</div>`;
+      logConsole.scrollTop = logConsole.scrollHeight;
+    }
+
+    function goWithConsent(mode) {
+      window.location.href = `consent.html?mode=${mode}`;
+    }
+
+    // DEV ACCESS
+    document.getElementById('secretDev').onclick = () => document.getElementById('devOverlay').classList.add('show');
+    document.getElementById('devCancel').onclick = () => document.getElementById('devOverlay').classList.remove('show');
+    document.getElementById('devSubmit').onclick = () => {
+      if (document.getElementById('devPassword').value === DEV_PASSWORD) {
+        document.getElementById('devOverlay').classList.remove('show');
+        document.getElementById('quantumOverlay').style.display = 'flex';
+        initFaceLock();
+      } else {
+        alert('Access Denied');
+      }
+    };
+
+    // Ctrl+Alt+D
+    document.addEventListener('keydown', e => {
+      if (e.ctrlKey && e.altKey && e.key === 'd') {
+        document.getElementById('devOverlay').classList.add('show');
+        document.getElementById('devPassword').focus();
+      }
+    });
+
+    async function initFaceLock() {
+      quantumRing.classList.add('ring-active');
+      log("Loading lightweight face-api.js models...");
+      status.textContent = "Loading models...";
+
+      try {
+        await Promise.all([
+          faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+          faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
+          faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL)
+        ]);
+        modelsLoaded = true;
+        log("Models loaded");
+        status.textContent = "Click START CAMERA";
+        startCameraBtn.disabled = false;
+      } catch (e) {
+        log("ERROR: " + e.message);
+        status.textContent = "Failed to load models";
+      }
+    }
+
+    loadModelsBtn.onclick = initFaceLock;
+
+    startCameraBtn.onclick = async () => {
+      if (!modelsLoaded) return;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+        video.onloadedmetadata = () => {
+          video.play();
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          log("Camera ON");
+          status.textContent = "Look at camera → VERIFY";
+          verifyBtn.disabled = false;
+          startLiveDetection();
+        };
+      } catch (e) {
+        log("Camera blocked");
+        status.textContent = "Allow camera access";
+      }
+    };
+
+    function startLiveDetection() {
+      const detect = async () => {
+        if (video.paused || video.ended) return;
+        const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+          .withFaceExpressions();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (detections[0]) {
+          const box = detections[0].detection.box;
+          ctx.strokeStyle = "#00ffff";
+          ctx.lineWidth = 3;
+          ctx.strokeRect(box.x, box.y, box.width, box.height);
+          const emo = Object.keys(detections[0].expressions).reduce((a, b) => detections[0].expressions[a] > detections[0].expressions[b] ? a : b);
+          emotionBadge.textContent = emo.toUpperCase();
+          emotionBadge.className = `badge ${emo}`;
+        }
+        requestAnimationFrame(detect);
+      };
+      detect();
+    }
+
+    function euclideanDistance(a, b) {
+      return Math.sqrt(a.reduce((sum, val, i) => sum + (val - b[i]) ** 2, 0));
+    }
+
+    verifyBtn.onclick = async () => {
+      verifyBtn.disabled = true;
+      verifyBtn.textContent = "VERIFYING...";
+      status.textContent = "Scanning...";
+
+      try {
+        const descriptor = await faceapi.computeFaceDescriptor(video, new faceapi.TinyFaceDetectorOptions());
+        if (!descriptor) throw new Error("No face");
+
+        const dist = euclideanDistance(Array.from(descriptor), Array.from(HARDCODED_DESCRIPTOR));
+        const confidence = Math.max(0, Math.min(100, Math.round((1 - dist / 0.6) * 100)));
+        confidenceBar.style.width = `${confidence}%`;
+
+        if (dist < 0.6) {
+          status.innerHTML = `<span style="color:#10b981">MATCH: COMMANDER</span><br>Confidence: ${confidence}%`;
+          log(`MATCH (${confidence}%)`);
+          quantumRing.classList.add('ring-success');
+          setTimeout(() => location.href = 'devmode.html', 1500);
+        } else {
+          status.innerHTML = `<span style="color:#ef4444">DENIED</span><br>Confidence: ${confidence}%`;
+          log(`NO MATCH (Δ: ${dist.toFixed(3)})`);
+          quantumRing.classList.add('ring-fail');
+        }
+      } catch (e) {
+        status.textContent = "Error: " + e.message;
+      }
+
+      setTimeout(() => {
+        verifyBtn.disabled = false;
+        verifyBtn.textContent = "VERIFY LIVE FACE";
+      }, 2000);
+    };
+  </script>
+</body>
+</html>

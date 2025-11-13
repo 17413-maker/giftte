@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gifté+ | Consent</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #fff0f6, #ffe0eb, #ffd2e0);
+      overflow-x: hidden;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in-up {
+      animation: fadeInUp 1s ease forwards;
+    }
+  </style>
+</head>
+<body class="text-gray-800 flex items-center justify-center min-h-screen">
+
+  <div class="bg-white/80 backdrop-blur-lg p-10 rounded-2xl shadow-2xl text-center max-w-lg w-full mx-4 fade-in-up">
+    <img src="https://cdn-icons-png.flaticon.com/512/4221/4221453.png" alt="Consent" class="w-20 mx-auto mb-6 animate-pulse">
+    <h2 id="modeTitle" class="text-3xl font-bold text-pink-600 mb-4">Gifté+ Consent</h2>
+    <p class="text-gray-700 leading-relaxed mb-6">
+      Before continuing, Gifté+ requires your consent to collect and analyze limited data such as 
+      <strong>social handles, phone number, or email ID</strong> (depending on the mode selected).  
+      This ensures the gift recommendations are personalized and accurate.  
+      Your data is used ethically and never stored permanently.
+    </p>
+
+    <div class="flex justify-center gap-6 mt-6">
+      <button onclick="acceptConsent()" class="px-6 py-3 bg-pink-500 text-white rounded-full hover:bg-pink-600 hover:scale-105 transition-all duration-300">
+        I Agree & Continue
+      </button>
+      <button onclick="cancelConsent()" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300 transition-all duration-300">
+        Cancel
+      </button>
+    </div>
+
+    <p class="text-xs text-gray-500 mt-6 italic">
+      You must accept to proceed to Manual or Automatic Mode.
+    </p>
+  </div>
+
+  <script>
+    // Detect mode from URL
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get("mode");
+
+    // Update heading text dynamically
+    const title = document.getElementById("modeTitle");
+    if (mode === "manual") {
+      title.textContent = "Manual Mode – Consent Required";
+    } else if (mode === "automatic") {
+      title.textContent = "Automatic Mode – Consent Required";
+    }
+
+    // Functions for buttons
+    function acceptConsent() {
+      if (mode === "manual") {
+        window.location.href = "manual.html";
+      } else if (mode === "automatic") {
+        window.location.href = "automatic.html";
+      } else {
+        window.location.href = "index.html";
+      }
+    }
+
+    function cancelConsent() {
+      window.location.href = "index.html";
+    }
+  </script>
+
+</body>
+</html>

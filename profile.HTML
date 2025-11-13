@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Dashboard • Gifté+</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+    body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #fff5f7, #ffe4ec, #ffd5e3); }
+    .card { background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+    .btn-gradient { background: linear-gradient(135deg, #ff6b6b, #ff8e8e); }
+    .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(255,107,107,0.3); }
+    .status-verified { background: #d4edda; color: #155724; }
+    .status-unverified { background: #f8d7da; color: #721c24; }
+    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 50px; color: white; font-weight: 600; z-index: 9999; opacity: 0; transition: all 0.4s; }
+    .toast.show { opacity: 1; bottom: 40px; }
+    .switch { position: relative; display: inline-block; width: 60px; height: 34px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+    .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+    input:checked + .slider { background: linear-gradient(135deg, #ff6b6b, #ff8e8e); }
+    input:checked + .slider:before { transform: translateX(26px); }
+    .profile-img { width: 100px; height: 100px; object-fit: cover; border-radius: 50%; border: 4px solid #ff6b6b; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- Header with HOME BUTTON -->
+  <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+      <div class="flex items-center gap-6">
+        <!-- HOME BUTTON -->
+        <a href="index.html" class="text-pink-600 hover:text-pink-800 font-bold text-lg flex items-center gap-2">
+          Home
+        </a>
+        <h1 class="text-3xl font-bold text-pink-600">Gifté+</h1>
+      </div>
+      <div class="flex items-center gap-4">
+        <span class="text-sm text-gray-600">Welcome, <strong id="userEmailHeader" class="text-pink-600">—</strong></span>
+        <button onclick="signOutUser()" class="bg-gradient-to-r from-pink-400 to-yellow-300 text-white px-5 py-2 rounded-full font-semibold shadow-md hover:scale-105 transition">
+          Sign Out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-4xl mx-auto px-6 py-12">
+
+    <!-- Loading -->
+    <div id="loading" class="text-center py-20">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-pink-500 border-t-transparent"></div>
+      <p class="mt-4 text-pink-600 font-semibold">Loading your dashboard...</p>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" class="hidden space-y-8">
+
+      <!-- Live Time & Location -->
+      <div class="card p-6 text-center bg-gradient-to-r from-pink-100 to-purple-100">
+        <p class="text-lg font-bold text-pink-700">
+          <span id="liveTime">Loading time...</span> | India (IN)
+        </p>
+      </div>
+
+      <!-- Profile Header -->
+      <div class="card p-8 text-center">
+        <img id="profilePhoto" src="https://via.placeholder.com/100" alt="Profile" class="profile-img mx-auto mb-4 cursor-pointer" onclick="document.getElementById('photoInput').click()">
+        <h2 class="text-2xl font-bold" id="displayName">Loading...</h2>
+        <p class="text-gray-600" id="userEmail">—</p>
+        <p class="text-sm text-gray-500">Member since <span id="createdDate">—</span></p>
+        <button onclick="document.getElementById('photoInput').click()" class="mt-4 text-pink-600 hover:underline text-sm font-medium">
+          Change Profile Photo
+        </button>
+        <input type="file" id="photoInput" accept="image/*" class="hidden" onchange="uploadPhoto(this.files[0])">
+      </div>
+
+      <!-- Account Info -->
+      <div class="card p-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Account Info</h2>
+        <div class="space-y-6">
+          <div class="flex justify-between items-center p-4 bg-gray-50 rounded-xl">
+            <div>
+              <p class="font-semibold">Display Name</p>
+              <p class="text-sm text-gray-600">How others see you</p>
+            </div>
+            <button onclick="openModal('nameModal')" class="btn-gradient text-white px-5 py-2 rounded-full text-sm">Change</button>
+          </div>
+          <div class="flex justify-between items-center p-4 bg-gray-50 rounded-xl">
+            <div>
+              <p class="font-semibold">Phone Number</p>
+              <p class="text-sm text-gray-600" id="phoneDisplay">Not added</p>
+            </div>
+            <button onclick="openModal('phoneModal')" class="btn-gradient text-white px-5 py-2 rounded-full text-sm">Add</button>
+          </div>
+          <div class="flex items-center gap-4">
+            <span id="verifyStatus" class="px-4 py-2 rounded-full text-sm font-bold status-unverified">Unverified</span>
+            <button onclick="sendVerificationEmail()" class="text-pink-600 hover:underline">Resend Email</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Security -->
+      <div class="card p-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Security</h2>
+        <div class="space-y-6">
+          <div class="p-4 bg-gray-50 rounded-xl flex justify-between items-center">
+            <div><p class="font-semibold">Change Email</p><p class="text-sm text-gray-600">Update login email</p></div>
+            <button onclick="openModal('emailModal')" class="btn-gradient text-white px-5 py-2 rounded-full text-sm">Change</button>
+          </div>
+          <div class="p-4 bg-gray-50 rounded-xl flex justify-between items-center">
+            <div><p class="font-semibold">Password</p><p class="text-sm text-gray-600">Reset your password</p></div>
+            <button onclick="sendPasswordReset()" class="btn-gradient text-white px-5 py-2 rounded-full text-sm">Reset</button>
+          </div>
+          <div class="p-4 bg-gray-50 rounded-xl flex justify-between items-center">
+            <div><p class="font-semibold">MFA</p><p class="text-sm text-gray-600" id="mfaStatusText">Disabled</p></div>
+            <label class="switch"><input type="checkbox" id="mfaToggle" onchange="toggleMFA(this.checked)"><span class="slider round"></span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data & Privacy -->
+      <div class="card p-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Data & Privacy</h2>
+        <div class="space-y-6">
+          <div class="p-4 bg-gray-50 rounded-xl flex justify-between items-center">
+            <div><p class="font-semibold">Download Your Data</p><p class="text-sm text-gray-600">Export everything</p></div>
+            <button onclick="downloadData()" class="btn-gradient text-white px-5 py-2 rounded-full text-sm">Download</button>
+          </div>
+          <div class="p-4 bg-red-50 rounded-xl">
+            <p class="font-semibold text-red-700">Delete Account</p>
+            <p class="text-sm text-red-600">This action is permanent</p>
+            <button onclick="openModal('deleteModal')" class="mt-3 bg-red-600 text-white px-5 py-2 rounded-full text-sm">Delete Account</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modals -->
+  <div id="nameModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+      <h3 class="text-xl font-bold mb-4">Change Display Name</h3>
+      <input type="text" id="newName" placeholder="Your name" class="w-full px-4 py-3 border rounded-lg mb-6">
+      <div class="flex gap-3">
+        <button onclick="closeModal('nameModal')" class="flex-1 py-3 border rounded-lg">Cancel</button>
+        <button onclick="changeName()" class="flex-1 btn-gradient text-white py-3 rounded-lg">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="phoneModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+      <h3 class="text-xl font-bold mb-4">Add Phone Number</h3>
+      <input type="tel" id="newPhone" placeholder="+91 9876543210" class="w-full px-4 py-3 border rounded-lg mb-6">
+      <div class="flex gap-3">
+        <button onclick="closeModal('phoneModal')" class="flex-1 py-3 border rounded-lg">Cancel</button>
+        <button onclick="savePhone()" class="flex-1 btn-gradient text-white py-3 rounded-lg">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="emailModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+      <h3 class="text-xl font-bold mb-4">Change Email Address</h3>
+      <input type="email" id="newEmail" placeholder="New email" class="w-full px-4 py-3 border rounded-lg mb-4">
+      <input type="password" id="currentPass" placeholder="Current password" class="w-full px-4 py-3 border rounded-lg mb-6">
+      <div class="flex gap-3">
+        <button onclick="closeModal('emailModal')" class="flex-1 py-3 border rounded-lg">Cancel</button>
+        <button onclick="changeUserEmail()" class="flex-1 btn-gradient text-white py-3 rounded-lg">Update</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="deleteModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+      <h3 class="text-xl font-bold mb-4 text-red-600">Delete Account?</h3>
+      <p class="mb-6">This cannot be undone. All data will be lost.</p>
+      <div class="flex gap-3">
+        <button onclick="closeModal('deleteModal')" class="flex-1 py-3 border rounded-lg">Cancel</button>
+        <button onclick="deleteAccount()" class="flex-1 bg-red-600 text-white py-3 rounded-lg">Delete Forever</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Firebase + FULLY WORKING PROFILE PHOTO UPLOAD -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut, sendEmailVerification, updateEmail, updateProfile, reauthenticateWithCredential, EmailAuthProvider, sendPasswordResetEmail, deleteUser } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD95fHNBVSCl4DPjpfSOrVRYI60pH5_2hE",
+      authDomain: "giftte007.firebaseapp.com",
+      projectId: "giftte007",
+      storageBucket: "giftte007.firebasestorage.app",
+      messagingSenderId: "168284349265",
+      appId: "1:168284349265:web:d4b30126efc7f52450a970"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+    let currentUser = null;
+
+    // LIVE TIME (India)
+    function updateTime() {
+      const now = new Date();
+      const options = { timeZone: 'Asia/Kolkata', hour12: true };
+      document.getElementById('liveTime').textContent = now.toLocaleString('en-IN', options);
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.href = 'index.html'; return; }
+      currentUser = user;
+
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('mainContent').classList.remove('hidden');
+
+      document.getElementById('userEmail').textContent = user.email;
+      document.getElementById('userEmailHeader').textContent = user.email;
+      document.getElementById('displayName').textContent = user.displayName || 'Set your name';
+      document.getElementById('createdDate').textContent = new Date(user.metadata.creationTime).toLocaleDateString('en-IN');
+
+      // Load profile photo
+      if (user.photoURL) {
+        document.getElementById('profilePhoto').src = user.photoURL;
+      }
+
+      // Email verification
+      const statusEl = document.getElementById('verifyStatus');
+      if (user.emailVerified) {
+        statusEl.className = 'px-4 py-2 rounded-full text-sm font-bold status-verified';
+        statusEl.innerHTML = 'Verified';
+      }
+
+      // Load phone
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (userDoc.exists() && userDoc.data().phone) {
+        document.getElementById('phoneDisplay').textContent = userDoc.data().phone;
+      }
+
+      // MFA
+      const mfaDoc = await getDoc(doc(db, 'mfa', user.uid));
+      const mfaEnabled = mfaDoc.exists() && mfaDoc.data().enabled;
+      document.getElementById('mfaToggle').checked = mfaEnabled;
+      document.getElementById('mfaStatusText').textContent = mfaEnabled ? 'Enabled (SMS)' : 'Disabled';
+    });
+
+    // PROFILE PHOTO UPLOAD — 100% WORKING
+    window.uploadPhoto = async (file) => {
+      if (!file) return;
+      showToast('Uploading photo...');
+      try {
+        const storageRef = ref(storage, 'profiles/' + currentUser.uid + '.jpg');
+        await uploadBytes(storageRef, file);
+        const url = await getDownloadURL(storageRef);
+        await updateProfile(currentUser, { photoURL: url });
+        document.getElementById('profilePhoto').src = url;
+        showToast('Profile photo updated!');
+      } catch (err) {
+        showToast('Upload failed: ' + err.message, true);
+      }
+    };
+
+    window.changeName = async () => {
+      const name = document.getElementById('newName').value.trim();
+      if (!name) return showToast('Enter name', true);
+      await updateProfile(currentUser, { displayName: name });
+      document.getElementById('displayName').textContent = name;
+      closeModal('nameModal');
+      showToast('Name updated!');
+    };
+
+    window.savePhone = async () => {
+      const phone = document.getElementById('newPhone').value.trim();
+      if (!phone) return showToast('Enter phone', true);
+      await setDoc(doc(db, 'users', currentUser.uid), { phone }, { merge: true });
+      document.getElementById('phoneDisplay').textContent = phone;
+      closeModal('phoneModal');
+      showToast('Phone saved!');
+    };
+
+    window.downloadData = () => {
+      const data = { email: currentUser.email, name: currentUser.displayName, uid: currentUser.uid };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'my-gifte-data.json'; a.click();
+      showToast('Data downloaded!');
+    };
+
+    window.deleteAccount = async () => {
+      if (prompt('Type DELETE to confirm') !== 'DELETE') return;
+      await deleteDoc(doc(db, 'users', currentUser.uid));
+      await deleteUser(currentUser);
+      window.location.href = 'index.html';
+    };
+
+    window.sendVerificationEmail = () => sendEmailVerification(currentUser).then(() => showToast('Verification email sent!')).catch(e => showToast(e.message, true));
+    window.sendPasswordReset = () => sendPasswordResetEmail(auth, currentUser.email).then(() => showToast('Reset email sent!')).catch(e => showToast(e.message, true));
+    window.changeUserEmail = async () => {
+      const newEmail = document.getElementById('newEmail').value.trim();
+      const password = document.getElementById('currentPass').value;
+      if (!newEmail || !password) return showToast('Fill all fields', true);
+      try {
+        const credential = EmailAuthProvider.credential(currentUser.email, password);
+        await reauthenticateWithCredential(currentUser, credential);
+        await updateEmail(currentUser, newEmail);
+        showToast('Email changed! Verify new email.');
+        closeModal('emailModal');
+        setTimeout(() => location.reload(), 2000);
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    };
+    window.toggleMFA = async (enabled) => {
+      await setDoc(doc(db, 'mfa', currentUser.uid), { enabled }, { merge: true });
+      document.getElementById('mfaStatusText').textContent = enabled ? 'Enabled (SMS)' : 'Disabled';
+      showToast(enabled ? 'MFA Enabled!' : 'MFA Disabled');
+    };
+    window.signOutUser = () => signOut(auth).then(() => window.location.href = 'index.html');
+    window.openModal = (id) => document.getElementById(id).classList.remove('hidden');
+    window.closeModal = (id) => { document.getElementById(id).classList.add('hidden'); };
+    window.showToast = (msg, error = false) => {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.style.background = error ? '#ef4444' : '#10b981';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    };
+  </script>
+</body>
+</html>

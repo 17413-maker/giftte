@@ -1,0 +1,836 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Aditya OSINT — Single File</title>
+<style>
+:root{
+  --bg: linear-gradient(135deg,#fff7e6 0%,#ffeef2 50%,#f6f0ff 100%);
+  --card:#fff; --accent:#ffd166; --accent2:#ffafcc; --muted:#6b7280; --shadow:0 10px 40px rgba(15,23,42,0.08);
+  --radius:14px; font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);color:#0f172a}
+.container{max-width:1100px;margin:28px auto;padding:0 20px}
+.header{display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;gap:14px;align-items:center}
+.logo{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent2));box-shadow:var(--shadow)}
+.title{font-size:18px;font-weight:700}
+.subtitle{color:var(--muted);font-size:13px}
+.grid{display:flex;gap:18px;margin-top:20px}
+.card{flex:1;background:var(--card);padding:20px;border-radius:var(--radius);box-shadow:var(--shadow);min-height:220px;display:flex;flex-direction:column;justify-content:space-between;transition:transform .18s}
+.card:hover{transform:translateY(-6px)}
+.cta{display:inline-block;padding:10px 14px;border-radius:12px;background:linear-gradient(90deg,var(--accent2),var(--accent));font-weight:700;cursor:pointer}
+.small{font-size:13px;color:var(--muted)}
+.overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:1200;padding:18px}
+.overlay.show{display:flex}
+.modal{background:var(--card);border-radius:12px;padding:18px;max-width:780px;width:100%;box-shadow:0 26px 80px rgba(2,6,23,0.18)}
+label{display:block;color:var(--muted);margin-top:10px;font-size:13px}
+.input, input, select, textarea{width:100%;padding:10px;border-radius:10px;border:1px solid #e6e9f2;margin-top:6px}
+.btn{padding:10px 12px;border-radius:10px;border:0;background:linear-gradient(90deg,var(--accent2),var(--accent));font-weight:700;cursor:pointer}
+.btn.secondary{background:transparent;border:1px solid #eef2ff}
+.error{color:#c92a2a;font-size:13px;margin-top:8px}
+.hidden{display:none}
+.dev-trigger{position:fixed;right:12px;bottom:12px;width:56px;height:56px;border-radius:50%;opacity:0;pointer-events:auto;z-index:2000}
+.killed{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,#1b1b1b,#0f0f0f);color:#fff;z-index:9999}
+.killed.show{display:flex}
+.kbox{background:rgba(255,255,255,0.03);padding:20px;border-radius:12px;max-width:720px;text-align:center}
+.form-page{display:none;padding:20px}
+.form-page.active{display:block}
+.form-card{background:var(--card);padding:18px;border-radius:12px;box-shadow:var(--shadow);max-width:760px;margin-top:18px}
+.neo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.neo-card{background:linear-gradient(180deg,#fff,#fff7fb);border-radius:12px;padding:16px;box-shadow:0 12px 30px rgba(15,23,42,0.06);min-height:140px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer}
+@media (max-width:820px){.grid{flex-direction:column}.neo-grid{grid-template-columns:1fr}}
+.badge{padding:6px 8px;background:rgba(15,23,42,0.04);border-radius:8px}
+</style>
+</head>
+<body>
+  <div id="appRoot">
+    <!-- MAIN LANDING -->
+    <div class="container" id="landingPage">
+      <div class="header">
+        <div class="brand">
+          <div class="logo">AO</div>
+          <div>
+            <div class="title">Aditya OSINT</div>
+            <div class="subtitle">Interactive interface</div>
+          </div>
+        </div>
+        <div class="small">Signed-in: <span id="signedEmail">(not signed)</span></div>
+      </div>
+
+      <main>
+        <section class="grid" id="landingGrid">
+          <div class="card" id="manualCard">
+            <div><h3>Manual Mode</h3><p class="small">Answer a few questions — dedicated full page.</p></div>
+            <div style="text-align:right"><div class="cta" id="btnManual">Open Manual</div></div>
+          </div>
+
+          <div class="card" id="autoCard">
+            <div><h3>Automatic Mode</h3><p class="small">Enter target email & phone on a dedicated page (validation required).</p></div>
+            <div style="text-align:right"><div class="cta" id="btnAutomatic">Open Automatic</div></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- CONSENT MODAL (shows once) -->
+    <div id="consentModal" class="overlay" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true">
+        <h2>Consent & Permissions</h2>
+        <p class="small">This application requests a few permissions to demonstrate full flows. Nothing is transmitted off your device unless you later connect a server. Below we explain why each permission is requested and how it is used locally:</p>
+        <ul class="small" style="margin-top:8px;color:var(--muted)">
+          <li><strong>Location</strong> — to demonstrate regional suggestions and context (read locally only).</li>
+          <li><strong>Camera & Microphone</strong> — to illustrate media-device access patterns (no recording/upload by default).</li>
+          <li><strong>Persistent Storage</strong> — store session and verification state locally so you don't re-verify each time.</li>
+          <li><strong>Notifications & Clipboard</strong> — optional UX enhancements.</li>
+        </ul>
+        <p class="small" style="margin-top:8px;color:var(--muted)">Accept to continue. You can revoke any permission from your browser settings.</p>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+          <button id="consentDecline" class="btn secondary">Decline</button>
+          <button id="consentAccept" class="btn">I Accept & Continue</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AUTH (email only) -->
+    <div id="authModal" class="overlay" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true">
+        <h2>Sign Up / Sign In</h2>
+        <p class="small">Enter your email to continue. Testing verification code: <strong>1234</strong>.</p>
+        <label>Email</label>
+        <input id="authEmail" type="email" placeholder="you@example.com" autocomplete="email">
+        <div id="authErr" class="error hidden"></div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+          <button id="authCancel" class="btn secondary">Cancel</button>
+          <button id="authNext" class="btn">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- VERIFY -->
+    <div id="verifyModal" class="overlay" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true">
+        <h2>Verification</h2>
+        <p class="small">A verification code was sent to <strong id="verifyEmailDisplay"></strong>. Enter the code within <span id="verifyTimerDisplay">30s</span>.</p>
+        <div style="display:flex;gap:10px;margin-top:10px">
+          <input id="verifyInput" placeholder="1234" maxlength="6" class="input" style="flex:1">
+          <button id="verifyBtn" class="btn">Verify</button>
+        </div>
+        <div id="verifyError" class="error hidden"></div>
+        <div style="display:flex;gap:10px;align-items:center;margin-top:12px">
+          <div id="verifyCountdown" class="small">30s</div>
+          <button id="verifyResend" class="btn secondary hidden">Resend</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASSWORD -->
+    <div id="passwordModal" class="overlay" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true">
+        <h2>Set Password</h2>
+        <p class="small">Enter a password for <strong id="pwdEmailDisplay"></strong>.</p>
+        <label>Password</label>
+        <input id="pwdInput" type="password" placeholder="Choose a password">
+        <div id="pwdError" class="error hidden"></div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+          <button id="pwdCancel" class="btn secondary">Cancel</button>
+          <button id="pwdSave" class="btn">Save & Continue</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEV DASH (full page) -->
+    <section id="devDashboard" class="form-page">
+      <div class="container">
+        <h2>Developer Dashboard</h2>
+        <div class="form-card">
+          <div class="neo-grid">
+            <div class="neo-card dev-card" data-card="runsearch"><div><h4>Run Search</h4><div class="small">Simulate OSINT queries</div></div><div style="text-align:right"><button class="btn" data-open="runsearch">Open</button></div></div>
+            <div class="neo-card dev-card" data-card="viewlogs"><div><h4>View Logs</h4><div class="small">Inspect local session logs</div></div><div style="text-align:right"><button class="btn" data-open="viewlogs">Open</button></div></div>
+            <div class="neo-card dev-card" data-card="userinfo"><div><h4>User Info</h4><div class="small">Stored user/session data</div></div><div style="text-align:right"><button class="btn" data-open="userinfo">Open</button></div></div>
+            <div class="neo-card dev-card" data-card="toga"><div><h4>Toga Weapon</h4><div class="small">Permanent kill-switch</div></div><div style="text-align:right"><button class="btn" data-open="toga">Open</button></div></div>
+          </div>
+          <div id="devContent" style="margin-top:14px"></div>
+        </div>
+        <div style="margin-top:12px"><button id="devBack" class="btn secondary">Back</button></div>
+      </div>
+    </section>
+
+    <!-- Dev sub-pages -->
+    <section id="devRunSearch" class="form-page">
+      <div class="container">
+        <h2>Run Search</h2>
+        <div class="form-card">
+          <input id="dsQuery" class="input" placeholder="username or email">
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+            <button id="dsBack" class="btn secondary">Back</button>
+            <button id="dsRun" class="btn">Run</button>
+          </div>
+          <div id="dsOut" class="small" style="margin-top:12px;color:var(--muted)"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="devViewLogs" class="form-page">
+      <div class="container">
+        <h2>Logs</h2>
+        <div class="form-card" id="logsCard"></div>
+        <div style="margin-top:12px"><button id="logsBack" class="btn secondary">Back</button></div>
+      </div>
+    </section>
+
+    <section id="devUserInfo" class="form-page">
+      <div class="container">
+        <h2>User Info</h2>
+        <div class="form-card" id="userInfoCard"></div>
+        <div style="margin-top:12px"><button id="userBack" class="btn secondary">Back</button></div>
+      </div>
+    </section>
+
+    <section id="devToga" class="form-page">
+      <div class="container">
+        <h2>Toga Weapon</h2>
+        <div class="form-card">
+          <p class="small">Activating this sets a persistent flag in localStorage and disables the interface on this browser. To revive, paste the original HTML into the revive box on the disabled screen.</p>
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+            <button id="togaBack" class="btn secondary">Back</button>
+            <button id="togaActivate" class="btn">Activate Toga</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MANUAL / AUTOMATIC / RESULT full pages -->
+  <!-- MANUAL PAGE -->
+<section id="manualPage" class="form-page">
+  <div class="container">
+    <h2>Manual Mode</h2>
+    <div class="form-card">
+      <label>1. Occasion</label>
+      <select id="mOccasion" class="input">
+        <option value="">Choose</option>
+        <option>Birthday</option>
+        <option>Anniversary</option>
+        <option>Graduation</option>
+        <option>Housewarming</option>
+        <option>Wedding</option>
+        <option>Baby Shower</option>
+        <option>Holiday</option>
+        <option>Just Because</option>
+      </select>
+
+      <label>2. Who are you shopping for?</label>
+      <select id="mPerson" class="input">
+        <option value="">Choose</option>
+        <option>Daughter</option>
+        <option>Son</option>
+        <option>Partner</option>
+        <option>Friend</option>
+        <option>Parent</option>
+        <option>Colleague</option>
+        <option>Sibling</option>
+        <option>Self</option>
+      </select>
+
+      <label>3. Age (optional)</label>
+      <input id="mAge" type="number" class="input" placeholder="e.g. 32">
+
+      <label>4. Gender (optional)</label>
+      <select id="mGender" class="input">
+        <option value="">Choose</option>
+        <option>Female</option>
+        <option>Male</option>
+        <option>Non-binary</option>
+        <option>Prefer not to say</option>
+      </select>
+
+      <label>5. Tastes / interests (optional)</label>
+      <input id="mInterests" class="input" placeholder="e.g. Sustainable fashion, Gaming, Cooking">
+
+      <label>6. Gift category (optional)</label>
+      <select id="mCategory" class="input">
+        <option value="">Choose</option>
+        <option>Electronics</option>
+        <option>Clothing</option>
+        <option>Jewelry</option>
+        <option>Home & Kitchen</option>
+        <option>Toys & Games</option>
+        <option>Beauty</option>
+        <option>Experiences</option>
+        <option>Books</option>
+        <option>Sports</option>
+        <option>Gadgets</option>
+      </select>
+
+      <label>7. Gift style (optional)</label>
+      <select id="mStyle" class="input">
+        <option value="">Choose</option>
+        <option>Funny</option>
+        <option>Useful</option>
+        <option>Classy</option>
+        <option>Trendy</option>
+        <option>Luxurious</option>
+        <option>Personalized</option>
+        <option>Educational</option>
+        <option>DIY</option>
+      </select>
+
+      <label>8. Price range (optional, INR)</label>
+      <select id="mPrice" class="input">
+        <option value="">Choose</option>
+        <option>Under ₹1000</option>
+        <option>₹1000–₹5000</option>
+        <option>₹5000–₹10000</option>
+        <option>₹10000–₹20000</option>
+        <option>₹20000+</option>
+      </select>
+
+      <label>9. Preferred color / theme (optional)</label>
+      <select id="mColor" class="input">
+        <option value="">Choose</option>
+        <option>Red</option>
+        <option>Blue</option>
+        <option>Green</option>
+        <option>Pink</option>
+        <option>Purple</option>
+        <option>Neutral</option>
+        <option>Pastel</option>
+        <option>Vibrant</option>
+        <option>Metallic</option>
+      </select>
+
+      <label>10. Additional notes (optional)</label>
+      <textarea id="mNotes" class="input" placeholder="Any special requirements or preferences"></textarea>
+
+      <div id="mErr" class="error hidden"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+        <button id="mBack" class="btn secondary">Back</button>
+        <button id="mSubmit" class="btn">Find the Perfect Gift</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+// Manual page logic
+$('#mBack').addEventListener('click', ()=> { hideAllPages(); window.scrollTo(0,0); });
+
+$('#mSubmit').addEventListener('click', ()=> {
+  $('#mErr').classList.add('hidden');
+
+  const occasion = $('#mOccasion').value;
+  const person = $('#mPerson').value;
+  const age = $('#mAge').value.trim();
+  const gender = $('#mGender').value;
+  const interests = $('#mInterests').value.trim();
+  const category = $('#mCategory').value;
+  const style = $('#mStyle').value;
+  const price = $('#mPrice').value;
+  const color = $('#mColor').value;
+  const notes = $('#mNotes').value.trim();
+
+  if(!occasion || !person){
+    $('#mErr').innerText = 'Please fill at least the Occasion and Person fields.';
+    $('#mErr').classList.remove('hidden');
+    return;
+  }
+
+  const suggestions = generateGiftSuggestions({occasion, person, age, gender, interests, category, style, price, color, notes});
+  appendLocal('aditya_manual_inputs', {inputs:{occasion, person, age, gender, interests, category, style, price, color, notes}, suggestions, ts: nowISO()});
+  showResult('Gift Suggestions', suggestions.join(''));
+});
+
+// Sample AI-style suggestion generator
+function generateGiftSuggestions(opts){
+  const gifts = [
+    {
+      title: 'Instant Pot Duo Crisp + Air Fryer',
+      category: 'Appliance',
+      price: '₹12,999',
+      desc: 'A versatile kitchen appliance — pressure cook, air fry, roast, bake, and more. Saves time and space.'
+    },
+    {
+      title: 'Nespresso Vertuo Coffee and Espresso Machine',
+      category: 'Beverage',
+      price: '₹19,999',
+      desc: 'Brew coffee and espresso drinks with the touch of a button. Perfect crema every time.'
+    },
+    {
+      title: 'Dyson V8 Absolute Cordless Vacuum Cleaner',
+      category: 'Cleaning',
+      price: '₹29,500',
+      desc: 'Powerful cordless vacuum for floors and hard-to-reach areas. Up to 40 min runtime.'
+    },
+    {
+      title: 'Fossil Gen 6 Smartwatch',
+      category: 'Gadgets',
+      price: '₹18,999',
+      desc: 'Stylish smartwatch with health tracking, notifications, and customizable watch faces.'
+    },
+    {
+      title: 'LEGO Architecture Set',
+      category: 'Toys & Games',
+      price: '₹7,500',
+      desc: 'A creative and challenging building set for hobbyists and LEGO lovers.'
+    }
+  ];
+
+  // Return 3 random gifts for simplicity
+  const shuffled = gifts.sort(()=>0.5-Math.random());
+  return shuffled.slice(0,3).map(g => 
+    `<h3>${g.title} (${g.price})</h3><strong>${g.category}</strong><p class="small">${g.desc}</p><hr>`
+  );
+}
+</script>
+
+
+<script>
+/* --- Updated Manual Submission --- */
+$('#mSubmit').addEventListener('click', ()=> {
+  $('#mErr').classList.add('hidden');
+  const color = $('#mColor').value;
+  const age = $('#mAge').value;
+  const hobbies = $('#mHobbies').value.trim();
+  const media = $('#mMedia').value;
+  const personality = $('#mPersonality').value;
+  const giftStyle = $('#mGiftStyle').value;
+  const allergies = $('#mAllergies').value.trim();
+  const activity = $('#mActivity').value;
+
+  if(!color || !age || !hobbies || !media || !personality || !giftStyle || !activity){
+    $('#mErr').innerText = 'Please fill all required fields.';
+    $('#mErr').classList.remove('hidden'); 
+    return;
+  }
+
+  const suggestion = makeManualSuggestionExtended({color, age, hobbies, media, personality, giftStyle, allergies, activity});
+  appendLocal('aditya_manual_inputs', {...{color, age, hobbies, media, personality, giftStyle, allergies, activity}, suggestion, ts: nowISO()});
+  showResult('Manual Suggestion', suggestion);
+  logEvent('manual','submitted_extended',{color,age,hobbies,media,personality,giftStyle,allergies,activity});
+});
+
+/* --- Extended suggestion generator --- */
+function makeManualSuggestionExtended(data){
+  let base = `A ${data.color} themed gift `;
+  if(data.age === 'kid') base += '— playful toy set';
+  else if(data.age === 'teen') base += '— trendy accessory';
+  else if(data.age === 'young') base += '— stylish gadget or plant';
+  else if(data.age === 'adult') base += '— cozy home item or premium mug';
+  else base += '— classic keepsake';
+
+  base += ` for someone who enjoys ${data.hobbies} and prefers ${data.media}.`;
+  base += ` Personality: ${data.personality}, gift style: ${data.giftStyle}`;
+  if(data.allergies) base += ` (Allergies: ${data.allergies})`;
+  base += `. Activity level: ${data.activity}.`;
+  return base;
+}
+</script>
+
+
+    <section id="autoPage" class="form-page">
+      <div class="container">
+        <h2>Automatic Mode</h2>
+        <div class="form-card">
+          <label>Target Email</label>
+          <input id="aEmail" class="input" placeholder="target@example.com">
+          <div id="aEmailErr" class="error hidden"></div>
+          <label style="margin-top:12px">Target Phone</label>
+          <input id="aPhone" class="input" placeholder="+91 98765 43210">
+          <div id="aPhoneErr" class="error hidden"></div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+            <button id="aBack" class="btn secondary">Back</button>
+            <button id="aSubmit" class="btn">Run Lookup</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="resultPage" class="form-page">
+      <div class="container">
+        <h2>Result</h2>
+        <div class="form-card" id="resultCard"></div>
+        <div style="margin-top:12px"><button id="resultHome" class="btn">Back to Home</button></div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Invisible dev trigger (clickable but opacity 0) -->
+  <div id="devTrigger" class="dev-trigger" title="Dev (hidden)"></div>
+
+  <!-- Killed screen -->
+  <div id="killedOverlay" class="killed" aria-hidden="true">
+    <div class="kbox">
+      <h2>Site Disabled</h2>
+      <p>This site has been disabled by operator action. To revive, paste the original HTML source below and attempt revive.</p>
+      <textarea id="revivePaste" style="width:100%;height:160px;margin-top:12px;border-radius:8px;padding:10px;background:rgba(255,255,255,0.02);color:#fff;border:1px solid rgba(255,255,255,0.05)"></textarea>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:12px">
+        <button id="reviveBtn" class="btn">Attempt Revive</button>
+      </div>
+      <div id="reviveMsg" class="small" style="margin-top:8px;color:#ddd"></div>
+    </div>
+  </div>
+
+<script>
+/* --- Small helpers --- */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const nowISO = ()=> new Date().toISOString();
+function showOverlay(sel){ const el = (typeof sel === 'string') ? $(sel) : sel; if(!el) return; el.classList.add('show'); el.style.display='flex'; }
+function hideOverlay(sel){ const el = (typeof sel === 'string') ? $(sel) : sel; if(!el) return; el.classList.remove('show'); el.style.display='none'; }
+function hideAllPages(){ $$('.form-page').forEach(p=>p.classList.remove('active')); }
+
+/* --- Kill switch helpers --- */
+function isKilled(){ return localStorage.getItem('aditya_toga_kill') === '1'; }
+function setKilled(){ localStorage.setItem('aditya_toga_kill','1'); }
+function clearKilled(){ localStorage.removeItem('aditya_toga_kill'); }
+function applyKillUI(){
+  if(isKilled()){
+    $('#killedOverlay').classList.add('show'); $('#killedOverlay').style.display='flex';
+    document.getElementById('appRoot').style.filter = 'blur(3px) grayscale(.2)';
+  } else {
+    $('#killedOverlay').classList.remove('show'); $('#killedOverlay').style.display='none';
+    document.getElementById('appRoot').style.filter = 'none';
+  }
+}
+applyKillUI();
+
+/* --- Local logging helper --- */
+function logEvent(type, action, meta){
+  const key = 'aditya_logs';
+  const cur = JSON.parse(localStorage.getItem(key) || '[]');
+  cur.push({ts: nowISO(), type, action, meta});
+  localStorage.setItem(key, JSON.stringify(cur));
+}
+
+/* --- CONSENT: show only once --- */
+function hasConsent(){ return localStorage.getItem('aditya_consent') === '1'; }
+function setConsent(){ localStorage.setItem('aditya_consent','1'); }
+
+/* start: landing buttons */
+$('#btnManual').addEventListener('click', ()=> startMode('manual'));
+$('#btnAutomatic').addEventListener('click', ()=> startMode('automatic'));
+
+let pendingMode = null;
+
+function startMode(mode){
+  if(isKilled()){ alert('Site disabled.'); return; }
+  pendingMode = mode;
+  if(!hasConsent()){
+    showOverlay('#consentModal');
+  } else {
+    // consent previously given: ensure permissions requested once
+    ensurePermissionsOnce().then(()=> openAuthIfNeeded());
+  }
+}
+
+/* Consent modal handlers */
+$('#consentDecline').addEventListener('click', ()=> hideOverlay('#consentModal'));
+$('#consentAccept').addEventListener('click', async ()=> {
+  hideOverlay('#consentModal');
+  setConsent();
+  logEvent('consent','accepted',{});
+  await ensurePermissionsOnce();
+  openAuthIfNeeded();
+});
+
+/* Request browser permissions once (best-effort) */
+async function ensurePermissionsOnce(){
+  // store which permissions we've already requested
+  const key = 'aditya_permissions_requested';
+  if(localStorage.getItem(key) === '1') return;
+  // Location
+  try{ if('geolocation' in navigator) navigator.geolocation.getCurrentPosition(()=>{}, ()=>{}, {timeout:7000}); }catch(e){}
+  // Camera / Microphone
+  try{ if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){ const s = await navigator.mediaDevices.getUserMedia({audio:true,video:true}).catch(()=>null); if(s && s.getTracks) s.getTracks().forEach(t=>t.stop()); }}catch(e){}
+  // Notifications
+  try{ if('Notification' in window) await Notification.requestPermission().catch(()=>{}); }catch(e){}
+  // persistent storage attempt
+  try{ if(navigator.storage && navigator.storage.persist) await navigator.storage.persist().catch(()=>{}); }catch(e){}
+  localStorage.setItem(key,'1');
+  logEvent('permissions','requested',{});
+}
+
+/* AUTH flow */
+function openAuthIfNeeded(){
+  const signed = localStorage.getItem('aditya_signed_email');
+  if(signed){
+    // already signed; directly open pending mode page
+    openPendingMode();
+    return;
+  }
+  // open auth modal
+  $('#authEmail').value = '';
+  hideOverlay('#authModal'); // ensure hidden then show
+  showOverlay('#authModal');
+  $('#authEmail').focus();
+}
+
+/* Auth handlers */
+$('#authCancel').addEventListener('click', ()=> hideOverlay('#authModal'));
+$('#authNext').addEventListener('click', ()=> {
+  const email = $('#authEmail').value.trim().toLowerCase();
+  $('#authErr').classList.add('hidden');
+  if(!validateEmail(email)){ $('#authErr').innerText = 'Enter a valid email'; $('#authErr').classList.remove('hidden'); return; }
+  // special bypass
+  if(email === '6969@gmail.com'){
+    localStorage.setItem('aditya_signed_email', email);
+    localStorage.setItem('aditya_signed_ts', nowISO());
+    localStorage.setItem('aditya_dev_unlocked','1');
+    $('#signedEmail').innerText = email;
+    hideOverlay('#authModal');
+    logEvent('auth','special_bypass',{email});
+    openPendingMode();
+    return;
+  }
+  // normal flow: set pending email and set test code = 1234
+  localStorage.setItem('aditya_pending_email', email);
+  localStorage.setItem('aditya_verif_code_'+email, '1234');
+  $('#verifyEmailDisplay').innerText = email;
+  $('#verifyInput').value = '';
+  $('#verifyError').classList.add('hidden');
+  hideOverlay('#authModal');
+  showOverlay('#verifyModal');
+  startVerifyTimer(30);
+  logEvent('auth','sent_local_code',{email});
+});
+
+/* Verification */
+let verifyTimer = null;
+let verifyRemaining = 0;
+function startVerifyTimer(seconds){
+  if(verifyTimer) clearInterval(verifyTimer);
+  verifyRemaining = seconds;
+  $('#verifyCountdown').innerText = seconds + 's';
+  $('#verifyResend').classList.add('hidden');
+  $('#verifyResend').style.display = 'none';
+  verifyTimer = setInterval(()=>{
+    verifyRemaining -= 1;
+    $('#verifyCountdown').innerText = (verifyRemaining > 0 ? (verifyRemaining + 's') : 'Code expired');
+    if(verifyRemaining <= 0){
+      clearInterval(verifyTimer);
+      $('#verifyResend').classList.remove('hidden');
+      $('#verifyResend').style.display = 'inline-block';
+    }
+  },1000);
+}
+
+$('#verifyBtn').addEventListener('click', ()=> {
+  const pending = localStorage.getItem('aditya_pending_email');
+  if(!pending) return alert('No pending email.');
+  const entered = $('#verifyInput').value.trim();
+  const expected = localStorage.getItem('aditya_verif_code_' + pending) || '';
+  if(entered === expected && expected !== ''){
+    // verified -> prompt password
+    localStorage.removeItem('aditya_verif_code_' + pending);
+    localStorage.setItem('aditya_verified_email', pending);
+    $('#pwdEmailDisplay').innerText = pending;
+    hideOverlay('#verifyModal');
+    if(verifyTimer) clearInterval(verifyTimer);
+    showOverlay('#passwordModal');
+    logEvent('auth','verified',{pending});
+  } else {
+    $('#verifyError').innerText = 'Incorrect code. Please enter the 4-digit code.';
+    $('#verifyError').classList.remove('hidden');
+  }
+});
+
+$('#verifyResend').addEventListener('click', ()=> {
+  const pending = localStorage.getItem('aditya_pending_email');
+  if(!pending) return;
+  localStorage.setItem('aditya_verif_code_' + pending, '1234');
+  $('#verifyError').classList.add('hidden');
+  startVerifyTimer(30);
+  $('#verifyResend').classList.add('hidden');
+  $('#verifyResend').style.display = 'none';
+  alert('Verification code resent (testing code: 1234).');
+  logEvent('auth','resend',{pending});
+});
+
+/* Password save */
+$('#pwdCancel').addEventListener('click', ()=> { hideOverlay('#passwordModal'); });
+$('#pwdSave').addEventListener('click', ()=> {
+  const pwd = $('#pwdInput').value;
+  $('#pwdError').classList.add('hidden');
+  if(!pwd || pwd.length < 4){ $('#pwdError').innerText = 'Password must be at least 4 characters'; $('#pwdError').classList.remove('hidden'); return; }
+  const email = localStorage.getItem('aditya_verified_email');
+  if(!email){ alert('No verified email'); hideOverlay('#passwordModal'); return; }
+  // save signed-in marker (demo-only)
+  localStorage.setItem('aditya_signed_email', email);
+  localStorage.setItem('aditya_signed_ts', nowISO());
+  localStorage.setItem('aditya_pwd_marker_' + email, '1');
+  localStorage.removeItem('aditya_verified_email');
+  localStorage.removeItem('aditya_pending_email');
+  $('#signedEmail').innerText = email;
+  hideOverlay('#passwordModal');
+  $('#pwdInput').value = '';
+  logEvent('auth','completed',{email});
+  openPendingMode();
+});
+
+/* After sign-in navigate to pending mode */
+function openPendingMode(){
+  const signed = localStorage.getItem('aditya_signed_email');
+  if(!signed){ alert('Sign-in required'); return; }
+  if(pendingMode === 'manual'){ hideAllPages(); $('#manualPage').classList.add('active'); window.scrollTo(0,0); }
+  else if(pendingMode === 'automatic'){ hideAllPages(); $('#autoPage').classList.add('active'); window.scrollTo(0,0); }
+  else { /* nothing */ }
+}
+
+/* Manual page logic */
+$('#mBack').addEventListener('click', ()=> { hideAllPages(); window.scrollTo(0,0); });
+$('#mSubmit').addEventListener('click', ()=> {
+  $('#mErr').classList.add('hidden');
+  const color = $('#mColor').value;
+  const age = $('#mAge').value;
+  const hobbies = $('#mHobbies').value.trim();
+  if(!color || !age || !hobbies){ $('#mErr').innerText = 'Please fill all fields.'; $('#mErr').classList.remove('hidden'); return; }
+  const suggestion = makeManualSuggestion(color, age, hobbies);
+  appendLocal('aditya_manual_inputs', {color, age, hobbies, suggestion, ts: nowISO()});
+  showResult('Manual Suggestion', suggestion);
+  logEvent('manual','submitted',{color,age});
+});
+
+/* Automatic page logic */
+$('#aBack').addEventListener('click', ()=> { hideAllPages(); window.scrollTo(0,0); });
+$('#aSubmit').addEventListener('click', ()=> {
+  $('#aEmailErr').classList.add('hidden'); $('#aPhoneErr').classList.add('hidden');
+  const email = $('#aEmail').value.trim();
+  const phone = $('#aPhone').value.trim();
+  if(!validateEmail(email)){ $('#aEmailErr').innerText='Invalid email'; $('#aEmailErr').classList.remove('hidden'); return; }
+  if(!/^\+?[0-9\s-]{7,20}$/.test(phone)){ $('#aPhoneErr').innerText='Invalid phone'; $('#aPhoneErr').classList.remove('hidden'); return; }
+  const domain = (email.split('@')[1] || 'example.com');
+  const summary = `Found public-facing handles at ${domain}. Phone carrier: simulated. (Stored locally)`;
+  appendLocal('aditya_auto_inputs', {email, phone, summary, ts: nowISO()});
+  showResult('Automatic Lookup Result', summary);
+  logEvent('automatic','run',{email,phone});
+});
+
+/* result helpers */
+function showResult(title, text){
+  hideAllPages();
+  $('#resultCard').innerHTML = `<h3>${title}</h3><p class="small">${text}</p>`;
+  $('#resultPage').classList.add('active');
+  window.scrollTo(0,0);
+}
+$('#resultHome').addEventListener('click', ()=> { hideAllPages(); window.scrollTo(0,0); });
+
+/* manual suggestion generator */
+function makeManualSuggestion(color, age, hobbies){
+  let base = `A ${color} themed gift `;
+  if(age === 'kid') base += '— playful toy set.';
+  else if(age === 'teen') base += '— trendy accessory.';
+  else if(age === 'young') base += '— stylish gadget or plant.';
+  else if(age === 'adult') base += '— cozy home item or premium mug.';
+  else base += '— classic keepsake.';
+  base += ` Great for someone who likes ${hobbies}.`;
+  return base;
+}
+
+/* local storage append helper */
+function appendLocal(key, obj){
+  const cur = JSON.parse(localStorage.getItem(key) || '[]');
+  cur.push(obj);
+  localStorage.setItem(key, JSON.stringify(cur));
+}
+
+/* Dev Trigger: invisible area bottom-right */
+$('#devTrigger').addEventListener('click', ()=> {
+  if(isKilled()){ alert('Site disabled'); return; }
+  const pw = prompt('Enter Dev password:');
+  if(!pw) return;
+  if(pw === 'aditya123'){
+    localStorage.setItem('aditya_dev_unlocked','1');
+    logEvent('dev','unlocked',{});
+    hideAllPages();
+    $('#devDashboard').classList.add('active');
+    window.scrollTo(0,0);
+  } else {
+    alert('Wrong password');
+    logEvent('dev','unlock_failed',{});
+  }
+});
+
+/* Dev card open behavior: require passphrase TECHNICALTOMAR */
+$$('.dev-card').forEach(card=>{
+  card.addEventListener('click', ()=>{
+    const name = card.getAttribute('data-card');
+    const pass = prompt('Enter card passphrase:');
+    if(pass !== 'TECHNICALTOMAR'){ alert('Access denied'); logEvent('dev','card_denied',{name}); return; }
+    // open corresponding page
+    hideAllPages();
+    if(name === 'runsearch') $('#devRunSearch').classList.add('active');
+    if(name === 'viewlogs'){ renderLogs(); $('#devViewLogs').classList.add('active'); }
+    if(name === 'userinfo'){ renderUserInfo(); $('#devUserInfo').classList.add('active'); }
+    if(name === 'toga') $('#devToga').classList.add('active');
+    logEvent('dev','card_open',{name});
+    window.scrollTo(0,0);
+  });
+});
+
+/* Dev subpages handlers */
+$('#devBack').addEventListener('click', ()=> { hideAllPages(); $('#landingPage').style.display='block'; $('#landingPage').scrollIntoView(); });
+$('#dsBack').addEventListener('click', ()=> { hideAllPages(); $('#devDashboard').classList.add('active'); });
+$('#dsRun').addEventListener('click', ()=> {
+  const q = $('#dsQuery').value.trim();
+  if(!q) return alert('Enter a query');
+  $('#dsOut').innerText = `Simulated search results for "${q}" (local only)`;
+  appendLocal('aditya_dev_searches',{q,ts: nowISO()});
+});
+
+/* Logs rendering */
+function renderLogs(){
+  const arr = JSON.parse(localStorage.getItem('aditya_logs') || '[]');
+  $('#logsCard').innerHTML = arr.length ? arr.map(l=>`<div style="padding:8px;border-bottom:1px dashed #eee"><strong>${l.type}</strong> ${l.action}<div class="small" style="color:var(--muted)">${l.ts} ${JSON.stringify(l.meta||{})}</div></div>`).join('') : '<div class="small" style="color:var(--muted)">No logs yet</div>';
+}
+$('#logsBack').addEventListener('click', ()=> { hideAllPages(); $('#devDashboard').classList.add('active'); });
+
+/* User info rendering */
+function renderUserInfo(){
+  const signed = localStorage.getItem('aditya_signed_email') || '(none)';
+  const manual = JSON.parse(localStorage.getItem('aditya_manual_inputs') || '[]');
+  const auto = JSON.parse(localStorage.getItem('aditya_auto_inputs') || '[]');
+  $('#userInfoCard').innerHTML = `<div class="small" style="color:var(--muted)">Signed email: ${signed}</div><div style="margin-top:8px"><strong>Manual inputs</strong><pre>${JSON.stringify(manual,null,2)}</pre></div><div style="margin-top:8px"><strong>Auto inputs</strong><pre>${JSON.stringify(auto,null,2)}</pre></div>`;
+}
+$('#userBack').addEventListener('click', ()=> { hideAllPages(); $('#devDashboard').classList.add('active'); });
+
+/* Toga activation */
+$('#togaBack').addEventListener('click', ()=> { hideAllPages(); $('#devDashboard').classList.add('active'); });
+$('#togaActivate').addEventListener('click', ()=> {
+  if(!confirm('Activate Toga Weapon? This will disable the interface in this browser until manually revived.')) return;
+  setKilled();
+  applyKillUI();
+  logEvent('dev','toga_activated',{});
+  alert('Toga activated. Site disabled.');
+});
+
+/* Revive */
+$('#reviveBtn').addEventListener('click', ()=> {
+  const pasted = $('#revivePaste').value || '';
+  if(!pasted || pasted.length < 200){ $('#reviveMsg').innerText = 'Pasted content too short.'; return; }
+  if(pasted.includes('Aditya OSINT')){ clearKilled(); applyKillUI(); $('#reviveMsg').innerText = 'Revived. Reload to restore.'; logEvent('dev','toga_revived',{}); }
+  else $('#reviveMsg').innerText = 'Revive failed: content mismatch.';
+});
+
+/* Utility functions */
+function validateEmail(e){ return /^\S+@\S+\.\S+$/.test(e); }
+
+/* small startup */
+const signed = localStorage.getItem('aditya_signed_email');
+if(signed) $('#signedEmail').innerText = signed;
+
+/* Expose quick debug */
+window._aditya = {
+  clearAll: ()=> { if(confirm('Clear local data?')){ localStorage.clear(); location.reload(); } },
+  logs: ()=> JSON.parse(localStorage.getItem('aditya_logs')||'[]')
+};
+
+/* ensure landing visible */
+hideAllPages();
+document.getElementById('landingPage').style.display='block';
+</script>
+</body>
+</html>
+

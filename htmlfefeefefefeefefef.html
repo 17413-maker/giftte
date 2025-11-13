@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aditya OSINT - Home</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  .hidden { display: none; }
+  input[type="password"] { -webkit-text-security: disc; }
+</style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col">
+
+<!-- NAVBAR -->
+<nav class="bg-gray-800 p-4 flex flex-wrap justify-between items-center shadow-lg">
+  <h1 class="text-2xl font-bold text-indigo-400">Aditya<span class="text-white">OSINT</span></h1>
+  <div class="flex space-x-4 flex-wrap mt-2 md:mt-0">
+    <button onclick="showSection('home')" class="hover:text-indigo-400">Home</button>
+    <button onclick="showSection('social')" class="hover:text-indigo-400">Social</button>
+  </div>
+</nav>
+
+<!-- HOME PAGE -->
+<section id="home" class="py-16 px-4 text-center">
+  <h2 class="text-4xl md:text-5xl font-bold mb-4">Welcome to Aditya OSINT</h2>
+  <p class="text-gray-400 mb-8">Secure Intelligence • Ethical Discovery • Zero Exposure</p>
+  <div class="flex flex-wrap justify-center gap-6">
+    <button onclick="showSection('automatic')" class="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-3 rounded-xl">Automatic Mode</button>
+    <button onclick="showSection('manual')" class="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-3 rounded-xl">Manual Mode</button>
+    <button onclick="showSection('face')" class="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-3 rounded-xl">Face Search</button>
+    <button onclick="showSection('dev')" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl">Dev Mode (Root Access)</button>
+  </div>
+</section>
+
+<!-- AUTOMATIC MODE -->
+<section id="automatic" class="py-16 px-4 hidden">
+  <h2 class="text-3xl font-bold mb-4">Automatic Mode</h2>
+  <p class="text-gray-400 mb-6">Simulated automatic search functionality.</p>
+  <button onclick="showSection('home')" class="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-3 rounded-xl">Back to Home</button>
+</section>
+
+<!-- MANUAL MODE -->
+<section id="manual" class="py-16 px-4 hidden">
+  <h2 class="text-3xl font-bold mb-4">Manual Mode</h2>
+  <p class="text-gray-400 mb-6">Simulated manual search functionality.</p>
+  <button onclick="showSection('home')" class="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-3 rounded-xl">Back to Home</button>
+</section>
+
+<!-- FACE SEARCH -->
+<section id="face" class="py-16 px-4 hidden">
+  <h2 class="text-3xl font-bold mb-4">Face Search</h2>
+  <p class="text-gray-400 mb-6">Simulated face search for User & Dev.</p>
+  <button onclick="showSection('home')" class="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-3 rounded-xl">Back to Home</button>
+</section>
+
+<!-- DEV MODE -->
+<section id="dev" class="py-16 px-4 hidden">
+  <h2 class="text-3xl font-bold mb-4">Developer Mode Access</h2>
+  <p class="text-gray-400 mb-4">Enter root password to access Dev features:</p>
+  <input type="password" placeholder="Root Password" class="p-2 rounded-lg text-black mb-4"/>
+  <br/>
+  <button onclick="alert('Placeholder: Access Granted')" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl mb-4">Enter</button>
+  <div class="grid md:grid-cols-2 gap-6 mt-6">
+    <button class="bg-red-500 hover:bg-red-600 text-white p-6 rounded-lg">Mass Search (Dev Only)</button>
+    <button class="bg-red-500 hover:bg-red-600 text-white p-6 rounded-lg">Face Search Mass (Dev Only)</button>
+    <button class="bg-red-500 hover:bg-red-600 text-white p-6 rounded-lg">Upload File (Dev)</button>
+    <button class="bg-red-500 hover:bg-red-600 text-white p-6 rounded-lg">Dev Raw Output (Paid)</button>
+  </div>
+  <br/>
+  <button onclick="showSection('home')" class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-xl">Back to Home</button>
+</section>
+
+<!-- SOCIAL MEDIA HANDLES -->
+<section id="social" class="py-16 px-4 hidden">
+  <h2 class="text-3xl font-bold mb-4">Social Media</h2>
+  <p class="text-gray-400 mb-6">Follow us on:</p>
+  <div class="flex space-x-4 justify-center">
+    <a href="#" class="hover:text-indigo-400">Twitter</a>
+    <a href="#" class="hover:text-indigo-400">Instagram</a>
+    <a href="#" class="hover:text-indigo-400">LinkedIn</a>
+    <a href="#" class="hover:text-indigo-400">GitHub</a>
+  </div>
+  <br/>
+  <button onclick="showSection('home')" class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-xl">Back to Home</button>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-gray-900 text-gray-500 py-6 text-center mt-auto">
+  &copy; 2025 Aditya OSINT. All rights reserved.
+</footer>
+
+<!-- JS FOR NAVIGATION -->
+<script>
+function showSection(id){
+  document.querySelectorAll('section').forEach(sec => sec.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+</script>
+
+</body>
+</html>

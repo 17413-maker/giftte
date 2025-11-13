@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gifté+ | Home</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #faf9fa;
+      font-family: 'Poppins', sans-serif;
+    }
+    .hover-scale {
+      transition: all 0.3s ease;
+    }
+    .hover-scale:hover {
+      transform: scale(1.1);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body class="text-gray-800">
+
+  <!-- Navbar -->
+  <nav class="flex justify-between items-center px-10 py-5 bg-white shadow-md sticky top-0 z-50">
+    <h1 class="text-2xl font-bold text-pink-600 tracking-wide hover:scale-105 transition-transform duration-300">
+      Gifté+
+    </h1>
+    <div class="space-x-4 flex items-center">
+      <a href="home.html" 
+         class="px-4 py-2 rounded-full text-gray-700 font-semibold bg-gradient-to-r from-pink-100 to-pink-200 hover:from-pink-400 hover:to-pink-600 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-md">
+        Home
+      </a>
+      <a href="usage.html" 
+         class="px-4 py-2 rounded-full text-gray-700 font-semibold bg-gradient-to-r from-pink-100 to-pink-200 hover:from-pink-400 hover:to-pink-600 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-md">
+        How to Use
+      </a>
+      <a href="contact.html" 
+         class="px-4 py-2 rounded-full text-gray-700 font-semibold bg-gradient-to-r from-pink-100 to-pink-200 hover:from-pink-400 hover:to-pink-600 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-md">
+        Contact Us
+      </a>
+      <a href="login.html" 
+         class="px-4 py-2 rounded-full text-gray-700 font-semibold bg-gradient-to-r from-pink-100 to-pink-200 hover:from-pink-400 hover:to-pink-600 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-md">
+        Login
+      </a>
+      <a href="signup.html" 
+         class="px-5 py-2 rounded-full text-white font-semibold bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 transition-all duration-300 transform hover:scale-110 shadow-lg">
+        Sign Up
+      </a>
+      <!-- About Dev Button -->
+      <a href="abtdev.html" 
+         class="px-4 py-2 rounded-full text-white font-semibold bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 transition-all duration-300 transform hover:scale-110 shadow-lg">
+        About Dev
+      </a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="text-center py-16 px-8 bg-gradient-to-r from-pink-100 to-white">
+    <h2 class="text-4xl font-bold text-gray-800 mb-4">Welcome to <span class="text-pink-600">Gifté+</span></h2>
+    <p class="text-lg text-gray-700 max-w-2xl mx-auto">
+      A next-generation platform combining intelligent gifting with ethical OSINT insights.<br />
+      Experience two ways to personalize your gift-finding journey.
+    </p>
+  </section>
+
+  <!-- Mode Showcase Section -->
+  <section class="py-16 bg-white text-center">
+    <h3 class="text-3xl font-semibold mb-10 text-gray-800">Choose Your Style</h3>
+    <div class="flex flex-col md:flex-row items-center justify-center gap-10 px-8">
+      <!-- Manual Mode -->
+      <div class="bg-gray-50 shadow-lg rounded-2xl p-6 max-w-sm hover-scale">
+        <img src="https://cdn-icons-png.flaticon.com/512/3062/3062600.png" alt="Manual Mode" class="mx-auto w-32 mb-4">
+        <h4 class="text-xl font-semibold mb-2 text-gray-800">Manual Mode</h4>
+        <p class="text-gray-600 text-sm">
+          Take full control. Enter preferences, relationships, and details manually.<br>
+          Ideal for users who want to craft a highly personalized gifting experience.
+        </p>
+      </div>
+
+      <!-- Automatic Mode -->
+      <div class="bg-gray-50 shadow-lg rounded-2xl p-6 max-w-sm hover-scale">
+        <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" alt="Automatic Mode" class="mx-auto w-32 mb-4">
+        <h4 class="text-xl font-semibold mb-2 text-gray-800">Automatic Mode</h4>
+        <p class="text-gray-600 text-sm">
+          Let AI handle the magic. Using OSINT insights, Gifté+ automatically analyzes data to suggest perfect gifts instantly.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Gifté+ -->
+  <section class="bg-pink-50 py-16 text-center">
+    <h3 class="text-3xl font-semibold text-pink-600 mb-8">About Gifté+</h3>
+    <div class="max-w-4xl mx-auto text-gray-700 leading-relaxed">
+      <p class="text-lg mb-4">
+        Gifté+ is more than just a gifting app — it’s your smart companion for finding meaningful presents that actually connect with people. 
+        Built on principles of personalization, psychology, and ethical intelligence, Gifté+ transforms how people discover and give gifts.
+      </p>
+      <p class="text-lg mb-4">
+        Our vision is to make gifting effortless, emotional, and ethical. Whether you’re picking something for a friend, a colleague, or a loved one, Gifté+ helps you choose the right gift that tells the right story.
+      </p>
+      <p class="text-lg">
+        We believe every gift should carry emotion, purpose, and thoughtfulness. That’s why our AI learns from personality, interests, and preferences — not random data scraping — to make your gifts feel truly personal.
+      </p>
+    </div>
+  </section>
+
+  <!-- Features & Values Section -->
+  <section class="py-16 bg-white text-center">
+    <h3 class="text-3xl font-semibold mb-10 text-gray-800">Our Core Values</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10 px-10 max-w-6xl mx-auto">
+      
+      <!-- Ethical Intelligence -->
+      <div class="bg-gray-50 shadow-lg rounded-2xl p-6 hover-scale">
+        <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Ethical AI" class="mx-auto w-20 mb-4">
+        <h4 class="text-xl font-semibold mb-2 text-gray-800">Ethical AI</h4>
+        <p class="text-gray-600 text-sm">
+          Our systems are trained with a focus on fairness and privacy. We never exploit or misuse data — we use it responsibly to serve users better.
+        </p>
+      </div>
+
+      <!-- Privacy First -->
+      <div class="bg-gray-50 shadow-lg rounded-2xl p-6 hover-scale">
+        <img src="https://cdn-icons-png.flaticon.com/512/3064/3064197.png" alt="Privacy First" class="mx-auto w-20 mb-4">
+        <h4 class="text-xl font-semibold mb-2 text-gray-800">Privacy First</h4>
+        <p class="text-gray-600 text-sm">
+          Your data belongs to you. Gifté+ never stores or sells your information. All insights are processed securely and used only to enhance your gift suggestions.
+        </p>
+      </div>
+
+      <!-- Smart Personalization -->
+      <div class="bg-gray-50 shadow-lg rounded-2xl p-6 hover-scale">
+        <img src="https://cdn-icons-png.flaticon.com/512/6611/6611748.png" alt="Smart Personalization" class="mx-auto w-20 mb-4">
+        <h4 class="text-xl font-semibold mb-2 text-gray-800">Smart Personalization</h4>
+        <p class="text-gray-600 text-sm">
+          We blend AI logic with emotional understanding. Each recommendation is crafted to match personality types, occasions, and sentiment.
+        </p>
+      </div>
+
+      <!-- OSINT Ethics -->
+      <div class="bg-gray-50 shadow-lg rounded-2xl p-6 hover-scale">
+        <img src="https://cdn-icons-png.flaticon.com/512/6820/6820358.png" alt="OSINT Ethics" class="mx-auto w-20 mb-4">
+        <h4 class="text-xl font-semibold mb-2 text-gray-800">Ethical OSINT</h4>
+        <p class="text-gray-600 text-sm">
+          Our OSINT integrations are built with ethical boundaries. We gather open, consented, and publicly available data only to make predictions — never to invade privacy.
+        </p>
+      </div>
+
+      <!-- Human-Centered Design -->
+      <div class="bg-gray-50 shadow-lg rounded-2xl p-6 hover-scale">
+        <img src="https://cdn-icons-png.flaticon.com/512/3176/3176362.png" alt="Human Design" class="mx-auto w-20 mb-4">
+        <h4 class="text-xl font-semibold mb-2 text-gray-800">Human-Centered Design</h4>
+        <p class="text-gray-600 text-sm">
+          From color to layout, every element of Gifté+ is built to create warmth and simplicity — making the digital feel personal again.
+        </p>
+      </div>
+
+      <!-- Future Ready -->
+      <div class="bg-gray-50 shadow-lg rounded-2xl p-6 hover-scale">
+        <img src="https://cdn-icons-png.flaticon.com/512/609/609803.png" alt="Future Ready" class="mx-auto w-20 mb-4">
+        <h4 class="text-xl font-semibold mb-2 text-gray-800">Future Ready</h4>
+        <p class="text-gray-600 text-sm">
+          We’re building the future of gifting with AI. Gifté+ learns, evolves, and adapts — ensuring your experience gets better with every search.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="text-center py-6 bg-gray-900 text-white text-sm">
+    <p>© 2025 Gifté+. Crafted with love | MADE BY ADITYA TOMAR OF CLASS 9G</p>
+  </footer>
+
+</body>
+</html>

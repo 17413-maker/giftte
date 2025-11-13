@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en" class="transition-colors duration-500">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gifté+ | Automatic Mode</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <style>
+    :root {
+      --pink-500: #ec4899;
+      --pink-600: #db2777;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f0a1a;
+      --card: rgba(20, 15, 40, 0.7);
+      --text: #e2e8f0;
+      --input-bg: rgba(31, 41, 55, 0.9);
+      --border: #374151;
+    }
+
+    body {
+      background: linear-gradient(135deg, #fff0f5, #fde2e4, #fef6f9);
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      transition: background 0.6s ease;
+    }
+
+    [data-theme="dark"] body {
+      background: linear-gradient(135deg, #1a0033, #0f0a1a, #2d1b3d);
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
+
+    /* Input Group */
+    .input-group {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 1rem 1rem 0.5rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 1rem;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    [data-theme="dark"] .input-group input {
+      background: var(--input-bg);
+      border-color: var(--border);
+      color: #e5e7eb;
+    }
+
+    .input-group label {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      font-size: 1rem;
+      color: #9ca3af;
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+
+    .input-group input:focus,
+    .input-group input:not(:placeholder-shown) {
+      border-color: var(--pink-500);
+      outline: none;
+    }
+
+    .input-group input:focus + label,
+    .input-group input:not(:placeholder-shown) + label {
+      top: 0.5rem;
+      left: 0.75rem;
+      font-size: 0.75rem;
+      color: var(--pink-600);
+      font-weight: 600;
+    }
+
+    /* Progress */
+    .progress-container {
+      width: 100%;
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 9999px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+
+    [data-theme="dark"] .progress-container {
+      background: #374151;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--pink-500), #f472b6);
+      width: 0%;
+      transition: width 0.7s ease-out;
+    }
+
+    /* Glass Card */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 1.5rem;
+      padding: 1.5rem 2rem;
+    }
+
+    [data-theme="dark"] .glass-card {
+      background: rgba(31, 41, 55, 0.7);
+      border-color: rgba(55, 65, 81, 0.5);
+    }
+
+    /* Toggle */
+    .theme-toggle {
+      position: relative;
+      width: 3.5rem;
+      height: 2rem;
+      background: #d1d5db;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .theme-toggle::before {
+      content: '';
+      position: absolute;
+      top: 0.25rem;
+      left: 0.25rem;
+      width: 1.5rem;
+      height: 1.5rem;
+      background: white;
+      border-radius: 9999px;
+      transition: transform 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    [data-theme="dark"] .theme-toggle {
+      background: var(--pink-500);
+    }
+
+    [data-theme="dark"] .theme-toggle::before {
+      transform: translateX(1.5rem);
+      background: #1f2937;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1f2937;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.75rem;
+      font-size: 0.875rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s ease;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      visibility: visible;
+      bottom: 2rem;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="text-gray-800">
+
+  <!-- Navbar -->
+  <nav class="flex justify-between items-center px-6 md:px-12 py-5 bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-40">
+    <h1 class="text-2xl md:text-3xl font-bold text-pink-600 flex items-center gap-2">
+      <i class="fas fa-gift"></i> Gifté+
+    </h1>
+    <div class="flex items-center gap-4">
+      <a href="index.html" class="text-gray-700 hover:text-pink-600 transition flex items-center gap-1 text-sm md:text-base">
+        <i class="fas fa-arrow-left"></i> Back
+      </a>
+      <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
+        <i class="fas fa-moon text-xs text-gray-600 absolute top-1.5 left-1.5"></i>
+        <i class="fas fa-sun text-xs text-yellow-500 hidden absolute top-1.5 right-1.5"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Header -->
+  <section class="text-center py-12 md:py-16 fade-in-up">
+    <h2 class="text-3xl md:text-5xl font-extrabold text-gray-800 mb-4">
+      Automatic Gift Finder
+    </h2>
+    <p class="text-base md:text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed px-6">
+      AI analyzes <strong>public profiles</strong> to suggest <strong>perfect gifts</strong> — powered by <em>ethical OSINT</em>.
+    </p>
+  </section>
+
+  <!-- Main Form -->
+  <main class="flex justify-center px-6 py-8 md:py-12 fade-in-up">
+    <div class="glass-card w-full max-w-2xl">
+      <h3 class="text-2xl md:text-3xl font-bold mb-6 text-center text-gray-800">
+        Recipient Details
+      </h3>
+
+      <!-- Progress Bar -->
+      <div role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Form progress" class="progress-container">
+        <div id="progressBarInner" class="progress-bar"></div>
+      </div>
+
+      <form id="autoForm" class="space-y-7" novalidate>
+
+        <!-- Social Inputs -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="input-group">
+            <input type="text" id="instagram" name="instagram" placeholder=" " autocomplete="username" />
+            <label for="instagram">Instagram ID (optional)</label>
+          </div>
+          <div class="input-group">
+            <input type="text" id="facebook" name="facebook" placeholder=" " autocomplete="username" />
+            <label for="facebook">Facebook ID (optional)</label>
+          </div>
+        </div>
+
+        <!-- Required -->
+        <div class="input-group">
+          <input type="email" id="gmail" name="email" placeholder=" " required autocomplete="email" />
+          <label for="gmail">Gmail ID <span class="text-pink-500">*</span></label>
+        </div>
+
+        <div class="input-group">
+          <input type="tel" id="phone" name="phone" placeholder=" " required autocomplete="tel" inputmode="tel" pattern="^\+?[0-9\s\-]{7,15}$" />
+          <label for="phone">Phone Number <span class="text-pink-500">*</span></label>
+        </div>
+
+        <!-- OCCASION DROPDOWN -->
+        <div>
+          <label class="block text-lg font-semibold text-gray-800 mb-3">Occasion <span class="text-pink-500">*</span></label>
+          <div
+            role="combobox"
+            aria-expanded="false"
+            aria-haspopup="listbox"
+            aria-controls="occasion-list"
+            tabindex="0"
+            class="w-full px-5 py-4 border-2 border-gray-300 dark:border-gray-700 rounded-xl text-left font-medium cursor-pointer transition-all duration-300 flex justify-between items-center bg-white/90 dark:bg-gray-800/90"
+            id="occasionCombobox"
+          >
+            <span id="occasion-selected" class="selected-text">Select occasion...</span>
+            <i class="fas fa-chevron-down ml-2 transition-transform duration-300" id="occasion-chevron"></i>
+          </div>
+          <ul
+            role="listbox"
+            id="occasion-list"
+            class="absolute mt-2 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl max-h-60 overflow-y-auto z-50 hidden opacity-0 transition-all duration-300"
+          >
+            <li role="option" data-value="Birthday" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Birthday</li>
+            <li role="option" data-value="Anniversary" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Anniversary</li>
+            <li role="option" data-value="Graduation" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Graduation</li>
+            <li role="option" data-value="Wedding" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Wedding</li>
+            <li role="option" data-value="Valentine's Day" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Valentine's Day</li>
+            <li role="option" data-value="Diwali" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Diwali</li>
+            <li role="option" data-value="Christmas" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Christmas</li>
+            <li role="option" data-value="Eid" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Eid</li>
+            <li role="option" data-value="Holi" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Holi</li>
+            <li role="option" data-value="Rakhi" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Rakhi</li>
+            <li role="option" data-value="Mother's Day" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Mother's Day</li>
+            <li role="option" data-value="Father's Day" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Father's Day</li>
+            <li role="option" data-value="Housewarming" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Housewarming</li>
+            <li role="option" data-value="Baby Shower" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Baby Shower</li>
+            <li role="option" data-value="Promotion" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Promotion</li>
+            <li role="option" data-value="Retirement" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Retirement</li>
+            <li role="option" data-value="Farewell" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Farewell</li>
+            <li role="option" data-value="Just Because" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Just Because</li>
+          </ul>
+        </div>
+
+        <!-- RELATIONSHIP DROPDOWN -->
+        <div>
+          <label class="block text-lg font-semibold text-gray-800 mb-3">Relationship <span class="text-pink-500">*</span></label>
+          <div
+            role="combobox"
+            aria-expanded="false"
+            aria-haspopup="listbox"
+            aria-controls="relationship-list"
+            tabindex="0"
+            class="w-full px-5 py-4 border-2 border-gray-300 dark:border-gray-700 rounded-xl text-left font-medium cursor-pointer transition-all duration-300 flex justify-between items-center bg-white/90 dark:bg-gray-800/90"
+            id="relationshipCombobox"
+          >
+            <span id="relationship-selected" class="selected-text">Select relationship...</span>
+            <i class="fas fa-chevron-down ml-2 transition-transform duration-300" id="relationship-chevron"></i>
+          </div>
+          <ul
+            role="listbox"
+            id="relationship-list"
+            class="absolute mt-2 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl max-h-60 overflow-y-auto z-50 hidden opacity-0 transition-all duration-300"
+          >
+            <li role="option" data-value="Partner" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Partner</li>
+            <li role="option" data-value="Best Friend" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Best Friend</li>
+            <li role="option" data-value="Friend" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Friend</li>
+            <li role="option" data-value="Parent" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Parent</li>
+            <li role="option" data-value="Sibling" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Sibling</li>
+            <li role="option" data-value="Child" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Child</li>
+            <li role="option" data-value="Grandparent" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Grandparent</li>
+            <li role="option" data-value="Colleague" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Colleague</li>
+            <li role="option" data-value="Boss" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Boss</li>
+            <li role="option" data-value="Teacher" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Teacher</li>
+            <li role="option" data-value="Mentor" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Mentor</li>
+            <li role="option" data-value="Cousin" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Cousin</li>
+            <li role="option" data-value="In-Law" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">In-Law</li>
+            <li role="option" data-value="Neighbor" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Neighbor</li>
+            <li role="option" data-value="Crush" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Crush</li>
+            <li role="option" data-value="Ex (Friendly)" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Ex (Friendly)</li>
+          </ul>
+        </div>
+
+        <!-- BUDGET DROPDOWN -->
+        <div>
+          <label class="block text-lg font-semibold text-gray-800 mb-3">Budget <span class="text-pink-500">*</span></label>
+          <div
+            role="combobox"
+            aria-expanded="false"
+            aria-haspopup="listbox"
+            aria-controls="budget-list"
+            tabindex="0"
+            class="w-full px-5 py-4 border-2 border-gray-300 dark:border-gray-700 rounded-xl text-left font-medium cursor-pointer transition-all duration-300 flex justify-between items-center bg-white/90 dark:bg-gray-800/90"
+            id="budgetCombobox"
+          >
+            <span id="budget-selected" class="selected-text">Select budget...</span>
+            <i class="fas fa-chevron-down ml-2 transition-transform duration-300" id="budget-chevron"></i>
+          </div>
+          <ul
+            role="listbox"
+            id="budget-list"
+            class="absolute mt-2 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl max-h-60 overflow-y-auto z-50 hidden opacity-0 transition-all duration-300"
+          >
+            <li role="option" data-value="Under ₹500" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Under ₹500</li>
+            <li role="option" data-value="₹500–₹1000" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">₹500–₹1000</li>
+            <li role="option" data-value="₹1000–₹3000" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">₹1000–₹3000</li>
+            <li role="option" data-value="₹3000–₹7000" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">₹3000–₹7000</li>
+            <li role="option" data-value="₹7000–₹15000" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">₹7000–₹15000</li>
+            <li role="option" data-value="₹15000–₹30000" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">₹15000–₹30000</li>
+            <li role="option" data-value="Above ₹30000" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Above ₹30000</li>
+            <li role="option" data-value="No Budget" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">No Budget (Surprise!)</li>
+          </ul>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-pink-500 to-pink-600 text-white py-4 rounded-full text-lg font-bold hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 mt-8">
+          <i class="fas fa-magic"></i> Generate Gift Suggestion
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center py-8 text-gray-500 text-sm fade-in-up">
+    © 2025 Gifté+. Built with <span class="text-pink-500">BRO ENERGY</span> by Delta-1 & Commander
+  </footer>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <script>
+    // Theme Toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const html = document.documentElement;
+    const moon = themeToggle.querySelector('.fa-moon');
+    const sun = themeToggle.querySelector('.fa-sun');
+
+    themeToggle.addEventListener('click', () => {
+      const isDark = html.hasAttribute('data-theme');
+      if (isDark) {
+        html.removeAttribute('data-theme');
+        localStorage.removeItem('theme');
+        moon.classList.remove('hidden');
+        sun.classList.add('hidden');
+      } else {
+        html.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+        moon.classList.add('hidden');
+        sun.classList.remove('hidden');
+      }
+    });
+
+    if (localStorage.getItem('theme') === 'dark') {
+      html.setAttribute('data-theme', 'dark');
+      moon.classList.add('hidden');
+      sun.classList.remove('hidden');
+    }
+
+    // Accessible Dropdown Factory
+    function createDropdown(comboId, listId, selectedId, chevronId) {
+      const combobox = document.getElementById(comboId);
+      const listbox = document.getElementById(listId);
+      const selectedText = document.getElementById(selectedId);
+      const chevron = document.getElementById(chevronId);
+      const options = listbox.querySelectorAll('[role="option"]');
+      let isOpen = false;
+      let focusedIndex = -1;
+
+      function open() {
+        listbox.classList.remove('hidden', 'opacity-0');
+        listbox.classList.add('opacity-100');
+        combobox.setAttribute('aria-expanded', 'true');
+        chevron.classList.add('rotate-180');
+        isOpen = true;
+        focusOption(0);
+      }
+
+      function close() {
+        listbox.classList.add('hidden', 'opacity-0');
+        listbox.classList.remove('opacity-100');
+        combobox.setAttribute('aria-expanded', 'false');
+        chevron.classList.remove('rotate-180');
+        isOpen = false;
+        focusedIndex = -1;
+      }
+
+      function focusOption(index) {
+        options.forEach((opt, i) => {
+          opt.setAttribute('aria-selected', i === index);
+          opt.classList.toggle('bg-pink-100', i === index);
+          opt.classList.toggle('dark:bg-pink-900/50', i === index);
+        });
+        if (index >= 0) options[index].scrollIntoView({ block: 'nearest' });
+        focusedIndex = index;
+      }
+
+      function selectOption(index) {
+        const option = options[index];
+        selectedText.textContent = option.textContent;
+        close();
+        updateProgress();
+      }
+
+      combobox.addEventListener('click', () => isOpen ? close() : open());
+      combobox.addEventListener('keydown', (e) => {
+        if (!isOpen && ['Enter', ' ', 'ArrowDown'].includes(e.key)) {
+          e.preventDefault(); open(); return;
+        }
+        if (!isOpen) return;
+        switch (e.key) {
+          case 'Escape': close(); combobox.focus(); break;
+          case 'ArrowDown': e.preventDefault(); focusOption((focusedIndex + 1) % options.length); break;
+          case 'ArrowUp': e.preventDefault(); focusOption((focusedIndex - 1 + options.length) % options.length); break;
+          case 'Enter': case ' ': e.preventDefault(); if (focusedIndex >= 0) selectOption(focusedIndex); break;
+        }
+      });
+
+      options.forEach((opt, i) => opt.addEventListener('click', () => selectOption(i)));
+
+      document.addEventListener('click', (e) => {
+        if (!combobox.contains(e.target) && !listbox.contains(e.target)) close();
+      });
+    }
+
+    createDropdown('occasionCombobox', 'occasion-list', 'occasion-selected', 'occasion-chevron');
+    createDropdown('relationshipCombobox', 'relationship-list', 'relationship-selected', 'relationship-chevron');
+    createDropdown('budgetCombobox', 'budget-list', 'budget-selected', 'budget-chevron');
+
+    // Progress
+    function updateProgress() {
+      const gmail = document.getElementById("gmail").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const occasion = document.getElementById("occasion-selected").textContent !== "Select occasion...";
+      const relationship = document.getElementById("relationship-selected").textContent !== "Select relationship...";
+      const budget = document.getElementById("budget-selected").textContent !== "Select budget...";
+
+      let progress = 0;
+      if (gmail) progress++;
+      if (phone) progress++;
+      if (occasion) progress++;
+      if (relationship) progress++;
+      if (budget) progress++;
+
+      const percent = (progress / 5) * 100;
+      const bar = document.getElementById("progressBarInner");
+      bar.style.width = percent + "%";
+      bar.parentElement.setAttribute('aria-valuenow', Math.round(percent));
+    }
+
+    document.querySelectorAll("input").forEach(i => i.addEventListener("input", updateProgress));
+
+    // Toast
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 3000);
+    }
+
+    // Form Submit
+    document.getElementById("autoForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const gmail = document.getElementById('gmail').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const occasion = document.getElementById("occasion-selected").textContent !== "Select occasion...";
+      const relationship = document.getElementById("relationship-selected").textContent !== "Select relationship...";
+      const budget = document.getElementById("budget-selected").textContent !== "Select budget...";
+
+      if (!gmail || !phone || !occasion || !relationship || !budget) {
+        showToast("Please fill all required fields and select from dropdowns.");
+        return;
+      }
+
+      const btn = document.getElementById("submitBtn");
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+      btn.disabled = true;
+
+      setTimeout(() => {
+        showToast("AI found 5 perfect gifts!");
+        setTimeout(() => window.location.href = "results.html", 1500);
+      }, 2000);
+    });
+  </script>
+</body>
+</html>

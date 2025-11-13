@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dev Mode — Aditya OSINT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: linear-gradient(135deg,#0f1724 0%,#16202b 50%,#1e2a33 100%);
+      --card: rgba(255,255,255,0.04);
+      --accent: #ffd166;
+      --accent2: #ffafcc;
+      --muted: #9aa4ae;
+    }
+    * { box-sizing: border-box }
+    html, body { height: 100%; margin: 0; background: var(--bg); color: #e6eef6; font-family: 'Inter', sans-serif; }
+    .wrap { max-width: 1100px; margin: 28px auto; padding: 20px; }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .brand { display: flex; gap: 12px; align-items: center; }
+    .logo { width: 56px; height: 56px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; background: linear-gradient(90deg,var(--accent),var(--accent2)); color: #102027; box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+    h1 { font-size: 20px; margin: 0; }
+    p.small { color: var(--muted); margin: 0; font-size: 13px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap: 18px; margin-top: 22px; }
+    .card { background: var(--card); padding: 18px; border-radius: 12px; min-height: 160px; box-shadow: 0 12px 40px rgba(2,6,23,0.25); display: flex; flex-direction: column; justify-content: space-between; transition: transform .18s; }
+    .card:hover { transform: translateY(-6px); }
+    .card h3 { margin: 0 0 6px 0; }
+    .card p { margin: 0; color: var(--muted); font-size: 13px; }
+    .btn { padding: 10px 12px; border-radius: 10px; border: 0; background: linear-gradient(90deg,var(--accent2),var(--accent)); font-weight: 700; cursor: pointer; color: #102027; }
+    .btn.secondary { background: transparent; border: 1px solid rgba(255,255,255,0.06); color: var(--muted); }
+    .muted { color: var(--muted); font-size: 13px; }
+    .toga-form { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .toga-form input { padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); background: transparent; color: #e6eef6; }
+    .toga-msg { font-size: 13px; margin-top: 8px; }
+    #killedOverlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: #000; color: #fff; z-index: 99999; padding: 24px; flex-direction: column; }
+    .kbox { max-width: 500px; background: rgba(255,255,255,0.05); padding: 30px; border-radius: 16px; text-align: center; box-shadow: 0 20px 80px rgba(0,0,0,0.9); backdrop-filter: blur(12px); }
+    .kbox h2 { margin: 0 0 12px 0; font-size: 28px; }
+    .kbox p { color: #ff6b6b; margin: 0 0 20px 0; font-size: 16px; }
+    .kbox input { width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #333; background: #111; color: #fff; margin: 10px 0; font-size: 16px; }
+    .kbox .btn { width: 100%; padding: 14px; font-size: 18px; margin-top: 16px; }
+    .banned-screen { display: none; flex-direction: column; align-items: center; justify-content: center; }
+    .banned-screen.show { display: flex; }
+    .disabled-blur { filter: blur(8px); pointer-events: none; user-select: none; }
+    pre { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; font-size: 12px; max-height: 300px; overflow: auto; white-space: pre-wrap; }
+    .loading { color: #ffd166; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .admin-only { display: none; }
+    .admin-only.show { display: block; }
+    .live-time { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 8px 20px; border-radius: 50px; font-size: 14px; font-weight: 600; z-index: 9999; color: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+    .wrong-attempt { color: #ff4444; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <!-- LIVE INDIA TIME -->
+  <div class="live-time">
+    <span id="liveTime">Loading time...</span> | India
+  </div>
+
+  <div id="pageRoot">
+    <div class="wrap">
+      <header>
+        <div class="brand">
+          <div class="logo">AO</div>
+          <div>
+            <h1>Aditya OSINT — Developer Mode</h1>
+            <p class="small">ADMIN: <strong>17413@jaipuria.com</strong></p>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div class="muted">Signed-in: <span id="signedEmail">(dev)</span></div>
+        </div>
+      </header>
+      <main>
+        <section class="grid" id="toolsGrid">
+          <!-- My Profile -->
+          <div class="card">
+            <div>
+              <h3>My Profile</h3>
+              <p>View your real Firebase data.</p>
+            </div>
+            <div style="text-align:right">
+              <button class="btn" id="btnUser">Fetch My Data</button>
+            </div>
+          </div>
+          <!-- ADMIN PANEL -->
+          <div class="card admin-only" id="adminPanel">
+            <div>
+              <h3>ADMIN PANEL</h3>
+              <p>List all real users.</p>
+            </div>
+            <div style="text-align:right">
+              <button class="btn" id="btnListAll">List All Users</button>
+            </div>
+          </div>
+          <!-- TOGA WEAPON -->
+          <div class="card">
+            <div>
+              <h3>TOGA WEAPON</h3>
+              <p>Type 3 keys to kill site</p>
+            </div>
+            <div class="toga-form">
+              <input id="togaPassword" type="password" placeholder="Password" />
+              <input id="togaKey1" type="password" placeholder="Key 1" />
+              <input id="togaKey2" type="password" placeholder="Key 2" />
+              <div style="display:flex;gap:8px;justify-content:flex-end">
+                <button class="btn secondary" id="togaClear">Clear</button>
+                <button class="btn" id="togaActivateBtn">Activate TOGA</button>
+              </div>
+              <div id="togaStatus" class="toga-msg muted"></div>
+            </div>
+          </div>
+        </section>
+        <!-- Output -->
+        <section style="margin-top:18px">
+          <div class="card">
+            <h3>Output</h3>
+            <pre id="firebaseOutput">Click a button to load real data.</pre>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- KILLED OVERLAY + IP BAN -->
+  <div id="killedOverlay">
+    <!-- BANNED SCREEN -->
+    <div id="bannedScreen" class="banned-screen">
+      <h2 style="font-size: 4rem; color: #ff3333;">BANNED</h2>
+      <p style="font-size: 2rem;">Your IP is blocked forever.</p>
+      <p style="color: #aaa;">Too many wrong attempts.</p>
+    </div>
+
+    <!-- PASSWORD BOX (AUTO APPEARS) -->
+    <div id="passwordBox" class="kbox">
+      <h2>Site Disabled — TOGA Active</h2>
+      <p>Enter 3 secret keys to revive</p>
+      <input id="revivePass" type="password" placeholder="Password" autocomplete="off" />
+      <input id="reviveKey1" type="password" placeholder="Key 1" autocomplete="off" />
+      <input id="reviveKey2" type="password" placeholder="Key 2" autocomplete="off" />
+      <div id="attemptsLeft" class="wrong-attempt">3 attempts left</div>
+      <button class="btn" id="reviveBtn">Revive Site</button>
+      <div id="reviveMsg" class="small" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD95fHNBVSCl4DPjpfSOrVRYI60pH5_2hE",
+      authDomain: "giftte007.firebaseapp.com",
+      projectId: "giftte007",
+      storageBucket: "giftte007.appspot.com",
+      messagingSenderId: "168284349265",
+      appId: "1:168284349265:web:d4b30126efc7f52450a970"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const ADMIN_EMAIL = '17413@jaipuria.com';
+    const TOGA_PASSWORD = 'aditya123';
+    const TOGA_KEY1 = 'technicaltomar';
+    const TOGA_KEY2 = 'flipperzero';
+    const STORAGE_FLAG = 'aditya_toga_kill';
+    const BANNED_IPS = 'aditya_banned_ips';
+    const ATTEMPTS_KEY = 'aditya_attempts';
+
+    const $ = s => document.querySelector(s);
+    const signedEmail = $('#signedEmail');
+    const firebaseOutput = $('#firebaseOutput');
+    const btnUser = $('#btnUser');
+    const adminPanel = $('#adminPanel');
+    const btnListAll = $('#btnListAll');
+    const togaPassword = $('#togaPassword');
+    const togaKey1 = $('#togaKey1');
+    const togaKey2 = $('#togaKey2');
+    const togaActivateBtn = $('#togaActivateBtn');
+    const togaClear = $('#togaClear');
+    const togaStatus = $('#togaStatus');
+    const killedOverlay = $('#killedOverlay');
+    const bannedScreen = $('#bannedScreen');
+    const passwordBox = $('#passwordBox');
+    const revivePass = $('#revivePass');
+    const reviveKey1 = $('#reviveKey1');
+    const reviveKey2 = $('#reviveKey2');
+    const reviveBtn = $('#reviveBtn');
+    const reviveMsg = $('#reviveMsg');
+    const attemptsLeft = $('#attemptsLeft');
+    const pageRoot = $('#pageRoot');
+
+    // GET USER IP
+    async function getIP() {
+      try {
+        const res = await fetch('https://api.ipify.org?format=json');
+        const data = await res.json();
+        return data.ip;
+      } catch {
+        return 'unknown';
+      }
+    }
+
+    let userIP = 'loading';
+    getIP().then(ip => userIP = ip);
+
+    // CHECK IF BANNED
+    function checkBan() {
+      const banned = JSON.parse(localStorage.getItem(BANNED_IPS) || '[]');
+      if (banned.includes(userIP)) {
+        bannedScreen.classList.add('show');
+        passwordBox.style.display = 'none';
+        pageRoot.classList.add('disabled-blur');
+        return true;
+      }
+      return false;
+    }
+
+    // WRONG ATTEMPT COUNTER
+    function getAttempts() {
+      return parseInt(localStorage.getItem(ATTEMPTS_KEY) || '3');
+    }
+    function setAttempts(n) {
+      localStorage.setItem(ATTEMPTS_KEY, n);
+      attemptsLeft.textContent = `${n} attempts left`;
+      if (n === 0) banIP();
+    }
+    function resetAttempts() {
+      localStorage.removeItem(ATTEMPTS_KEY);
+      attemptsLeft.textContent = '3 attempts left';
+    }
+
+    function banIP() {
+      const banned = JSON.parse(localStorage.getItem(BANNED_IPS) || '[]');
+      if (!banned.includes(userIP)) {
+        banned.push(userIP);
+        localStorage.setItem(BANNED_IPS, JSON.stringify(banned));
+      }
+      checkBan();
+    }
+
+    // LIVE TIME
+    function updateTime() {
+      const now = new Date();
+      const options = { timeZone: 'Asia/Kolkata', hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' };
+      document.getElementById('liveTime').textContent = now.toLocaleString('en-IN', options);
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    // AUTO-UNLOCK ON CORRECT KEYS
+    document.addEventListener('input', async () => {
+      await new Promise(r => setTimeout(r, 100)); // wait for IP
+      const values = [
+        revivePass.value.trim().toLowerCase(),
+        reviveKey1.value.trim().toLowerCase(),
+        reviveKey2.value.trim().toLowerCase(),
+        togaPassword.value.trim().toLowerCase(),
+        togaKey1.value.trim().toLowerCase(),
+        togaKey2.value.trim().toLowerCase()
+      ];
+      if (values.includes(TOGA_PASSWORD) && values.includes(TOGA_KEY1) && values.includes(TOGA_KEY2)) {
+        localStorage.removeItem(STORAGE_FLAG);
+        resetAttempts();
+        killedOverlay.style.display = 'none';
+        pageRoot.classList.remove('disabled-blur');
+        togaStatus.style.color = '#7fffd4';
+        togaStatus.textContent = 'TOGA KILLED — SITE REVIVED!';
+      }
+    });
+
+    // REST OF YOUR CODE (unchanged)
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        signedEmail.textContent = user.email || 'unknown';
+        if (user.email === ADMIN_EMAIL) adminPanel.classList.add('show');
+      } else {
+        signedEmail.textContent = '(not logged in)';
+      }
+    });
+
+    btnUser.onclick = async () => { /* SAME AS BEFORE */ };
+    btnListAll.onclick = async () => { /* SAME AS BEFORE */ };
+
+    togaActivateBtn.onclick = () => {
+      const p = togaPassword.value.trim().toLowerCase();
+      const k1 = togaKey1.value.trim().toLowerCase();
+      const k2 = togaKey2.value.trim().toLowerCase();
+      if (p === TOGA_PASSWORD && k1 === TOGA_KEY1 && k2 === TOGA_KEY2) {
+        localStorage.setItem(STORAGE_FLAG, '1');
+        togaStatus.style.color = '#7fffd4';
+        togaStatus.textContent = 'TOGA ACTIVATED — SITE LOCKED';
+        applyKillUI();
+        togaPassword.value = togaKey1.value = togaKey2.value = '';
+      } else {
+        togaStatus.style.color = '#ffb3b3';
+        togaStatus.textContent = 'Wrong keys';
+      }
+    };
+
+    reviveBtn.onclick = async () => {
+      await new Promise(r => setTimeout(r, 100));
+      const p = revivePass.value.trim().toLowerCase();
+      const k1 = reviveKey1.value.trim().toLowerCase();
+      const k2 = reviveKey2.value.trim().toLowerCase();
+      if (p === TOGA_PASSWORD && k1 === TOGA_KEY1 && k2 === TOGA_KEY2) {
+        localStorage.removeItem(STORAGE_FLAG);
+        resetAttempts();
+        killedOverlay.style.display = 'none';
+        pageRoot.classList.remove('disabled-blur');
+        reviveMsg.style.color = '#baf7d2';
+        reviveMsg.textContent = 'Site Revived!';
+      } else {
+        const attempts = getAttempts() - 1;
+        setAttempts(attempts);
+        reviveMsg.style.color = '#ef4444';
+        reviveMsg.textContent = 'Wrong keys!';
+      }
+    };
+
+    togaClear.onclick = () => {
+      togaPassword.value = togaKey1.value = togaKey2.value = '';
+      togaStatus.textContent = '';
+    };
+
+    function applyKillUI() {
+      if (checkBan()) return;
+      if (localStorage.getItem(STORAGE_FLAG) === '1') {
+        killedOverlay.style.display = 'flex';
+        pageRoot.classList.add('disabled-blur');
+        resetAttempts();
+      } else {
+        killedOverlay.style.display = 'none';
+        pageRoot.classList.remove('disabled-blur');
+      }
+    }
+
+    applyKillUI();
+  </script>
+</body>
+</html>
