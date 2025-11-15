@@ -1,206 +1,165 @@
-# === BACKEND: main.py (v6.0) ===
+# === BACKEND: main.py (v9.1) ===
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
 import asyncio
 import re
 import logging
-from pydantic import BaseModel, validator
-from typing import List, Dict, Any, Optional
-from contextlib import asynccontextmanager
+from pydantic import BaseModel
+from typing import Dict, Any, Optional
 
-# === LOGGING ===
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("gifte-osint")
+logger = logging.getLogger("gifte")
 
-# === LIFESPAN ===
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    logger.info("Gifté+ OSINT Backend v6.0 — STARTING")
-    yield
-    logger.info("Gifté+ OSINT Backend — SHUTDOWN")
+app = FastAPI(title="Gifté+ v9.1")
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-app = FastAPI(title="Gifté+ OSINT v6.0", lifespan=lifespan)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# === CONFIG ===
-ABSTRACT_PHONE_KEY = "521155e18b15415aadd705a035a57fd9"
-ABSTRACT_EMAIL_KEY = "a714f117250d428aa7c475b6f44f3b83"
-ABSTRACT_IP_KEY = "c60344fcdad24bec87d9dc674c3891ae"
+# === KEYS (UPDATE THESE) ===
+NUMVERIFY_KEY = "02732386dc8873e2d6944b750e5903e9"
 TENAPI_AUTH = "Basic MTc0MTM6c2lnbWFib3lAMQ=="  # 17413:sigmaboy@1
+TRUECALLER_INSTALL_ID = "a1k07--YOUR_INSTALL_ID"  # From truecallerjs login (optional)
 
 # === MODELS ===
-class OSINTRequest(BaseModel):
+class Input(BaseModel):
+    email: str
     phone: str
-    email1: str
-    email2: str
     instagram: Optional[str] = None
 
-    @validator("phone")
-    def validate_phone(cls, v):
-        if not re.search(r"^\+?[\d\s\-\(\)]{10,}$", v):
-            raise ValueError("Invalid phone format")
-        return v
-
-    @validator("email1", "email2")
-    def validate_email(cls, v):
-        if "@" not in v or "." not in v.split("@")[-1]:
-            raise ValueError("Invalid email")
-        return v
-
-    @validator("instagram")
-    def validate_instagram(cls, v):
-        if v and not re.match(r"^[A-Za-z0-9._]{1,30}$", v):
-            raise ValueError("Invalid Instagram username")
-        return v
-
-class OSINTResponse(BaseModel):
+class Output(BaseModel):
+    debug_log: list
+    email: Dict
     phone: Dict
-    email1: Dict
-    email2: Dict
     ip: Dict
-    instagram: Optional[Dict] = None
-    gift_recommendation: str
-    osint_score: int  # 0-100
+    instagram: Dict
+    truecaller: Dict
+    ghunt_dorks: list
+    gift: str
+    score: int
 
-# === HTTP CLIENTS ===
-async def http_get(url: str) -> Dict:
-    async with httpx.AsyncClient(timeout=12.0) as client:
+# === HTTP HELPERS ===
+async def get(url: str) -> Dict:
+    async with httpx.AsyncClient(timeout=12) as c:
         try:
-            r = await client.get(url)
-            return r.json() if r.status_code == 200 else {"error": f"HTTP {r.status_code}", "raw": r.text}
+            r = await c.get(url)
+            return {"status": r.status_code, "data": r.json() if r.ok else {"error": r.text}}
         except Exception as e:
-            logger.error(f"HTTP GET failed: {url} | {e}")
-            return {"error": "Network timeout"}
+            return {"status": "error", "data": str(e)}
 
-async def tenapi_post(endpoint: str, body: Dict) -> Dict:
-    async with httpx.AsyncClient(timeout=12.0) as client:
+async def post(url: str, json: Dict, headers: Dict) -> Dict:
+    async with httpx.AsyncClient(timeout=12) as c:
         try:
-            r = await client.post(
-                f"https://tenapi.net/api{endpoint}",
-                headers={"Authorization": TENAPI_AUTH, "Content-Type": "application/json"},
-                json=body
-            )
-            if not r.ok:
-                return {"error": f"TenAPI {r.status_code}", "raw": r.text}
-            data = r.json()
-            return data.get("data", data) if "data" in data else data
+            r = await c.post(url, json=json, headers=headers)
+            return {"status": r.status_code, "data": r.json() if r.ok else {"error": r.text}}
         except Exception as e:
-            logger.error(f"TenAPI failed: {endpoint} | {e}")
-            return {"error": "TenAPI unreachable"}
+            return {"status": "error", "data": str(e)}
 
-# === LOOKUP FUNCTIONS ===
-async def lookup_phone(phone: str) -> Dict:
+# === TOOLS ===
+async def email_disify(email: str) -> Dict:
+    return await get(f"https://disify.com/api/email/{email}")
+
+async def email_osint_industries(email: str) -> Dict:
+    return await get(f"https://osint.industries/api/email/{email}")
+
+async def phone_numverify(phone: str) -> Dict:
+    clean = re.sub(r"[^\d]", "", phone)
+    return await get(f"http://apilayer.net/api/validate?access_key={NUMVERIFY_KEY}&number={clean}&format=1")
+
+async def phone_osint_industries(phone: str) -> Dict:
+    return await get(f"https://osint.industries/api/phone/{phone}")
+
+async def truecaller_lookup(phone: str) -> Dict:
+    if not TRUECALLER_INSTALL_ID or "YOUR_INSTALL_ID" in TRUECALLER_INSTALL_ID:
+        return {"error": "Truecaller ID not set"}
     clean = re.sub(r"[^\d+]", "", phone)
-    formatted = clean if clean.startswith("+") else f"+{clean}"
-    url = f"https://phoneintelligence.abstractapi.com/v1/?api_key={ABSTRACT_PHONE_KEY}&phone={formatted}"
-    return await http_get(url)
+    url = "https://search5-noneu.truecaller.com/v2/search"
+    params = {"q": clean, "countryCode": "IN", "type": 4, "locAddr": "", "placement": "SEARCHRESULTS,HISTORY,DETAILS"}
+    headers = {"authorization": f"Bearer {TRUECALLER_INSTALL_ID}"}
+    return await get(url + "?" + "&".join(f"{k}={v}" for k, v in params.items()))
 
-async def lookup_email(email: str) -> Dict:
-    url = f"https://emailvalidation.abstractapi.com/v1/?api_key={ABSTRACT_EMAIL_KEY}&email={email}"
-    return await http_get(url)
+async def ghunt_dorks(email: str) -> list:
+    username, domain = email.split("@")
+    return [
+        f"from:{email}",
+        f"to:{email}",
+        f"site:{domain} {username}",
+        f"inurl:{domain} {username}",
+        f"\"{username}\" filetype:pdf",
+        f"\"{email}\" -site:{domain}"
+    ]
 
-async def get_user_ip() -> str:
+async def get_ip() -> str:
     try:
-        async with httpx.AsyncClient(timeout=8.0) as client:
-            r = await client.get("https://api.ipify.org?format=json")
+        async with httpx.AsyncClient() as c:
+            r = await c.get("https://api.ipify.org?format=json")
             return r.json().get("ip", "unknown")
     except:
-        logger.warning("IP detection failed")
         return "unknown"
 
-async def lookup_ip(ip: str) -> Dict:
-    if ip == "unknown":
-        return {"ip": "unknown", "error": "IP detection failed"}
-    url = f"https://ip-intelligence.abstractapi.com/v1/?api_key={ABSTRACT_IP_KEY}&ip_address={ip}"
-    return await http_get(url)
+async def ip_geo(ip: str) -> Dict:
+    return await get(f"http://ip-api.com/json/{ip}")
 
-async def lookup_instagram(username: str) -> Dict:
-    endpoints = [
-        "/instagram/web_profile_info",
-        "/instagram/followers",
-        "/instagram/following",
-        "/instagram/media"
-    ]
-    tasks = [tenapi_post(ep, {"username": username}) for ep in endpoints]
-    results = await asyncio.gather(*tasks, return_exceptions=True)
+async def instagram_lookup(username: str) -> Dict:
+    if not username: return {"error": "No username"}
+    profile = await post(
+        "https://tenapi.net/api/instagram/web_profile_info",
+        json={"username": username},
+        headers={"Authorization": TENAPI_AUTH, "Content-Type": "application/json"}
+    )
+    return {"username": username, "profile": profile}
 
-    profile = results[0] if not isinstance(results[0], Exception) else {"error": str(results[0])}
-    followers = results[1] if not isinstance(results[1], Exception) else {"error": str(results[1])}
-    following = results[2] if not isinstance(results[2], Exception) else {"error": str(results[2])}
-    media = results[3] if not isinstance(results[3], Exception) else {"error": str(results[3])}
-
-    return {"profile": profile, "followers": followers, "following": following, "media": media}
-
-# === GIFT AI + OSINT SCORING ===
-def generate_gift_and_score(ig_data: Dict) -> tuple[str, int]:
+# === GIFT AI ===
+def gift_ai(ig_data: Dict) -> tuple[str, int]:
     if not ig_data or "error" in ig_data.get("profile", {}):
-        return "Custom Gift Card", 30
-
+        return "Custom Gift", 30
     bio = str(ig_data.get("profile", {}).get("bio", "")).lower()
-    captions = " ".join([m.get("caption", "") for m in ig_data.get("media", {}).get("data", [])]).lower()
-    text = f"{bio} {captions}"
-    follower_count = len(ig_data.get("followers", {}).get("data", []))
-
     gifts = []
     score = 50
-
-    if "travel" in text: gifts.append("Travel Backpack"); score += 15
-    if any(w in text for w in ["food", "chef", "cook"]): gifts.append("Gourmet Spice Set"); score += 12
-    if any(w in text for w in ["gym", "fitness", "workout"]): gifts.append("Fitness Tracker"); score += 14
-    if any(w in text for w in ["book", "read", "novel"]): gifts.append("Bestseller Bundle"); score += 10
-    if follower_count > 50000: gifts.append("Luxury Watch"); score += 20
-    elif follower_count > 10000: gifts.append("Premium Headphones"); score += 12
-
-    gift = gifts[0] if gifts else "Personalized Mug"
-    return gift, min(score, 100)
+    if "travel" in bio: gifts.append("Travel Backpack"); score += 15
+    if "food" in bio: gifts.append("Gourmet Set"); score += 12
+    if "gym" in bio: gifts.append("Fitness Tracker"); score += 14
+    return gifts[0] if gifts else "Mug", min(score, 100)
 
 # === MAIN ENDPOINT ===
-@app.post("/osint", response_model=OSINTResponse)
-async def full_osint(req: OSINTRequest):
-    logger.info(f"OSINT request: phone={req.phone}, emails={req.email1}/{req.email2}, ig={req.instagram}")
+@app.post("/osint", response_model=Output)
+async def osint(data: Input):
+    debug = []
+    debug.append(f"Input: email={data.email}, phone={data.phone}, ig={data.instagram}")
 
-    user_ip = await get_user_ip()
-    ip_data = await lookup_ip(user_ip)
-
+    # Run all in parallel
     tasks = [
-        lookup_phone(req.phone),
-        lookup_email(req.email1),
-        lookup_email(req.email2),
+        email_disify(data.email),
+        email_osint_industries(data.email),
+        phone_numverify(data.phone),
+        phone_osint_industries(data.phone),
+        truecaller_lookup(data.phone),
+        get_ip(),
+        instagram_lookup(data.instagram or data.email.split("@")[0])
     ]
-    if req.instagram:
-        tasks.append(lookup_instagram(req.instagram))
-
     results = await asyncio.gather(*tasks)
 
-    phone_data = results[0]
-    email1_data = results[1]
-    email2_data = results[2]
-    ig_data = results[3] if req.instagram else None
+    debug.append(f"Tasks completed: {len(results)}")
 
-    gift, score = generate_gift_and_score(ig_data)
+    email_data = {"disify": results[0], "osint_industries": results[1]}
+    phone_data = {"numverify": results[2], "osint_industries": results[3]}
+    truecaller_data = results[4]
+    user_ip = results[5]
+    ip_data = await ip_geo(user_ip)
+    ig_data = results[6]
+    dorks = ghunt_dorks(data.email)
+    gift, score = gift_ai(ig_data)
 
-    return OSINTResponse(
+    return Output(
+        debug_log=debug,
+        email=email_data,
         phone=phone_data,
-        email1=email1_data,
-        email2=email2_data,
-        ip={"address": user_ip, "data": ip_data},
+        ip={"address": user_ip, "geo": ip_data},
         instagram=ig_data,
-        gift_recommendation=gift,
-        osint_score=score
+        truecaller=truecaller_data,
+        ghunt_dorks=dorks,
+        gift=gift,
+        score=score
     )
 
 @app.get("/")
 def root():
-    return {
-        "status": "Gifté+ OSINT v6.0 LIVE",
-        "hibp": "DISABLED",
-        "endpoints": ["/osint (POST)", "/docs"]
-    }
+    return {"status": "Gifté+ v9.1 LIVE — 3 FIELDS + DEBUG"}
