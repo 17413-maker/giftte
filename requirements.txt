@@ -1,1 +1,5 @@
 # Dependencies placeholder
+fastapi
+uvicorn[standard]
+httpx
+pydantic
