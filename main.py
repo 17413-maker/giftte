@@ -1,4 +1,4 @@
-# === BACKEND: main.py (v9.2 — FINAL, BUG-FREE) ===
+# === BACKEND: main.py (v9.3 — 500 ERROR FIXED) ===
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
@@ -8,11 +8,10 @@ import logging
 from pydantic import BaseModel
 from typing import Dict, Any, Optional
 
-# === LOGGING ===
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("gifte")
 
-app = FastAPI(title="Gifté+ v9.2")
+app = FastAPI(title="Gifté+ v9.3")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -20,10 +19,10 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-# === KEYS (UPDATE THESE) ===
+# === KEYS ===
 NUMVERIFY_KEY = "02732386dc8873e2d6944b750e5903e9"
-TENAPI_AUTH = "Basic MTc0MTM6c2lnbWFib3lAMQ=="  # 17413:sigmaboy@1
-TRUECALLER_INSTALL_ID = "a1k07--YOUR_INSTALL_ID"  # Optional
+TENAPI_AUTH = "Basic MTc0MTM6c2lnbWFib3lAMQ=="
+TRUECALLER_INSTALL_ID = "a1k07--YOUR_INSTALL_ID"
 
 # === MODELS ===
 class Input(BaseModel):
@@ -67,7 +66,7 @@ async def email_osint_industries(email: str) -> Dict:
     return await get(f"https://osint.industries/api/email/{email}")
 
 async def phone_numverify(phone: str) -> Dict:
-    clean = re.sub(r"[^\d+]", "", phone)  # FIXED: Keep +
+    clean = re.sub(r"[^\d+]", "", phone)
     return await get(f"http://apilayer.net/api/validate?access_key={NUMVERIFY_KEY}&number={clean}&format=1")
 
 async def phone_osint_industries(phone: str) -> Dict:
@@ -93,7 +92,7 @@ async def truecaller_lookup(phone: str) -> Dict:
     full_url = f"{url}?{'&'.join(f'{k}={v}' for k, v in params.items())}"
     return await get(full_url)
 
-# FIXED: Synchronous function
+# FIXED: SYNC FUNCTION
 def ghunt_dorks(email: str) -> list:
     try:
         username, domain = email.split("@")
@@ -129,41 +128,46 @@ async def instagram_lookup(username: str) -> Dict:
         json={"username": username},
         headers={"Authorization": TENAPI_AUTH, "Content-Type": "application/json"}
     )
-    # FIXED: Extract real data
-    raw_data = profile.get("data", {})
+    # FIXED: Handle 500 error
+    data = profile.get("data", {})
+    if profile.get("status") != 200 or not isinstance(data, dict):
+        return {"username": username, "error": "TenAPI failed", "raw": profile}
     return {
         "username": username,
-        "profile": raw_data.get("data", {}) if "data" in raw_data else raw_data
+        "profile": data.get("data", {}) if "data" in data else data
     }
 
-# === GIFT AI v2 — TRAITS-BASED ===
+# === GIFT AI v3 — SAFE PARSING ===
 def gift_ai(ig_data: Dict) -> tuple[str, int]:
     profile = ig_data.get("profile", {})
-    if not profile:
+    if not isinstance(profile, dict):
         return "Custom Gift", 30
 
-    # FIXED: Use 'biography' field
     bio = str(profile.get("biography") or profile.get("bio") or "").lower()
-    captions = " ".join([m.get("caption", "") for m in profile.get("media", {}).get("data", [])]).lower()
-    text = f"{bio} {captions}".lower()
+    captions = " ".join([
+        m.get("caption", "") for m in profile.get("media", {}).get("data", [])
+        if isinstance(m, dict)
+    ]).lower()
+    text = f"{bio} {captions}"
 
     traits = []
     score = 50
 
-    if any(w in text for w in ["travel", "wander", "trip", "vacation"]):
+    if any(w in text for w in ["travel", "wander", "trip"]):
         traits.append("Travel Backpack"); score += 18
-    if any(w in text for w in ["food", "cook", "chef", "recipe"]):
-        traits.append("Gourmet Spice Set"); score += 15
-    if any(w in text for w in ["gym", "fitness", "workout", "lift"]):
+    if any(w in text for w in ["food", "cook", "chef"]):
+        traits.append("Gourmet Set"); score += 15
+    if any(w in text for w in ["gym", "fitness", "workout"]):
         traits.append("Fitness Tracker"); score += 16
-    if any(w in text for w in ["book", "read", "novel", "author"]):
+    if any(w in text for w in ["book", "read", "novel"]):
         traits.append("Book Bundle"); score += 12
-    if any(w in text for w in ["music", "dj", "band", "concert"]):
-        traits.append("Premium Headphones"); score += 14
-    if profile.get("follower_count", 0) > 50000:
-        traits.append("Luxury Watch"); score += 20
-    elif profile.get("follower_count", 0) > 10000:
-        traits.append("Smart Speaker"); score += 12
+
+    follower_count = profile.get("follower_count", 0)
+    if isinstance(follower_count, (int, float)):
+        if follower_count > 50000:
+            traits.append("Luxury Watch"); score += 20
+        elif follower_count > 10000:
+            traits.append("Smart Speaker"); score += 12
 
     gift = traits[0] if traits else "Personalized Mug"
     return gift, min(score, 100)
@@ -174,13 +178,11 @@ async def osint(data: Input):
     debug = []
     debug.append(f"Input → email: {data.email}, phone: {data.phone}, ig: {data.instagram or 'auto'}")
 
-    # Validate
     if "@" not in data.email:
         raise HTTPException(400, "Invalid email")
     if len(re.sub(r"[^\d+]", "", data.phone)) < 7:
         raise HTTPException(400, "Invalid phone")
 
-    # Run all in parallel
     tasks = [
         email_disify(data.email),
         email_osint_industries(data.email),
@@ -200,7 +202,7 @@ async def osint(data: Input):
     user_ip = results[5]
     ip_data = await ip_geo(user_ip)
     ig_data = results[6]
-    dorks = ghunt_dorks(data.email)  # FIXED: No await needed
+    dorks = ghunt_dorks(data.email)  # SYNC
     gift, score = gift_ai(ig_data)
 
     return Output(
@@ -217,4 +219,4 @@ async def osint(data: Input):
 
 @app.get("/")
 def root():
-    return {"status": "Gifté+ v9.2 LIVE — BUG-FREE"}
+    return {"status": "Gifté+ v9.3 LIVE — 500 FIXED"}
