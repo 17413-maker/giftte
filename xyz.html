@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gifté+ | Automatic Mode</title>
+  <title>Gifté+ | Automatic Mode v3</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -54,6 +54,13 @@
     [data-theme="dark"] .osint-panel { background: #172554; border-color: #1e40af; color: #dbeafe; }
     .insight-box { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 0.75rem; margin: 0.5rem 0; font-size: 0.8rem; }
     [data-theme="dark"] .insight-box { background: #451a03; border-color: #f97316; color: #fed7aa; }
+    .dropdown-container { position: relative; }
+    .dropdown-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 1rem; max-height: 200px; overflow-y: auto; z-index: 50; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+    [data-theme="dark"] .dropdown-list { background: #1f2937; border-color: #374151; }
+    .dropdown-list.show { opacity: 1; visibility: visible; }
+    .dropdown-option { padding: 0.75rem 1rem; cursor: pointer; transition: background 0.2s; }
+    .dropdown-option:hover { background: #f472b6; color: white; }
+    [data-theme="dark"] .dropdown-option:hover { background: #ec4899; }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
   </style>
 </head>
@@ -77,9 +84,9 @@
 
   <!-- Header -->
   <section class="text-center py-12 md:py-16 fade-in-up">
-    <h2 class="text-3xl md:text-5xl font-extrabold text-gray-800 mb-4">Automatic Gift Finder</h2>
+    <h2 class="text-3xl md:text-5xl font-extrabold text-gray-800 mb-4">Automatic Gift Finder v3</h2>
     <p class="text-base md:text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed px-6">
-      AI analyzes <strong>public profiles, email, phone & your IP</strong> to suggest <strong>perfect gifts</strong> — powered by <em>ethical OSINT</em>.
+      AI + <strong>Abstract API OSINT</strong> → 16 hyper-personalized gifts
     </p>
   </section>
 
@@ -89,7 +96,7 @@
       <h3 class="text-2xl md:text-3xl font-bold mb-6 text-center text-gray-800">Recipient Details</h3>
 
       <!-- Progress Bar -->
-      <div role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Form progress" class="progress-container">
+      <div role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" class="progress-container">
         <div id="progressBarInner" class="progress-bar"></div>
       </div>
 
@@ -97,97 +104,63 @@
         <!-- Social Inputs -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="input-group">
-            <input type="text" id="instagram" name="instagram" placeholder=" " autocomplete="username" />
+            <input type="text" id="instagram" placeholder=" " />
             <label for="instagram">Instagram ID (optional)</label>
           </div>
           <div class="input-group">
-            <input type="text" id="facebook" name="facebook" placeholder=" " autocomplete="username" />
+            <input type="text" id="facebook" placeholder=" " />
             <label for="facebook">Facebook ID (optional)</label>
           </div>
         </div>
 
         <!-- Required -->
         <div class="input-group">
-          <input type="email" id="gmail" name="email" placeholder=" " required autocomplete="email" />
+          <input type="email" id="gmail" required placeholder=" " />
           <label for="gmail">Gmail ID <span class="text-pink-500">*</span></label>
         </div>
         <div class="input-group">
-          <input type="tel" id="phone" name="phone" placeholder=" " required autocomplete="tel" inputmode="tel" pattern="^\+?[0-9\s\-]{7,15}$" />
+          <input type="tel" id="phone" required placeholder=" " />
           <label for="phone">Phone Number <span class="text-pink-500">*</span></label>
         </div>
-
-        <!-- Budget -->
         <div class="input-group">
-          <input type="number" id="budget" name="budget" min="0" placeholder=" " required />
+          <input type="number" id="budget" min="0" required placeholder=" " />
           <label for="budget">Budget (INR) <span class="text-pink-500">*</span></label>
         </div>
 
         <!-- OCCASION DROPDOWN -->
-        <div>
+        <div class="dropdown-container">
           <label class="block text-lg font-semibold text-gray-800 mb-3">Occasion <span class="text-pink-500">*</span></label>
-          <div role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-controls="occasion-list" tabindex="0" class="w-full px-5 py-4 border-2 border-gray-300 dark:border-gray-700 rounded-xl text-left font-medium cursor-pointer transition-all duration-300 flex justify-between items-center bg-white/90 dark:bg-gray-800/90" id="occasionCombobox">
-            <span id="occasion-selected" class="selected-text">Select occasion...</span>
+          <div role="combobox" aria-expanded="false" aria-haspopup="listbox" tabindex="0" class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl text-left font-medium cursor-pointer transition-all duration-300 flex justify-between items-center bg-white/90" id="occasionCombobox">
+            <span id="occasion-selected">Select occasion...</span>
             <i class="fas fa-chevron-down ml-2 transition-transform duration-300" id="occasion-chevron"></i>
           </div>
-          <ul role="listbox" id="occasion-list" class="absolute mt-2 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl max-h-60 overflow-y-auto z-50 hidden opacity-0 transition-all duration-300">
-            <li role="option" data-value="Birthday" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Birthday</li>
-            <li role="option" data-value="Anniversary" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Anniversary</li>
-            <li role="option" data-value="Graduation" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Graduation</li>
-            <li role="option" data-value="Wedding" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Wedding</li>
-            <li role="option" data-value="Valentine's Day" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Valentine's Day</li>
-            <li role="option" data-value="Diwali" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Diwali</li>
-            <li role="option" data-value="Christmas" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Christmas</li>
-            <li role="option" data-value="Eid" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Eid</li>
-            <li role="option" data-value="Holi" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Holi</li>
-            <li role="option" data-value="Rakhi" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Rakhi</li>
-            <li role="option" data-value="Mother's Day" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Mother's Day</li>
-            <li role="option" data-value="Father's Day" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Father's Day</li>
-            <li role="option" data-value="Housewarming" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Housewarming</li>
-            <li role="option" data-value="Baby Shower" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Baby Shower</li>
-            <li role="option" data-value="Promotion" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Promotion</li>
-            <li role="option" data-value="Retirement" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Retirement</li>
-            <li role="option" data-value="Farewell" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Farewell</li>
-            <li role="option" data-value="Just Because" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Just Because</li>
+          <ul role="listbox" id="occasion-list" class="dropdown-list mt-2">
+            <!-- Options injected via JS -->
           </ul>
         </div>
 
         <!-- RELATIONSHIP DROPDOWN -->
-        <div>
+        <div class="dropdown-container">
           <label class="block text-lg font-semibold text-gray-800 mb-3">Relationship <span class="text-pink-500">*</span></label>
-          <div role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-controls="relationship-list" tabindex="0" class="w-full px-5 py-4 border-2 border-gray-300 dark:border-gray-700 rounded-xl text-left font-medium cursor-pointer transition-all duration-300 flex justify-between items-center bg-white/90 dark:bg-gray-800/90" id="relationshipCombobox">
-            <span id="relationship-selected" class="selected-text">Select relationship...</span>
+          <div role="combobox" aria-expanded="false" aria-haspopup="listbox" tabindex="0" class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl text-left font-medium cursor-pointer transition-all duration-300 flex justify-between items-center bg-white/90" id="relationshipCombobox">
+            <span id="relationship-selected">Select relationship...</span>
             <i class="fas fa-chevron-down ml-2 transition-transform duration-300" id="relationship-chevron"></i>
           </div>
-          <ul role="listbox" id="relationship-list" class="absolute mt-2 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl max-h-60 overflow-y-auto z-50 hidden opacity-0 transition-all duration-300">
-            <li role="option" data-value="Partner" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Partner</li>
-            <li role="option" data-value="Best Friend" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Best Friend</li>
-            <li role="option" data-value="Friend" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Friend</li>
-            <li role="option" data-value="Parent" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Parent</li>
-            <li role="option" data-value="Sibling" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Sibling</li>
-            <li role="option" data-value="Child" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Child</li>
-            <li role="option" data-value="Grandparent" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Grandparent</li>
-            <li role="option" data-value="Colleague" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Colleague</li>
-            <li role="option" data-value="Boss" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Boss</li>
-            <li role="option" data-value="Teacher" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Teacher</li>
-            <li role="option" data-value="Mentor" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Mentor</li>
-            <li role="option" data-value="Cousin" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Cousin</li>
-            <li role="option" data-value="In-Law" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">In-Law</li>
-            <li role="option" data-value="Neighbor" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Neighbor</li>
-            <li role="option" data-value="Crush" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Crush</li>
-            <li role="option" data-value="Ex (Friendly)" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Ex (Friendly)</li>
+          <ul role="listbox" id="relationship-list" class="dropdown-list mt-2">
+            <!-- Options injected via JS -->
           </ul>
         </div>
 
-        <!-- Interests Chips -->
+        <!-- Interests -->
         <div>
           <label class="block text-lg font-semibold text-gray-800 mb-3">Interests (optional)</label>
-          <div class="flex flex-wrap gap-2" id="interestsContainer" role="group" aria-label="Select interests"></div>
+          <div class="flex flex-wrap gap-2" id="interestsContainer"></div>
         </div>
 
-        <!-- Debug Toggle -->
+        <!-- Debug -->
         <div class="flex items-center gap-2">
           <input type="checkbox" id="showDebug" class="w-4 h-4 text-pink-600 rounded" />
-          <label for="showDebug" class="text-sm text-gray-600">Show raw AI & OSINT (debug)</label>
+          <label for="showDebug" class="text-sm text-gray-600">Show raw AI & OSINT</label>
         </div>
 
         <!-- Submit -->
@@ -196,24 +169,20 @@
         </button>
       </form>
 
-      <!-- OSINT & Debug Panel -->
+      <!-- Panels -->
       <div id="osintPanel" class="osint-panel" style="display:none;"></div>
       <div id="debugPanel" class="debug-panel" style="display:none;"></div>
 
-      <!-- Results Panel -->
+      <!-- Results -->
       <div id="resultsPanel" class="mt-10" style="display:none;">
         <div class="flex justify-between items-center mb-4">
-          <div>
-            <div class="font-bold text-lg">AI Gift Recommendations</div>
-            <div class="text-xs text-gray-500" id="matchSummary">No results yet</div>
-          </div>
-          <div class="text-sm text-gray-600">16 hyper-personalized gifts</div>
+          <div><div class="font-bold text-lg">AI Gift Recommendations</div><div class="text-xs text-gray-500" id="matchSummary"></div></div>
+          <div class="text-sm text-gray-600">16 gifts</div>
         </div>
         <div id="resultGrid" class="resultGrid"></div>
         <div id="happyMsg" class="mt-6 p-4 bg-gradient-to-r from-pink-50 to-pink-100 rounded-xl text-center text-pink-700 font-medium" style="display:none;">
           We’re happy you found your gift with Gifté+ AI!
         </div>
-        <!-- Compile All Data Button -->
         <button id="compileBtn" class="mt-4 w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-3 rounded-full font-bold hover:shadow-lg transition" style="display:none;">
           <i class="fas fa-download"></i> Download All Data (JSON)
         </button>
@@ -221,25 +190,22 @@
     </div>
   </main>
 
-  <!-- Footer -->
   <footer class="text-center py-8 text-gray-500 text-sm fade-in-up">
     © 2025 Gifté+. Built with <span class="text-pink-500">BRO ENERGY</span> by Delta-1 & Commander
   </footer>
 
-  <!-- Toast -->
   <div id="toast" class="toast"></div>
 
   <script>
-    // ==============================
-    // 1. CONFIG
-    // ==============================
+    // CONFIG
+    const ABSTRACT = {
+      email: 'a714f117250d428aa7c475b6f44f3b83',
+      phone: '521155e18b15415aadd705a035a57fd9',
+      ip: 'c60344fcdad24bec87d9dc674c3891ae'
+    };
     const GEMINI_API_KEY = "AIzaSyDBuMd-lH5V5MGchFkJ2BSb0D9mtpHoqUQ";
-    const UNSPLASH_ACCESS_KEY = "";
-    const AMAZON_AFFILIATE_TAG = "";
 
-    // ==============================
-    // 2. DOM REFS
-    // ==============================
+    // DOM
     const els = {
       gmail: document.getElementById('gmail'),
       phone: document.getElementById('phone'),
@@ -261,389 +227,219 @@
       compileBtn: document.getElementById('compileBtn')
     };
 
-    let lastRawResponse = '';
-    let lastGifts = [];
-    let lastSelections = {};
-    let lastOSINT = {};
+    let lastRawResponse = '', lastGifts = [], lastSelections = {}, lastOSINT = {};
 
-    // ==============================
-    // 3. INTEREST CHIPS
-    // ==============================
-    const allInterests = ['Tech','Music','Books','Fashion','Home & Kitchen','Food & Drink','Travel','Fitness','Photography','Art','Gaming','Beauty','Gardening','Parenting','Kids','Sports','DIY','Hobby','Stationery','Pet Owner'];
-    allInterests.forEach(name => {
+    // INTERESTS
+    const interests = ['Tech','Music','Books','Fashion','Food & Drink','Travel','Fitness','Photography','Art','Gaming'];
+    interests.forEach(name => {
       const chip = document.createElement('div');
-      chip.className = 'px-3 py-1 rounded-full bg-gradient-to-r from-pink-100 to-pink-200 text-pink-700 text-xs font-medium cursor-pointer transition hover:from-pink-200 hover:to-pink-300 chip';
-      chip.textContent = name;
-      chip.role = 'checkbox';
-      chip.tabIndex = 0;
+      chip.className = 'px-3 py-1 rounded-full bg-gradient-to-r from-pink-100 to-pink-200 text-pink-700 text-xs font-medium cursor-pointer transition chip';
+      chip.textContent = name; chip.role = 'checkbox'; chip.tabIndex = 0;
       chip.setAttribute('aria-checked', 'false');
-      chip.setAttribute('aria-label', `Interest: ${name}`);
-      chip.addEventListener('click', () => toggleChip(chip));
-      chip.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleChip(chip); } });
+      chip.onclick = () => toggleChip(chip);
+      chip.onkeydown = e => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), toggleChip(chip));
       els.interestsContainer.appendChild(chip);
     });
     function toggleChip(chip) {
-      const active = chip.getAttribute('aria-checked') === 'true';
-      chip.setAttribute('aria-checked', !active);
-      chip.classList.toggle('from-pink-500', !active);
-      chip.classList.toggle('to-pink-600', !active);
-      chip.classList.toggle('text-white', !active);
-      chip.classList.toggle('from-pink-100', active);
-      chip.classList.toggle('to-pink-200', active);
-      chip.classList.toggle('text-pink-700', active);
+      const on = chip.getAttribute('aria-checked') === 'true';
+      chip.setAttribute('aria-checked', !on);
+      chip.classList.toggle('from-pink-500', !on); chip.classList.toggle('to-pink-600', !on);
+      chip.classList.toggle('text-white', !on); chip.classList.toggle('from-pink-100', on);
+      chip.classList.toggle('to-pink-200', on); chip.classList.toggle('text-pink-700', on);
     }
-    function getSelectedInterests() {
+    function getInterests() {
       return Array.from(els.interestsContainer.children)
         .filter(c => c.getAttribute('aria-checked') === 'true')
         .map(c => c.textContent);
     }
 
-    // ==============================
-    // 4. OSINT: EMAIL, PHONE, IP (NO API KEY)
-    // ==============================
-    async function runOSINT(selections) {
+    // DROPDOWNS (FIXED & CALLED)
+    const occasions = ["Birthday","Anniversary","Valentine's Day","Diwali","Christmas","Wedding","Graduation","Just Because"];
+    const relationships = ["Partner","Best Friend","Parent","Sibling","Colleague","Crush","Boss","Child"];
+
+    function setupDropdown(comboId, listId, selectedId, chevronId, options) {
+      const combo = document.getElementById(comboId);
+      const list = document.getElementById(listId);
+      const selected = document.getElementById(selectedId);
+      const chevron = document.getElementById(chevronId);
+
+      options.forEach(opt => {
+        const li = document.createElement('li');
+        li.className = 'dropdown-option'; li.textContent = opt; li.tabIndex = 0;
+        li.onclick = () => { selected.textContent = opt; close(); updateProgress(); };
+        li.onkeydown = e => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), li.click());
+        list.appendChild(li);
+      });
+
+      function open() { list.classList.add('show'); combo.setAttribute('aria-expanded', 'true'); chevron.classList.add('rotate-180'); }
+      function close() { list.classList.remove('show'); combo.setAttribute('aria-expanded', 'false'); chevron.classList.remove('rotate-180'); }
+
+      combo.onclick = () => list.classList.contains('show') ? close() : open();
+      combo.onkeydown = e => ['Enter',' ','ArrowDown'].includes(e.key) && (e.preventDefault(), open());
+      document.addEventListener('click', e => !combo.contains(e.target) && !list.contains(e.target) && close());
+    }
+
+    setupDropdown('occasionCombobox', 'occasion-list', 'occasion-selected', 'occasion-chevron', occasions);
+    setupDropdown('relationshipCombobox', 'relationship-list', 'relationship-selected', 'relationship-chevron', relationships);
+
+    // PROGRESS
+    function updateProgress() {
+      const fields = [els.gmail.value, els.phone.value, els.budget.value, 
+                      els.occasionSelected.textContent !== 'Select occasion...',
+                      els.relationshipSelected.textContent !== 'Select relationship...'];
+      const percent = (fields.filter(Boolean).length / 5) * 100;
+      els.progressBar.style.width = percent + '%';
+    }
+    document.querySelectorAll('input, [role="combobox"]').forEach(el => el.addEventListener('input', updateProgress));
+    document.querySelectorAll('input, [role="combobox"]').forEach(el => el.addEventListener('change', updateProgress));
+
+    // OSINT
+    async function runOSINT(s) {
       const osint = { email: {}, phone: {}, ip: {}, insights: [] };
-
-      // EMAIL OSINT (Disify)
       try {
-        const emailRes = await fetch(`https://api.disify.com/email/${selections.gmail}`);
-        const emailData = await emailRes.json();
-        osint.email = {
-          valid: emailData.format,
-          disposable: emailData.disposable,
-          domain: emailData.domain,
-          provider: emailData.domain ? emailData.domain.split('.').slice(-2, -1)[0] : 'unknown'
-        };
-        if (emailData.disposable) osint.insights.push(`⚠️ Disposable email detected (${emailData.domain})`);
-        if (selections.gmail.includes('choco')) osint.insights.push(`🍫 "choco" in email → possible foodie or gaming alias`);
-      } catch {}
+        const emailRes = await fetch(`https://emailvalidation.abstractapi.com/v1/?api_key=${ABSTRACT.email}&email=${s.gmail}`);
+        const e = await emailRes.json();
+        osint.email = { quality: e.quality_score, provider: e.provider, disposable: e.is_disposable_email?.value };
+        if (e.quality_score < 0.7) osint.insights.push(`Low email quality (${e.quality_score})`);
+      } catch { osint.email.error = 'Failed'; }
 
-      // PHONE OSINT (Numverify - free tier, no key for basic)
       try {
-        const phoneRes = await fetch(`http://apilayer.net/api/validate?access_key=&number=${selections.phone}&country_code=IN&format=1`);
-        const phoneData = await phoneRes.json();
-        if (phoneData.valid) {
-          osint.phone = {
-            valid: true,
-            country: phoneData.country_name,
-            location: phoneData.location,
-            carrier: phoneData.carrier,
-            line_type: phoneData.line_type
-          };
-          osint.insights.push(`📍 Phone registered in ${phoneData.location}, ${phoneData.country_name}`);
-          if (phoneData.line_type === 'mobile') osint.insights.push(`📱 Mobile user → likely active on apps`);
-        }
-      } catch {}
+        const phoneRes = await fetch(`https://phoneintelligence.abstractapi.com/v1/?api_key=${ABSTRACT.phone}&phone=${s.phone}`);
+        const p = await phoneRes.json();
+        osint.phone = { valid: p.valid, country: p.country?.name, carrier: p.carrier };
+        if (p.valid) osint.insights.push(`Phone valid in ${p.country?.name}`);
+      } catch { osint.phone.error = 'Failed'; }
 
-      // IP OSINT (ip-api.com - no key)
       try {
-        const ipRes = await fetch('https://ip-api.com/json/');
-        const ipData = await ipRes.json();
-        if (ipData.status === 'success') {
-          osint.ip = {
-            ip: ipData.query,
-            country: ipData.country,
-            region: ipData.regionName,
-            city: ipData.city,
-            isp: ipData.isp,
-            org: ipData.org
-          };
-          osint.insights.push(`🌍 You're in ${ipData.city}, ${ipData.regionName}, ${ipData.country}`);
-          if (ipData.isp.includes('Airtel') || ipData.isp.includes('Jio')) osint.insights.push(`📶 High-speed Indian ISP → tech-savvy user`);
-        }
-      } catch {}
+        const ipRes = await fetch(`https://ipgeolocation.abstractapi.com/v1/?api_key=${ABSTRACT.ip}`);
+        const i = await ipRes.json();
+        osint.ip = { city: i.city, isp: i.connection?.isp_name };
+        osint.insights.push(`You're in ${i.city}`);
+      } catch { osint.ip.error = 'Failed'; }
 
       return osint;
     }
 
-    function renderOSINT(osint) {
-      const html = `
-        <div class="font-bold mb-2">🔍 OSINT Intelligence Gathered</div>
-        <div class="space-y-2 text-sm">
-          ${osint.insights.map(i => `<div class="insight-box">${i}</div>`).join('')}
-        </div>
-        <details class="mt-3 text-xs">
-          <summary class="cursor-pointer font-medium">Raw OSINT Data</summary>
-          <pre class="mt-2 p-2 bg-gray-100 dark:bg-gray-800 rounded overflow-x-auto">${JSON.stringify(osint, null, 2)}</pre>
-        </details>
-      `;
-      els.osintPanel.innerHTML = html;
+    function renderOSINT(o) {
+      els.osintPanel.innerHTML = `<div class="font-bold mb-2">OSINT</div>
+        ${o.insights.map(i => `<div class="insight-box">${i}</div>`).join('')}
+        <pre class="mt-2 text-xs">${JSON.stringify(o, null, 2)}</pre>`;
       els.osintPanel.style.display = 'block';
     }
 
-    // ==============================
-    // 5. GEMINI + HYPER-PERSONALIZATION
-    // ==============================
-    async function callGemini(selections, osint) {
-      const budgetText = selections.budget ? `around ₹${selections.budget}` : 'any budget';
-      const interestsText = selections.interests.length ? selections.interests.join(', ') : 'no specific interests';
-      const socialText = [];
-      if (selections.instagram) socialText.push(`Instagram: @${selections.instagram}`);
-      if (selections.facebook) socialText.push(`Facebook: ${selections.facebook}`);
-      const socialNote = socialText.length ? `Public profiles: ${socialText.join(', ')}` : 'No public profiles provided';
-
-      const osintSummary = `
-OSINT Insights:
-- Email: ${osint.email.provider || 'unknown'} (${osint.email.disposable ? 'disposable' : 'legit'})
-- Phone: ${osint.phone.location || 'unknown'} (${osint.phone.carrier || 'unknown'})
-- IP Location: ${osint.ip.city || 'unknown'}, ${osint.ip.country || 'unknown'}
-- Inferred: ${osint.insights.join('; ')}
-      `.trim();
-
-      const prompt = `You are a hyper-personalized gift expert. Use **ALL** this data to suggest **exactly 16** gifts.
-
-User Data:
-- Budget: ${budgetText}
-- Occasion: ${selections.occasion}
-- Relationship: ${selections.relationship}
-- Interests: ${interestsText}
-- ${socialNote}
-- ${osintSummary}
-
-Rules:
-- Make gifts **ultra-specific** to location, ISP, email hints, phone carrier.
-- Example: If in Mumbai + Jio → suggest local tech stores or Jio-exclusive gadgets.
-- If "choco" in email → include chocolate-themed or gaming snacks.
-- Explain **why** each gift fits in the "short" field (1 line).
-- Return **ONLY** JSON array:
-[
-  {"title":"Short Name","short":"Why this gift: because of [OSINT insight]","price":"₹X–₹Y"}
-]
-No markdown, no extra text.`;
-
+    // GEMINI
+    async function callGemini(s, o) {
+      const prompt = `16 gifts. Budget: ₹${s.budget}. Occasion: ${s.occasion}. For: ${s.relationship}. Interests: ${s.interests.join(', ')}. 
+OSINT: Email ${o.email.provider || 'unknown'}, Phone in ${o.phone.country || 'unknown'}, IP in ${o.ip.city || 'unknown'}.
+Return ONLY JSON array: [{"title":"","short":"Why: [OSINT insight]","price":"₹X–₹Y"}]`;
       const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] })
       });
-
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) throw new Error('Gemini failed');
       const data = await res.json();
-      const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const raw = data.candidates[0].content.parts[0].text;
       lastRawResponse = raw;
-
       if (els.showDebug.checked) {
         els.debugPanel.style.display = 'block';
-        els.debugPanel.textContent = `PROMPT:\n${prompt}\n\nRESPONSE:\n${raw}`;
+        els.debugPanel.textContent = `Prompt:\n${prompt}\n\nResponse:\n${raw}`;
       }
-
-      return extractJsonArray(raw);
+      return JSON.parse(raw.match(/\[[\s\S]*\]/)[0]);
     }
 
-    function extractJsonArray(text) {
-      const m = text.match(/\[[\s\S]*\]/);
-      if (!m) throw new Error('No JSON array');
-      return JSON.parse(m[0]);
-    }
-
-    // ==============================
-    // 6. RENDER + IMAGES
-    // ==============================
-    async function renderAIResults(gifts, s, osint) {
-      els.resultGrid.innerHTML = '';
-      els.matchSummary.textContent = `16 gifts • Tailored to ${osint.ip.city || 'your location'}`;
-      lastGifts = gifts;
-      lastSelections = s;
-      lastOSINT = osint;
-
-      const cardElements = gifts.map(g => {
-        const div = document.createElement('div');
-        div.className = 'giftCard';
-        div.innerHTML = `
-          <div class="giftTop">
-            <div class="giftThumb" style="background:#eee;animation:pulse 1.5s infinite"></div>
-            <div style="flex:1">
-              <h4 class="giftTitle">${g.title}</h4>
-              <div class="giftMeta">${g.short}</div>
-              <div style="text-align:right">
-                <div style="font-weight:800;font-size:14px">${g.price}</div>
-                <div class="smallBadge">AI</div>
-              </div>
-              <div class="flex gap-1 mt-2">
-                <a href="https://www.google.com/search?q=${encodeURIComponent(g.title)}" target="_blank" class="linkBtn google">Google</a>
-                <a href="${getAmazonLink(g.title)}" target="_blank" class="linkBtn amazon">Amazon</a>
-              </div>
-            </div>
-          </div>`;
-        return { div, g };
-      });
-
-      cardElements.forEach(({ div }, i) => {
-        els.resultGrid.appendChild(div);
-        setTimeout(() => div.classList.add('show'), 50 * i);
-      });
-
-      await Promise.all(cardElements.map(async ({ div, g }) => {
-        const imgUrl = await getRealGiftImage(g.title);
-        const thumb = div.querySelector('.giftThumb');
-        const img = document.createElement('img');
-        img.src = imgUrl;
-        img.alt = g.title;
-        img.onerror = () => { thumb.style.background = 'linear-gradient(135deg,var(--pink-500),var(--pink-600))'; img.style.display = 'none'; };
-        thumb.innerHTML = ''; thumb.appendChild(img);
-      }));
-
-      setTimeout(() => { 
-        els.happyMsg.style.display = 'block'; 
-        els.compileBtn.style.display = 'block';
-      }, 400);
-    }
-
-    async function getRealGiftImage(title) {
-      const q = encodeURIComponent(title);
-      return `https://source.unsplash.com/featured/300x300/?${q}`;
-    }
-    function getAmazonLink(title) {
-      return `https://www.amazon.in/s?k=${encodeURIComponent(title)}`;
-    }
-
-    // ==============================
-    // 7. SUBMIT + FULL FLOW
-    // ==============================
-    let submitting = false;
-    document.getElementById('autoForm').addEventListener('submit', async (e) => {
+    // SUBMIT
+    els.autoForm.onsubmit = async e => {
       e.preventDefault();
-      if (submitting) return;
-      submitting = true;
-
-      const selections = {
+      const s = {
         gmail: els.gmail.value.trim(),
         phone: els.phone.value.trim(),
         instagram: els.instagram.value.trim(),
         facebook: els.facebook.value.trim(),
-        budget: els.budget.value,
+        budget: +els.budget.value,
         occasion: els.occasionSelected.textContent,
         relationship: els.relationshipSelected.textContent,
-        interests: getSelectedInterests()
+        interests: getInterests()
       };
-
-      if (!selections.gmail || !selections.phone || !selections.budget || selections.occasion === 'Select occasion...' || selections.relationship === 'Select relationship...') {
-        showToast('Fill all required fields.');
-        submitting = false;
-        return;
+      if (!s.gmail || !s.phone || !s.budget || s.occasion.includes('Select') || s.relationship.includes('Select')) {
+        showToast('Fill all required fields'); return;
       }
 
       els.submitBtn.disabled = true;
-      els.submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running OSINT...';
+      els.submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> OSINT...';
       els.resultsPanel.style.display = 'block';
-      showLoader();
+      els.resultGrid.innerHTML = '<div id="loader"><div class="spinner"></div><div>Running OSINT...</div></div>';
 
       try {
-        // STEP 1: OSINT
-        const osint = await runOSINT(selections);
+        const osint = await runOSINT(s);
         renderOSINT(osint);
         els.submitBtn.innerHTML = '<i class="fas fa-brain"></i> AI Thinking...';
-
-        // STEP 2: AI
-        const gifts = await callGemini(selections, osint);
-        await renderAIResults(gifts, selections, osint);
-
+        const gifts = await callGemini(s, osint);
+        await renderResults(gifts, s, osint);
         els.submitBtn.innerHTML = '<i class="fas fa-check"></i> Done!';
-        setTimeout(() => { els.submitBtn.disabled = false; els.submitBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Gift Suggestion'; submitting = false; }, 1500);
+        setTimeout(() => { els.submitBtn.disabled = false; els.submitBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Gift Suggestion'; }, 1000);
       } catch (err) {
-        els.resultGrid.innerHTML = `<div style="color:#c92a2a;padding:20px">Error: ${err.message}</div>`;
-        els.submitBtn.innerHTML = 'Try Again'; els.submitBtn.disabled = false; submitting = false;
+        els.resultGrid.innerHTML = `<div class="text-red-600 p-4">Error: ${err.message}</div>`;
+        els.submitBtn.innerHTML = 'Try Again'; els.submitBtn.disabled = false;
       }
-    });
+    };
 
-    function showLoader() {
-      els.resultGrid.innerHTML = `<div id="loader"><div class="spinner"></div><div>Scanning public data…</div></div>`;
+    async function renderResults(gifts, s, o) {
+      els.resultGrid.innerHTML = '';
+      els.matchSummary.textContent = `16 gifts • ${o.ip.city || 'your location'}`;
+      lastGifts = gifts; lastSelections = s; lastOSINT = o;
+
+      gifts.forEach((g, i) => {
+        const card = document.createElement('div');
+        card.className = 'giftCard';
+        card.innerHTML = `<div class="giftTop">
+          <div class="giftThumb"><div class="spinner"></div></div>
+          <div style="flex:1"><h4 class="giftTitle">${g.title}</h4>
+          <div class="giftMeta">${g.short}</div>
+          <div style="text-align:right"><div style="font-weight:800">${g.price}</div></div>
+          <div class="flex gap-1 mt-2">
+            <a href="https://google.com/search?q=${g.title}" target="_blank" class="linkBtn google">Google</a>
+            <a href="https://amazon.in/s?k=${g.title}" target="_blank" class="linkBtn amazon">Amazon</a>
+          </div></div></div>`;
+        els.resultGrid.appendChild(card);
+        setTimeout(() => card.classList.add('show'), 50 * i);
+      });
+
+      await Promise.all(gifts.map(async (g, i) => {
+        const img = new Image();
+        img.src = `https://source.unsplash.com/300x300/?${encodeURIComponent(g.title)}`;
+        img.onload = () => document.querySelectorAll('.giftThumb')[i].innerHTML = img.outerHTML;
+      }));
+
+      els.happyMsg.style.display = 'block';
+      els.compileBtn.style.display = 'block';
     }
 
-    // ==============================
-    // 8. COMPILE ALL
-    // ==============================
-    els.compileBtn.addEventListener('click', () => {
-      const data = {
-        timestamp: new Date().toISOString(),
-        input: lastSelections,
-        osint: lastOSINT,
-        raw_ai_prompt_and_response: lastRawResponse,
-        gifts: lastGifts
-      };
+    els.compileBtn.onclick = () => {
+      const data = { timestamp: new Date().toISOString(), input: lastSelections, osint: lastOSINT, raw_ai: lastRawResponse, gifts: lastGifts };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `gifte_full_intel_${Date.now()}.json`;
-      a.click();
+      const a = document.createElement('a'); a.href = url; a.download = `gifte_intel_${Date.now()}.json`; a.click();
       URL.revokeObjectURL(url);
-      showToast('Full intel downloaded!');
-    });
+      showToast('Downloaded!');
+    };
 
-    // ==============================
-    // 9. THEME, DROPDOWNS, TOAST
-    // ==============================
+    // THEME
     const themeToggle = document.getElementById('themeToggle');
-    const html = document.documentElement;
-    const moon = themeToggle.querySelector('.fa-moon');
-    const sun = themeToggle.querySelector('.fa-sun');
-    themeToggle.addEventListener('click', () => {
-      const isDark = html.hasAttribute('data-theme');
-      if (isDark) { html.removeAttribute('data-theme'); localStorage.removeItem('theme'); moon.classList.remove('hidden'); sun.classList.add('hidden'); }
-      else { html.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); moon.classList.add('hidden'); sun.classList.remove('hidden'); }
-    });
-    if (localStorage.getItem('theme') === 'dark') { html.setAttribute('data-theme', 'dark'); moon.classList.add('hidden'); sun.classList.remove('hidden'); }
-
-    function createDropdown(comboId, listId, selectedId, chevronId) {
-      const combobox = document.getElementById(comboId);
-      const listbox = document.getElementById(listId);
-      const selectedText = document.getElementById(selectedId);
-      const chevron = document.getElementById(chevronId);
-      const options = listbox.querySelectorAll('[role="option"]');
-      let isOpen = false;
-      let focusedIndex = -1;
-
-      function open() { listbox.classList.remove('hidden', 'opacity-0'); listbox.classList.add('opacity-100'); combobox.setAttribute('aria-expanded', 'true'); chevron.classList.add('rotate-180'); isOpen = true; focusOption(0); }
-      function close() { listbox.classList.add('hidden', 'opacity-0'); listbox.classList.remove('opacity-100'); combobox.setAttribute('aria-expanded', 'false'); chevron.classList.remove('rotate-180'); isOpen = false; focusedIndex = -1; }
-      function focusOption(i) { 
-        options.forEach((o,j)=>{o.setAttribute('aria-selected',j===i);o.classList.toggle('bg-pink-100',j===i);o.classList.toggle('dark:bg-pink-900/50',j===i);}); 
-        if(i>=0) options[i].scrollIntoView({block:'nearest'}); 
-        focusedIndex=i; 
-      }
-      function selectOption(i) { selectedText.textContent = options[i].textContent; close(); updateProgress(); }
-
-      combobox.addEventListener('click', () => isOpen ? close() : open());
-      combobox.addEventListener('keydown', e => {
-        if (!isOpen && ['Enter',' ','ArrowDown'].includes(e.key)) { e.preventDefault(); open(); return; }
-        if (!isOpen) return;
-        switch(e.key){
-          case 'Escape': close(); combobox.focus(); break;
-          case 'ArrowDown': e.preventDefault(); focusOption((focusedIndex+1)%options.length); break;
-          case 'ArrowUp': e.preventDefault(); focusOption((focusedIndex-1+options.length)%options.length); break;
-          case 'Enter': case ' ': e.preventDefault(); if(focusedIndex>=0) selectOption(focusedIndex); break;
-        }
-      });
-      options.forEach((opt,i) => opt.addEventListener('click', () => selectOption(i)));
-      document.addEventListener('click', e => { if(!combobox.contains(e.target) && !listbox.contains(e.target)) close(); });
-    }
-    createDropdown('occasionCombobox','occasion-list','occasion-selected','occasion-chevron');
-    createDropdown('relationshipCombobox','relationship-list','relationship-selected','relationship-chevron');
-
-    function updateProgress() {
-      const gmail = els.gmail.value.trim();
-      const phone = els.phone.value.trim();
-      const budget = els.budget.value;
-      const occasion = els.occasionSelected.textContent !== "Select occasion...";
-      const relationship = els.relationshipSelected.textContent !== "Select relationship...";
-      let progress = 0;
-      if(gmail) progress++;
-      if(phone) progress++;
-      if(budget) progress++;
-      if(occasion) progress++;
-      if(relationship) progress++;
-      const percent = (progress / 5) * 100;
-      els.progressBar.style.width = percent + "%";
-      els.progressBar.parentElement.setAttribute('aria-valuenow', Math.round(percent));
-    }
-    document.querySelectorAll("input").forEach(i => i.addEventListener("input", updateProgress));
+    themeToggle.onclick = () => {
+      const isDark = document.documentElement.hasAttribute('data-theme');
+      if (isDark) { document.documentElement.removeAttribute('data-theme'); localStorage.removeItem('theme'); }
+      else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); }
+    };
+    if (localStorage.getItem('theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
 
     function showToast(msg) {
-      const toast = document.getElementById("toast");
-      toast.textContent = msg;
-      toast.classList.add("show");
-      setTimeout(() => toast.classList.remove("show"), 3000);
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
     }
+
+    // INIT
+    updateProgress();
   </script>
 </body>
 </html>
