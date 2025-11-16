@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gifté+ | Automatic Mode v3</title>
+  <title>Gifté+ | Automatic Mode v4</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -12,8 +12,6 @@
     [data-theme="dark"] { --bg: #0f0a1a; --card: rgba(20, 15, 40, 0.7); --text: #e2e8f0; --input-bg: rgba(31, 41, 55, 0.9); --border: #374151; }
     body { background: linear-gradient(135deg, #fff0f5, #fde2e4, #fef6f9); font-family: 'Poppins', sans-serif; min-height: 100vh; transition: background 0.6s ease; }
     [data-theme="dark"] body { background: linear-gradient(135deg, #1a0033, #0f0a1a, #2d1b3d); }
-    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-    .fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
     .input-group { position: relative; margin-bottom: 1.5rem; }
     .input-group input { width: 100%; padding: 1rem 1rem 0.5rem; border: 2px solid #e5e7eb; border-radius: 1rem; font-size: 1rem; transition: all 0.3s ease; background: rgba(255, 255, 255, 0.9); }
     [data-theme="dark"] .input-group input { background: var(--input-bg); border-color: var(--border); color: #e5e7eb; }
@@ -26,7 +24,7 @@
     .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 1.5rem; padding: 1.5rem 2rem; }
     [data-theme="dark"] .glass-card { background: rgba(31, 41, 55, 0.7); border-color: rgba(55, 65, 81, 0.5); }
     .theme-toggle { position: relative; width: 3.5rem; height: 2rem; background: #d1d5db; border-radius: 9999px; cursor: pointer; transition: background 0.3s; }
-    .theme-toggle::before { content: ''; position: absolute; top: 0.25rem; left: 0.25rem; width: 1.5rem; height: 1.5rem; background: white; border-radius: 9999px; transition: transform 0.3s; display: flex; align-items: center; justify-content: center; }
+    .theme-toggle::before { content: ''; position: absolute; top: 0.25rem; left: 0.25rem; width: 1.5rem; height: 1.5rem; background: white; border-radius: 9999px; transition: transform 0.3s; }
     [data-theme="dark"] .theme-toggle { background: var(--pink-500); }
     [data-theme="dark"] .theme-toggle::before { transform: translateX(1.5rem); background: #1f2937; }
     .toast { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 0.75rem 1.5rem; border-radius: 0.75rem; font-size: 0.875rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); opacity: 0; visibility: hidden; transition: all 0.4s ease; z-index: 1000; }
@@ -43,17 +41,12 @@
     .linkBtn:hover { filter: brightness(1.05); }
     .linkBtn.google { background: linear-gradient(90deg, #3b82f6, #06b6d4); }
     .linkBtn.amazon { background: linear-gradient(90deg, #ff9900, #ff6600); }
-    .resultGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 12px; }
+    .resultGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 12px; }
     #loader { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; color: #6b7280; }
     .spinner { width: 32px; height: 32px; border: 4px solid #f3f3f3; border-top: 4px solid var(--pink-600); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 12px; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
-    .debug-panel { background: #f9f9f9; border-radius: 1rem; padding: 1rem; margin-top: 1rem; font-family: monospace; font-size: 0.8rem; max-height: 200px; overflow-y: auto; border: 1px solid #eee; }
-    [data-theme="dark"] .debug-panel { background: #1a1a1a; color: #e5e7eb; border-color: #374151; }
-    .osint-panel { background: #f0f9ff; border-radius: 1rem; padding: 1rem; margin-top: 1rem; font-size: 0.85rem; border: 1px solid #bfdbfe; }
-    [data-theme="dark"] .osint-panel { background: #172554; border-color: #1e40af; color: #dbeafe; }
-    .insight-box { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 0.75rem; margin: 0.5rem 0; font-size: 0.8rem; }
-    [data-theme="dark"] .insight-box { background: #451a03; border-color: #f97316; color: #fed7aa; }
+    .osint-panel, .debug-panel { background: #f0f9ff; border-radius: 1rem; padding: 1rem; margin-top: 1rem; font-size: 0.85rem; border: 1px solid #bfdbfe; }
+    [data-theme="dark"] .osint-panel, [data-theme="dark"] .debug-panel { background: #172554; border-color: #1e40af; color: #dbeafe; }
     .dropdown-container { position: relative; }
     .dropdown-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 1rem; max-height: 200px; overflow-y: auto; z-index: 50; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
     [data-theme="dark"] .dropdown-list { background: #1f2937; border-color: #374151; }
@@ -61,7 +54,8 @@
     .dropdown-option { padding: 0.75rem 1rem; cursor: pointer; transition: background 0.2s; }
     .dropdown-option:hover { background: #f472b6; color: white; }
     [data-theme="dark"] .dropdown-option:hover { background: #ec4899; }
-    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+    .chip-container { display: flex; flex-wrap: wrap; gap: 8px; max-height: 120px; overflow-y: auto; padding: 8px; border: 1px solid #ddd; border-radius: 1rem; background: rgba(255,255,255,0.8); }
+    [data-theme="dark"] .chip-container { background: rgba(31,41,55,0.8); border-color: #374151; }
   </style>
 </head>
 <body class="text-gray-800">
@@ -75,33 +69,28 @@
       <a href="index.html" class="text-gray-700 hover:text-pink-600 transition flex items-center gap-1 text-sm md:text-base">
         <i class="fas fa-arrow-left"></i> Back
       </a>
-      <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
-        <i class="fas fa-moon text-xs text-gray-600 absolute top-1.5 left-1.5"></i>
-        <i class="fas fa-sun text-xs text-yellow-500 hidden absolute top-1.5 right-1.5"></i>
-      </button>
+      <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode"></button>
     </div>
   </nav>
 
   <!-- Header -->
-  <section class="text-center py-12 md:py-16 fade-in-up">
-    <h2 class="text-3xl md:text-5xl font-extrabold text-gray-800 mb-4">Automatic Gift Finder v3</h2>
+  <section class="text-center py-12 md:py-16">
+    <h2 class="text-3xl md:text-5xl font-extrabold text-gray-800 mb-4">Automatic Gift Finder v4</h2>
     <p class="text-base md:text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed px-6">
-      AI + <strong>Abstract API OSINT</strong> → 16 hyper-personalized gifts
+      AI + Abstract API → 16 hyper-personalized gifts
     </p>
   </section>
 
   <!-- Main Form -->
-  <main class="flex justify-center px-6 py-8 md:py-12 fade-in-up">
+  <main class="flex justify-center px-6 py-8 md:py-12">
     <div class="glass-card w-full max-w-2xl">
       <h3 class="text-2xl md:text-3xl font-bold mb-6 text-center text-gray-800">Recipient Details</h3>
 
-      <!-- Progress Bar -->
-      <div role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" class="progress-container">
+      <div role="progressbar" class="progress-container">
         <div id="progressBarInner" class="progress-bar"></div>
       </div>
 
       <form id="autoForm" class="space-y-7" novalidate>
-        <!-- Social Inputs -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="input-group">
             <input type="text" id="instagram" placeholder=" " />
@@ -113,7 +102,6 @@
           </div>
         </div>
 
-        <!-- Required -->
         <div class="input-group">
           <input type="email" id="gmail" required placeholder=" " />
           <label for="gmail">Gmail ID <span class="text-pink-500">*</span></label>
@@ -127,53 +115,45 @@
           <label for="budget">Budget (INR) <span class="text-pink-500">*</span></label>
         </div>
 
-        <!-- OCCASION DROPDOWN -->
+        <!-- OCCASION -->
         <div class="dropdown-container">
           <label class="block text-lg font-semibold text-gray-800 mb-3">Occasion <span class="text-pink-500">*</span></label>
-          <div role="combobox" aria-expanded="false" aria-haspopup="listbox" tabindex="0" class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl text-left font-medium cursor-pointer transition-all duration-300 flex justify-between items-center bg-white/90" id="occasionCombobox">
+          <div role="combobox" tabindex="0" class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl text-left font-medium cursor-pointer transition-all duration-300 flex justify-between items-center bg-white/90" id="occasionCombobox">
             <span id="occasion-selected">Select occasion...</span>
             <i class="fas fa-chevron-down ml-2 transition-transform duration-300" id="occasion-chevron"></i>
           </div>
-          <ul role="listbox" id="occasion-list" class="dropdown-list mt-2">
-            <!-- Options injected via JS -->
-          </ul>
+          <ul role="listbox" id="occasion-list" class="dropdown-list mt-2"></ul>
         </div>
 
-        <!-- RELATIONSHIP DROPDOWN -->
+        <!-- RELATIONSHIP -->
         <div class="dropdown-container">
           <label class="block text-lg font-semibold text-gray-800 mb-3">Relationship <span class="text-pink-500">*</span></label>
-          <div role="combobox" aria-expanded="false" aria-haspopup="listbox" tabindex="0" class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl text-left font-medium cursor-pointer transition-all duration-300 flex justify-between items-center bg-white/90" id="relationshipCombobox">
+          <div role="combobox" tabindex="0" class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl text-left font-medium cursor-pointer transition-all duration-300 flex justify-between items-center bg-white/90" id="relationshipCombobox">
             <span id="relationship-selected">Select relationship...</span>
             <i class="fas fa-chevron-down ml-2 transition-transform duration-300" id="relationship-chevron"></i>
           </div>
-          <ul role="listbox" id="relationship-list" class="dropdown-list mt-2">
-            <!-- Options injected via JS -->
-          </ul>
+          <ul role="listbox" id="relationship-list" class="dropdown-list mt-2"></ul>
         </div>
 
-        <!-- Interests -->
+        <!-- INTERESTS (30+ OPTIONS) -->
         <div>
           <label class="block text-lg font-semibold text-gray-800 mb-3">Interests (optional)</label>
-          <div class="flex flex-wrap gap-2" id="interestsContainer"></div>
+          <div id="interestsContainer" class="chip-container"></div>
         </div>
 
-        <!-- Debug -->
         <div class="flex items-center gap-2">
           <input type="checkbox" id="showDebug" class="w-4 h-4 text-pink-600 rounded" />
           <label for="showDebug" class="text-sm text-gray-600">Show raw AI & OSINT</label>
         </div>
 
-        <!-- Submit -->
         <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-pink-500 to-pink-600 text-white py-4 rounded-full text-lg font-bold hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 mt-8">
           <i class="fas fa-magic"></i> Generate Gift Suggestion
         </button>
       </form>
 
-      <!-- Panels -->
       <div id="osintPanel" class="osint-panel" style="display:none;"></div>
       <div id="debugPanel" class="debug-panel" style="display:none;"></div>
 
-      <!-- Results -->
       <div id="resultsPanel" class="mt-10" style="display:none;">
         <div class="flex justify-between items-center mb-4">
           <div><div class="font-bold text-lg">AI Gift Recommendations</div><div class="text-xs text-gray-500" id="matchSummary"></div></div>
@@ -181,7 +161,7 @@
         </div>
         <div id="resultGrid" class="resultGrid"></div>
         <div id="happyMsg" class="mt-6 p-4 bg-gradient-to-r from-pink-50 to-pink-100 rounded-xl text-center text-pink-700 font-medium" style="display:none;">
-          We’re happy you found your gift with Gifté+ AI!
+          We’re happy you found your gift!
         </div>
         <button id="compileBtn" class="mt-4 w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-3 rounded-full font-bold hover:shadow-lg transition" style="display:none;">
           <i class="fas fa-download"></i> Download All Data (JSON)
@@ -190,27 +170,22 @@
     </div>
   </main>
 
-  <footer class="text-center py-8 text-gray-500 text-sm fade-in-up">
-    © 2025 Gifté+. Built with <span class="text-pink-500">BRO ENERGY</span> by Delta-1 & Commander
+  <footer class="text-center py-8 text-gray-500 text-sm">
+    © 2025 Gifté+. Built with <span class="text-pink-500">BRO ENERGY</span>
   </footer>
 
   <div id="toast" class="toast"></div>
 
   <script>
-    // CONFIG
-    const ABSTRACT = {
-      email: 'a714f117250d428aa7c475b6f44f3b83',
-      phone: '521155e18b15415aadd705a035a57fd9',
-      ip: 'c60344fcdad24bec87d9dc674c3891ae'
-    };
+    // KEYS
+    const ABSTRACT = { email: 'a714f117250d428aa7c475b6f44f3b83', phone: '521155e18b15415aadd705a035a57fd9', ip: 'c60344fcdad24bec87d9dc674c3891ae' };
     const GEMINI_API_KEY = "AIzaSyDBuMd-lH5V5MGchFkJ2BSb0D9mtpHoqUQ";
 
     // DOM
     const els = {
-      gmail: document.getElementById('gmail'),
-      phone: document.getElementById('phone'),
-      instagram: document.getElementById('instagram'),
-      facebook: document.getElementById('facebook'),
+      form: document.getElementById('autoForm'),
+      gmail: document.getElementById('gmail'), phone: document.getElementById('phone'),
+      instagram: document.getElementById('instagram'), facebook: document.getElementById('facebook'),
       budget: document.getElementById('budget'),
       occasionSelected: document.getElementById('occasion-selected'),
       relationshipSelected: document.getElementById('relationship-selected'),
@@ -229,23 +204,27 @@
 
     let lastRawResponse = '', lastGifts = [], lastSelections = {}, lastOSINT = {};
 
-    // INTERESTS
-    const interests = ['Tech','Music','Books','Fashion','Food & Drink','Travel','Fitness','Photography','Art','Gaming'];
-    interests.forEach(name => {
+    // 30+ INTERESTS
+    const allInterests = [
+      'Tech','Gaming','Music','Books','Fashion','Travel','Fitness','Photography','Art',
+      'Food & Drink','Coffee','Wine','Cooking','Baking','Movies','Anime','K-Drama',
+      'Sports','Cricket','Football','Yoga','Meditation','Gardening','DIY','Crafts',
+      'Pets','Dogs','Cats','Cars','Bikes','Nature','Camping','Hiking','Beach',
+      'Luxury','Minimalist','Vintage','Sustainability','Eco-Friendly'
+    ];
+    allInterests.forEach(name => {
       const chip = document.createElement('div');
       chip.className = 'px-3 py-1 rounded-full bg-gradient-to-r from-pink-100 to-pink-200 text-pink-700 text-xs font-medium cursor-pointer transition chip';
       chip.textContent = name; chip.role = 'checkbox'; chip.tabIndex = 0;
       chip.setAttribute('aria-checked', 'false');
       chip.onclick = () => toggleChip(chip);
-      chip.onkeydown = e => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), toggleChip(chip));
       els.interestsContainer.appendChild(chip);
     });
     function toggleChip(chip) {
       const on = chip.getAttribute('aria-checked') === 'true';
       chip.setAttribute('aria-checked', !on);
       chip.classList.toggle('from-pink-500', !on); chip.classList.toggle('to-pink-600', !on);
-      chip.classList.toggle('text-white', !on); chip.classList.toggle('from-pink-100', on);
-      chip.classList.toggle('to-pink-200', on); chip.classList.toggle('text-pink-700', on);
+      chip.classList.toggle('text-white', !on);
     }
     function getInterests() {
       return Array.from(els.interestsContainer.children)
@@ -253,32 +232,23 @@
         .map(c => c.textContent);
     }
 
-    // DROPDOWNS (FIXED & CALLED)
+    // DROPDOWNS
     const occasions = ["Birthday","Anniversary","Valentine's Day","Diwali","Christmas","Wedding","Graduation","Just Because"];
     const relationships = ["Partner","Best Friend","Parent","Sibling","Colleague","Crush","Boss","Child"];
-
     function setupDropdown(comboId, listId, selectedId, chevronId, options) {
       const combo = document.getElementById(comboId);
       const list = document.getElementById(listId);
       const selected = document.getElementById(selectedId);
       const chevron = document.getElementById(chevronId);
-
       options.forEach(opt => {
         const li = document.createElement('li');
-        li.className = 'dropdown-option'; li.textContent = opt; li.tabIndex = 0;
-        li.onclick = () => { selected.textContent = opt; close(); updateProgress(); };
-        li.onkeydown = e => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), li.click());
+        li.className = 'dropdown-option'; li.textContent = opt;
+        li.onclick = () => { selected.textContent = opt; list.classList.remove('show'); updateProgress(); };
         list.appendChild(li);
       });
-
-      function open() { list.classList.add('show'); combo.setAttribute('aria-expanded', 'true'); chevron.classList.add('rotate-180'); }
-      function close() { list.classList.remove('show'); combo.setAttribute('aria-expanded', 'false'); chevron.classList.remove('rotate-180'); }
-
-      combo.onclick = () => list.classList.contains('show') ? close() : open();
-      combo.onkeydown = e => ['Enter',' ','ArrowDown'].includes(e.key) && (e.preventDefault(), open());
-      document.addEventListener('click', e => !combo.contains(e.target) && !list.contains(e.target) && close());
+      combo.onclick = () => list.classList.toggle('show');
+      document.addEventListener('click', e => !combo.contains(e.target) && !list.contains(e.target) && list.classList.remove('show'));
     }
-
     setupDropdown('occasionCombobox', 'occasion-list', 'occasion-selected', 'occasion-chevron', occasions);
     setupDropdown('relationshipCombobox', 'relationship-list', 'relationship-selected', 'relationship-chevron', relationships);
 
@@ -291,38 +261,31 @@
       els.progressBar.style.width = percent + '%';
     }
     document.querySelectorAll('input, [role="combobox"]').forEach(el => el.addEventListener('input', updateProgress));
-    document.querySelectorAll('input, [role="combobox"]').forEach(el => el.addEventListener('change', updateProgress));
 
     // OSINT
     async function runOSINT(s) {
       const osint = { email: {}, phone: {}, ip: {}, insights: [] };
       try {
-        const emailRes = await fetch(`https://emailvalidation.abstractapi.com/v1/?api_key=${ABSTRACT.email}&email=${s.gmail}`);
-        const e = await emailRes.json();
-        osint.email = { quality: e.quality_score, provider: e.provider, disposable: e.is_disposable_email?.value };
-        if (e.quality_score < 0.7) osint.insights.push(`Low email quality (${e.quality_score})`);
-      } catch { osint.email.error = 'Failed'; }
-
+        const e = await (await fetch(`https://emailvalidation.abstractapi.com/v1/?api_key=${ABSTRACT.email}&email=${s.gmail}`)).json();
+        osint.email = { quality: e.quality_score, provider: e.provider };
+        if (e.quality_score < 0.7) osint.insights.push(`Low email quality`);
+      } catch {}
       try {
-        const phoneRes = await fetch(`https://phoneintelligence.abstractapi.com/v1/?api_key=${ABSTRACT.phone}&phone=${s.phone}`);
-        const p = await phoneRes.json();
-        osint.phone = { valid: p.valid, country: p.country?.name, carrier: p.carrier };
+        const p = await (await fetch(`https://phoneintelligence.abstractapi.com/v1/?api_key=${ABSTRACT.phone}&phone=${s.phone}`)).json();
+        osint.phone = { valid: p.valid, country: p.country?.name };
         if (p.valid) osint.insights.push(`Phone valid in ${p.country?.name}`);
-      } catch { osint.phone.error = 'Failed'; }
-
+      } catch {}
       try {
-        const ipRes = await fetch(`https://ipgeolocation.abstractapi.com/v1/?api_key=${ABSTRACT.ip}`);
-        const i = await ipRes.json();
+        const i = await (await fetch(`https://ipgeolocation.abstractapi.com/v1/?api_key=${ABSTRACT.ip}`)).json();
         osint.ip = { city: i.city, isp: i.connection?.isp_name };
-        osint.insights.push(`You're in ${i.city}`);
-      } catch { osint.ip.error = 'Failed'; }
-
+        osint.insights.push(`Location: ${i.city}`);
+      } catch {}
       return osint;
     }
 
     function renderOSINT(o) {
       els.osintPanel.innerHTML = `<div class="font-bold mb-2">OSINT</div>
-        ${o.insights.map(i => `<div class="insight-box">${i}</div>`).join('')}
+        ${o.insights.map(i => `<div class="insight-box p-2 bg-yellow-100 rounded">${i}</div>`).join('')}
         <pre class="mt-2 text-xs">${JSON.stringify(o, null, 2)}</pre>`;
       els.osintPanel.style.display = 'block';
     }
@@ -330,7 +293,7 @@
     // GEMINI
     async function callGemini(s, o) {
       const prompt = `16 gifts. Budget: ₹${s.budget}. Occasion: ${s.occasion}. For: ${s.relationship}. Interests: ${s.interests.join(', ')}. 
-OSINT: Email ${o.email.provider || 'unknown'}, Phone in ${o.phone.country || 'unknown'}, IP in ${o.ip.city || 'unknown'}.
+OSINT: Email ${o.email.provider || 'unknown'}, Phone in ${o.phone.country || 'unknown'}, Location ${o.ip.city || 'unknown'}.
 Return ONLY JSON array: [{"title":"","short":"Why: [OSINT insight]","price":"₹X–₹Y"}]`;
       const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -342,14 +305,18 @@ Return ONLY JSON array: [{"title":"","short":"Why: [OSINT insight]","price":"₹
       lastRawResponse = raw;
       if (els.showDebug.checked) {
         els.debugPanel.style.display = 'block';
-        els.debugPanel.textContent = `Prompt:\n${prompt}\n\nResponse:\n${raw}`;
+        els.debugPanel.textContent = raw;
       }
       return JSON.parse(raw.match(/\[[\s\S]*\]/)[0]);
     }
 
-    // SUBMIT
-    els.autoForm.onsubmit = async e => {
-      e.preventDefault();
+    // SUBMIT — NO RELOAD
+    let submitting = false;
+    els.form.addEventListener('submit', async e => {
+      e.preventDefault(); // ← CRITICAL: STOP PAGE RELOAD
+      if (submitting) return;
+      submitting = true;
+
       const s = {
         gmail: els.gmail.value.trim(),
         phone: els.phone.value.trim(),
@@ -360,30 +327,31 @@ Return ONLY JSON array: [{"title":"","short":"Why: [OSINT insight]","price":"₹
         relationship: els.relationshipSelected.textContent,
         interests: getInterests()
       };
+
       if (!s.gmail || !s.phone || !s.budget || s.occasion.includes('Select') || s.relationship.includes('Select')) {
-        showToast('Fill all required fields'); return;
+        showToast('Fill all required fields'); submitting = false; return;
       }
 
       els.submitBtn.disabled = true;
-      els.submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> OSINT...';
+      els.submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running OSINT...';
       els.resultsPanel.style.display = 'block';
-      els.resultGrid.innerHTML = '<div id="loader"><div class="spinner"></div><div>Running OSINT...</div></div>';
+      els.resultGrid.innerHTML = '<div id="loader"><div class="spinner"></div><div>Scanning...</div></div>';
 
       try {
         const osint = await runOSINT(s);
         renderOSINT(osint);
         els.submitBtn.innerHTML = '<i class="fas fa-brain"></i> AI Thinking...';
         const gifts = await callGemini(s, osint);
-        await renderResults(gifts, s, osint);
+        renderResults(gifts, s, osint);
         els.submitBtn.innerHTML = '<i class="fas fa-check"></i> Done!';
-        setTimeout(() => { els.submitBtn.disabled = false; els.submitBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Gift Suggestion'; }, 1000);
+        setTimeout(() => { els.submitBtn.disabled = false; els.submitBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Gift Suggestion'; submitting = false; }, 1000);
       } catch (err) {
         els.resultGrid.innerHTML = `<div class="text-red-600 p-4">Error: ${err.message}</div>`;
-        els.submitBtn.innerHTML = 'Try Again'; els.submitBtn.disabled = false;
+        els.submitBtn.innerHTML = 'Try Again'; els.submitBtn.disabled = false; submitting = false;
       }
-    };
+    });
 
-    async function renderResults(gifts, s, o) {
+    function renderResults(gifts, s, o) {
       els.resultGrid.innerHTML = '';
       els.matchSummary.textContent = `16 gifts • ${o.ip.city || 'your location'}`;
       lastGifts = gifts; lastSelections = s; lastOSINT = o;
@@ -404,12 +372,6 @@ Return ONLY JSON array: [{"title":"","short":"Why: [OSINT insight]","price":"₹
         setTimeout(() => card.classList.add('show'), 50 * i);
       });
 
-      await Promise.all(gifts.map(async (g, i) => {
-        const img = new Image();
-        img.src = `https://source.unsplash.com/300x300/?${encodeURIComponent(g.title)}`;
-        img.onload = () => document.querySelectorAll('.giftThumb')[i].innerHTML = img.outerHTML;
-      }));
-
       els.happyMsg.style.display = 'block';
       els.compileBtn.style.display = 'block';
     }
@@ -418,19 +380,10 @@ Return ONLY JSON array: [{"title":"","short":"Why: [OSINT insight]","price":"₹
       const data = { timestamp: new Date().toISOString(), input: lastSelections, osint: lastOSINT, raw_ai: lastRawResponse, gifts: lastGifts };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = `gifte_intel_${Date.now()}.json`; a.click();
+      const a = document.createElement('a'); a.href = url; a.download = `gifte_${Date.now()}.json`; a.click();
       URL.revokeObjectURL(url);
       showToast('Downloaded!');
     };
-
-    // THEME
-    const themeToggle = document.getElementById('themeToggle');
-    themeToggle.onclick = () => {
-      const isDark = document.documentElement.hasAttribute('data-theme');
-      if (isDark) { document.documentElement.removeAttribute('data-theme'); localStorage.removeItem('theme'); }
-      else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); }
-    };
-    if (localStorage.getItem('theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
 
     function showToast(msg) {
       const t = document.getElementById('toast');
@@ -438,7 +391,12 @@ Return ONLY JSON array: [{"title":"","short":"Why: [OSINT insight]","price":"₹
       setTimeout(() => t.classList.remove('show'), 3000);
     }
 
-    // INIT
+    // THEME
+    document.getElementById('themeToggle').onclick = () => {
+      const isDark = document.documentElement.hasAttribute('data-theme');
+      isDark ? document.documentElement.removeAttribute('data-theme') : document.documentElement.setAttribute('data-theme', 'dark');
+    };
+
     updateProgress();
   </script>
 </body>
