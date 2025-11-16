@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+hwo abt this <!DOCTYPE html>
 <html lang="en" class="transition-colors duration-500">
 <head>
   <meta charset="UTF-8" />
@@ -15,29 +15,23 @@
     [data-theme="dark"] body { background: linear-gradient(135deg, #1a0033, #0f0a1a, #2d1b3d); }
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     .fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
-    /* Input Group */
     .input-group { position: relative; margin-bottom: 1.5rem; }
     .input-group input { width: 100%; padding: 1rem 1rem 0.5rem; border: 2px solid #e5e7eb; border-radius: 1rem; font-size: 1rem; transition: all 0.3s ease; background: rgba(255, 255, 255, 0.9); }
     [data-theme="dark"] .input-group input { background: var(--input-bg); border-color: var(--border); color: #e5e7eb; }
-    .input-group label { position: absolute; top: 1rem; left: 1rem; font-size: 1rem; color: #9ca3af; transition: all 0.3s ease; pointer-events: none; }
+    .input-group label { position: absolute; top: 1rem; left: 1rem; font-size: 1rem; color: # 직접3af; transition: all 0.3s ease; pointer-events: none; }
     .input-group input:focus, .input-group input:not(:placeholder-shown) { border-color: var(--pink-500); outline: none; }
     .input-group input:focus + label, .input-group input:not(:placeholder-shown) + label { top: 0.5rem; left: 0.75rem; font-size: 0.75rem; color: var(--pink-600); font-weight: 600; }
-    /* Progress */
     .progress-container { width: 100%; height: 8px; background: #e5e7eb; border-radius: 9999px; overflow: hidden; margin: 1rem 0; }
     [data-theme="dark"] .progress-container { background: #374151; }
     .progress-bar { height: 100%; background: linear-gradient(90deg, var(--pink-500), #f472b6); width: 0%; transition: width 0.7s ease-out; }
-    /* Glass Card */
     .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 1.5rem; padding: 1.5rem 2rem; }
     [data-theme="dark"] .glass-card { background: rgba(31, 41, 55, 0.7); border-color: rgba(55, 65, 81, 0.5); }
-    /* Toggle */
     .theme-toggle { position: relative; width: 3.5rem; height: 2rem; background: #d1d5db; border-radius: 9999px; cursor: pointer; transition: background 0.3s; }
     .theme-toggle::before { content: ''; position: absolute; top: 0.25rem; left: 0.25rem; width: 1.5rem; height: 1.5rem; background: white; border-radius: 9999px; transition: transform 0.3s; display: flex; align-items: center; justify-content: center; }
     [data-theme="dark"] .theme-toggle { background: var(--pink-500); }
     [data-theme="dark"] .theme-toggle::before { transform: translateX(1.5rem); background: #1f2937; }
-    /* Toast */
     .toast { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 0.75rem 1.5rem; border-radius: 0.75rem; font-size: 0.875rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); opacity: 0; visibility: hidden; transition: all 0.4s ease; z-index: 1000; }
     .toast.show { opacity: 1; visibility: visible; bottom: 2rem; }
-    /* Gift Card */
     .giftCard { background: linear-gradient(180deg,rgba(255,255,255,0.95),#fff); border-radius: 1rem; padding: 1rem; box-shadow: 0 12px 30px rgba(15,23,42,0.06); overflow: hidden; transform: translateY(6px); opacity: 0; transition: transform .35s ease, opacity .35s ease; }
     .giftCard.show { transform: translateY(0); opacity: 1; }
     .giftTop { display: flex; gap: 12px; align-items: center; }
@@ -55,6 +49,8 @@
     .spinner { width: 32px; height: 32px; border: 4px solid #f3f3f3; border-top: 4px solid var(--pink-600); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 12px; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .debug-panel { background: #f9f9f9; border-radius: 1rem; padding: 1rem; margin-top: 1rem; font-family: monospace; font-size: 0.8rem; max-height: 200px; overflow-y: auto; border: 1px solid #eee; }
+    [data-theme="dark"] .debug-panel { background: #1a1a1a; color: #e5e7eb; border-color: #374151; }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
   </style>
 </head>
@@ -131,6 +127,7 @@
             <i class="fas fa-chevron-down ml-2 transition-transform duration-300" id="occasion-chevron"></i>
           </div>
           <ul role="listbox" id="occasion-list" class="absolute mt-2 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl max-h-60 overflow-y-auto z-50 hidden opacity-0 transition-all duration-300">
+            <!-- options same as before -->
             <li role="option" data-value="Birthday" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Birthday</li>
             <li role="option" data-value="Anniversary" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Anniversary</li>
             <li role="option" data-value="Graduation" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Graduation</li>
@@ -160,6 +157,7 @@
             <i class="fas fa-chevron-down ml-2 transition-transform duration-300" id="relationship-chevron"></i>
           </div>
           <ul role="listbox" id="relationship-list" class="absolute mt-2 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl max-h-60 overflow-y-auto z-50 hidden opacity-0 transition-all duration-300">
+            <!-- options same as before -->
             <li role="option" data-value="Partner" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Partner</li>
             <li role="option" data-value="Best Friend" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Best Friend</li>
             <li role="option" data-value="Friend" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Friend</li>
@@ -185,11 +183,20 @@
           <div class="flex flex-wrap gap-2" id="interestsContainer"></div>
         </div>
 
+        <!-- Debug Toggle -->
+        <div class="flex items-center gap-2">
+          <input type="checkbox" id="showDebug" class="w-4 h-4 text-pink-600 rounded" />
+          <label for="showDebug" class="text-sm text-gray-600">Show raw AI response (debug)</label>
+        </div>
+
         <!-- Submit -->
         <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-pink-500 to-pink-600 text-white py-4 rounded-full text-lg font-bold hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 mt-8">
           <i class="fas fa-magic"></i> Generate Gift Suggestion
         </button>
       </form>
+
+      <!-- Debug Panel -->
+      <div id="debugPanel" class="debug-panel" style="display:none;"></div>
 
       <!-- Results Panel -->
       <div id="resultsPanel" class="mt-10" style="display:none;">
@@ -204,6 +211,10 @@
         <div id="happyMsg" class="mt-6 p-4 bg-gradient-to-r from-pink-50 to-pink-100 rounded-xl text-center text-pink-700 font-medium" style="display:none;">
           We’re happy you found your gift with Gifté+ AI!
         </div>
+        <!-- Compile All Data Button -->
+        <button id="compileBtn" class="mt-4 w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-3 rounded-full font-bold hover:shadow-lg transition" style="display:none;">
+          <i class="fas fa-download"></i> Download All Data (JSON)
+        </button>
       </div>
     </div>
   </main>
@@ -230,6 +241,8 @@
     const els = {
       gmail: document.getElementById('gmail'),
       phone: document.getElementById('phone'),
+      instagram: document.getElementById('instagram'),
+      facebook: document.getElementById('facebook'),
       budget: document.getElementById('budget'),
       occasionSelected: document.getElementById('occasion-selected'),
       relationshipSelected: document.getElementById('relationship-selected'),
@@ -239,8 +252,15 @@
       resultGrid: document.getElementById('resultGrid'),
       matchSummary: document.getElementById('matchSummary'),
       happyMsg: document.getElementById('happyMsg'),
-      progressBar: document.getElementById('progressBarInner')
+      progressBar: document.getElementById('progressBarInner'),
+      debugPanel: document.getElementById('debugPanel'),
+      showDebug: document.getElementById('showDebug'),
+      compileBtn: document.getElementById('compileBtn')
     };
+
+    let lastRawResponse = '';
+    let lastGifts = [];
+    let lastSelections = {};
 
     // ==============================
     // 3. INTEREST CHIPS
@@ -270,7 +290,7 @@
     }
 
     // ==============================
-    // 4. GEMINI + IMAGES
+    // 4. GEMINI + IMAGES + DEBUG
     // ==============================
     async function getRealGiftImage(title) {
       const q = encodeURIComponent(title);
@@ -296,7 +316,7 @@
       if (!m) throw new Error(`No JSON array found. Raw:\n${text}`);
       try {
         const arr = JSON.parse(m[0]);
-        if (!Array.isArray(arr) || arr.length === 0) throw new Error('Empty array');
+        if (!Array.isArray(arr) || arr.length === 0) throw new Error('Empty or invalid array');
         return arr;
       } catch (e) {
         throw new Error(`Parse failed: ${e.message}\nBlock:\n${m[0]}`);
@@ -306,14 +326,20 @@
     async function callGemini(selections) {
       const budgetText = selections.budget ? `around ₹${selections.budget}` : 'any budget';
       const interestsText = selections.interests.length ? selections.interests.join(', ') : 'no specific interests';
+      const socialText = [];
+      if (selections.instagram) socialText.push(`Instagram: @${selections.instagram}`);
+      if (selections.facebook) socialText.push(`Facebook: ${selections.facebook}`);
+      const socialNote = socialText.length ? `Public profiles: ${socialText.join(', ')}` : 'No public profiles provided';
+
       const prompt = `You are a gift expert. Give **exactly 16** gift ideas for:
 - Budget: ${budgetText}
 - Occasion: ${selections.occasion}
 - Relationship: ${selections.relationship}
 - Interests: ${interestsText}
+- ${socialNote}
 - Notes: ${selections.notes || 'none'}
 
-Return **ONLY** a JSON array like:
+Return **ONLY** a JSON array:
 [
   {"title":"Short Name","short":"1-line desc","price":"₹X–₹Y"}
 ]
@@ -324,9 +350,25 @@ No extra text, no markdown.`;
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] })
       });
+
+      if (!res.ok) {
+        const err = await res.text();
+        throw new Error(`HTTP ${res.status}: ${err}`);
+      }
+
       const data = await res.json();
       const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      if (!raw.trim()) throw new Error('Empty response');
+      lastRawResponse = raw;
+
+      if (!raw.trim()) throw new Error('Empty response from Gemini. Try again.');
+
+      if (els.showDebug.checked) {
+        els.debugPanel.style.display = 'block';
+        els.debugPanel.textContent = raw;
+      } else {
+        els.debugPanel.style.display = 'none';
+      }
+
       return extractJsonArray(raw);
     }
 
@@ -334,6 +376,8 @@ No extra text, no markdown.`;
       els.resultGrid.innerHTML = '';
       els.matchSummary.textContent = `${gifts.length} AI suggestions • ${s.occasion}/${s.relationship}`;
       els.happyMsg.style.display = 'none';
+      lastGifts = gifts;
+      lastSelections = s;
 
       for (let i = 0; i < gifts.length; i++) {
         const g = gifts[i];
@@ -363,7 +407,10 @@ No extra text, no markdown.`;
         thumb.innerHTML = `<img src="${imgUrl}" alt="${g.title}" onerror="this.parentNode.style.background='linear-gradient(135deg,var(--pink-500),var(--pink-600))';this.style.display='none'">`;
         thumb.style.background = 'none';
       }
-      setTimeout(() => { els.happyMsg.style.display = 'block'; }, 400);
+      setTimeout(() => { 
+        els.happyMsg.style.display = 'block'; 
+        els.compileBtn.style.display = 'block';
+      }, 400);
     }
 
     function showLoader() {
@@ -371,12 +418,34 @@ No extra text, no markdown.`;
     }
 
     // ==============================
-    // 5. FORM SUBMIT
+    // 5. COMPILE ALL DATA
+    // ==============================
+    els.compileBtn.addEventListener('click', () => {
+      const data = {
+        timestamp: new Date().toISOString(),
+        input: lastSelections,
+        raw_ai_response: lastRawResponse,
+        gifts: lastGifts
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `gifte_compiled_${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('All data downloaded!');
+    });
+
+    // ==============================
+    // 6. FORM SUBMIT
     // ==============================
     document.getElementById('autoForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const gmail = els.gmail.value.trim();
       const phone = els.phone.value.trim();
+      const instagram = els.instagram.value.trim();
+      const facebook = els.facebook.value.trim();
       const budget = els.budget.value;
       const occasion = els.occasionSelected.textContent;
       const relationship = els.relationshipSelected.textContent;
@@ -393,10 +462,15 @@ No extra text, no markdown.`;
       showLoader();
 
       try {
-        const gifts = await callGemini({ budget, occasion, relationship, interests });
-        await renderAIResults(gifts, { budget, occasion, relationship, interests });
+        const gifts = await callGemini({ 
+          gmail, phone, instagram, facebook, budget, occasion, relationship, interests 
+        });
+        await renderAIResults(gifts, { gmail, phone, instagram, facebook, budget, occasion, relationship, interests });
         els.submitBtn.innerHTML = '<i class="fas fa-check"></i> Done!';
-        setTimeout(() => { els.submitBtn.disabled = false; els.submitBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Gift Suggestion'; }, 1500);
+        setTimeout(() => { 
+          els.submitBtn.disabled = false; 
+          els.submitBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Gift Suggestion'; 
+        }, 1500);
       } catch (err) {
         els.resultGrid.innerHTML = `<div style="color:#c92a2a;padding:20px">Error: ${err.message}</div>`;
         els.submitBtn.innerHTML = 'Try Again';
@@ -405,7 +479,7 @@ No extra text, no markdown.`;
     });
 
     // ==============================
-    // 6. THEME & DROPDOWNS (unchanged)
+    // 7. THEME & DROPDOWNS
     // ==============================
     const themeToggle = document.getElementById('themeToggle');
     const html = document.documentElement;
@@ -466,6 +540,14 @@ No extra text, no markdown.`;
       els.progressBar.parentElement.setAttribute('aria-valuenow', Math.round(percent));
     }
     document.querySelectorAll("input").forEach(i => i.addEventListener("input", updateProgress));
+    els.showDebug.addEventListener('change', () => {
+      if (lastRawResponse && els.showDebug.checked) {
+        els.debugPanel.style.display = 'block';
+        els.debugPanel.textContent = lastRawResponse;
+      } else {
+        els.debugPanel.style.display = 'none';
+      }
+    });
 
     function showToast(msg) {
       const toast = document.getElementById("toast");
