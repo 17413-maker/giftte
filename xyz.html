@@ -1,4 +1,4 @@
-hwo abt this <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" class="transition-colors duration-500">
 <head>
   <meta charset="UTF-8" />
@@ -18,7 +18,7 @@ hwo abt this <!DOCTYPE html>
     .input-group { position: relative; margin-bottom: 1.5rem; }
     .input-group input { width: 100%; padding: 1rem 1rem 0.5rem; border: 2px solid #e5e7eb; border-radius: 1rem; font-size: 1rem; transition: all 0.3s ease; background: rgba(255, 255, 255, 0.9); }
     [data-theme="dark"] .input-group input { background: var(--input-bg); border-color: var(--border); color: #e5e7eb; }
-    .input-group label { position: absolute; top: 1rem; left: 1rem; font-size: 1rem; color: # 직접3af; transition: all 0.3s ease; pointer-events: none; }
+    .input-group label { position: absolute; top: 1rem; left: 1rem; font-size: 1rem; color: #6b7280; transition: all 0.3s ease; pointer-events: none; }
     .input-group input:focus, .input-group input:not(:placeholder-shown) { border-color: var(--pink-500); outline: none; }
     .input-group input:focus + label, .input-group input:not(:placeholder-shown) + label { top: 0.5rem; left: 0.75rem; font-size: 0.75rem; color: var(--pink-600); font-weight: 600; }
     .progress-container { width: 100%; height: 8px; background: #e5e7eb; border-radius: 9999px; overflow: hidden; margin: 1rem 0; }
@@ -51,6 +51,7 @@ hwo abt this <!DOCTYPE html>
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
     .debug-panel { background: #f9f9f9; border-radius: 1rem; padding: 1rem; margin-top: 1rem; font-family: monospace; font-size: 0.8rem; max-height: 200px; overflow-y: auto; border: 1px solid #eee; }
     [data-theme="dark"] .debug-panel { background: #1a1a1a; color: #e5e7eb; border-color: #374151; }
+    .chip[role="checkbox"] { user-select: none; }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
   </style>
 </head>
@@ -127,7 +128,6 @@ hwo abt this <!DOCTYPE html>
             <i class="fas fa-chevron-down ml-2 transition-transform duration-300" id="occasion-chevron"></i>
           </div>
           <ul role="listbox" id="occasion-list" class="absolute mt-2 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl max-h-60 overflow-y-auto z-50 hidden opacity-0 transition-all duration-300">
-            <!-- options same as before -->
             <li role="option" data-value="Birthday" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Birthday</li>
             <li role="option" data-value="Anniversary" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Anniversary</li>
             <li role="option" data-value="Graduation" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Graduation</li>
@@ -157,7 +157,6 @@ hwo abt this <!DOCTYPE html>
             <i class="fas fa-chevron-down ml-2 transition-transform duration-300" id="relationship-chevron"></i>
           </div>
           <ul role="listbox" id="relationship-list" class="absolute mt-2 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl max-h-60 overflow-y-auto z-50 hidden opacity-0 transition-all duration-300">
-            <!-- options same as before -->
             <li role="option" data-value="Partner" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Partner</li>
             <li role="option" data-value="Best Friend" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Best Friend</li>
             <li role="option" data-value="Friend" class="px-5 py-3 hover:bg-pink-100 dark:hover:bg-pink-900/50 cursor-pointer">Friend</li>
@@ -180,7 +179,7 @@ hwo abt this <!DOCTYPE html>
         <!-- Interests Chips -->
         <div>
           <label class="block text-lg font-semibold text-gray-800 mb-3">Interests (optional)</label>
-          <div class="flex flex-wrap gap-2" id="interestsContainer"></div>
+          <div class="flex flex-wrap gap-2" id="interestsContainer" role="group" aria-label="Select interests"></div>
         </div>
 
         <!-- Debug Toggle -->
@@ -229,7 +228,7 @@ hwo abt this <!DOCTYPE html>
 
   <script>
     // ==============================
-    // 1. CONFIG
+    // 1. CONFIG — USING GEMINI 2.5 FLASH
     // ==============================
     const GEMINI_API_KEY = "AIzaSyDBuMd-lH5V5MGchFkJ2BSb0D9mtpHoqUQ";
     const UNSPLASH_ACCESS_KEY = "";
@@ -263,34 +262,39 @@ hwo abt this <!DOCTYPE html>
     let lastSelections = {};
 
     // ==============================
-    // 3. INTEREST CHIPS
+    // 3. INTEREST CHIPS (ARIA + ACCESSIBILITY)
     // ==============================
     const allInterests = ['Tech','Music','Books','Fashion','Home & Kitchen','Food & Drink','Travel','Fitness','Photography','Art','Gaming','Beauty','Gardening','Parenting','Kids','Sports','DIY','Hobby','Stationery','Pet Owner'];
     allInterests.forEach(name => {
       const chip = document.createElement('div');
-      chip.className = 'px-3 py-1 rounded-full bg-gradient-to-r from-pink-100 to-pink-200 text-pink-700 text-xs font-medium cursor-pointer transition hover:from-pink-200 hover:to-pink-300';
+      chip.className = 'px-3 py-1 rounded-full bg-gradient-to-r from-pink-100 to-pink-200 text-pink-700 text-xs font-medium cursor-pointer transition hover:from-pink-200 hover:to-pink-300 chip';
       chip.textContent = name;
-      chip.dataset.active = 'false';
-      chip.addEventListener('click', () => {
-        const active = chip.dataset.active === 'true';
-        chip.dataset.active = !active;
-        chip.classList.toggle('from-pink-500', !active);
-        chip.classList.toggle('to-pink-600', !active);
-        chip.classList.toggle('text-white', !active);
-        chip.classList.toggle('from-pink-100', active);
-        chip.classList.toggle('to-pink-200', active);
-        chip.classList.toggle('text-pink-700', active);
-      });
+      chip.role = 'checkbox';
+      chip.tabIndex = 0;
+      chip.setAttribute('aria-checked', 'false');
+      chip.setAttribute('aria-label', `Interest: ${name}`);
+      chip.addEventListener('click', () => toggleChip(chip));
+      chip.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleChip(chip); } });
       els.interestsContainer.appendChild(chip);
     });
+    function toggleChip(chip) {
+      const active = chip.getAttribute('aria-checked') === 'true';
+      chip.setAttribute('aria-checked', !active);
+      chip.classList.toggle('from-pink-500', !active);
+      chip.classList.toggle('to-pink-600', !active);
+      chip.classList.toggle('text-white', !active);
+      chip.classList.toggle('from-pink-100', active);
+      chip.classList.toggle('to-pink-200', active);
+      chip.classList.toggle('text-pink-700', active);
+    }
     function getSelectedInterests() {
       return Array.from(els.interestsContainer.children)
-        .filter(c => c.dataset.active === 'true')
+        .filter(c => c.getAttribute('aria-checked') === 'true')
         .map(c => c.textContent);
     }
 
     // ==============================
-    // 4. GEMINI + IMAGES + DEBUG
+    // 4. GEMINI 2.5 FLASH + PARALLEL IMAGES
     // ==============================
     async function getRealGiftImage(title) {
       const q = encodeURIComponent(title);
@@ -345,7 +349,7 @@ Return **ONLY** a JSON array:
 ]
 No extra text, no markdown.`;
 
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] })
@@ -379,8 +383,7 @@ No extra text, no markdown.`;
       lastGifts = gifts;
       lastSelections = s;
 
-      for (let i = 0; i < gifts.length; i++) {
-        const g = gifts[i];
+      const cardElements = gifts.map(g => {
         const div = document.createElement('div');
         div.className = 'giftCard';
         div.innerHTML = `
@@ -399,14 +402,29 @@ No extra text, no markdown.`;
               </div>
             </div>
           </div>`;
+        return { div, g };
+      });
+
+      cardElements.forEach(({ div }, i) => {
         els.resultGrid.appendChild(div);
         setTimeout(() => div.classList.add('show'), 50 * i);
+      });
 
+      // PARALLEL IMAGE LOADING
+      await Promise.all(cardElements.map(async ({ div, g }, i) => {
         const imgUrl = await getRealGiftImage(g.title);
         const thumb = div.querySelector('.giftThumb');
-        thumb.innerHTML = `<img src="${imgUrl}" alt="${g.title}" onerror="this.parentNode.style.background='linear-gradient(135deg,var(--pink-500),var(--pink-600))';this.style.display='none'">`;
-        thumb.style.background = 'none';
-      }
+        const img = document.createElement('img');
+        img.src = imgUrl;
+        img.alt = `${g.title} gift idea`;
+        img.onerror = () => {
+          thumb.style.background = 'linear-gradient(135deg,var(--pink-500),var(--pink-600))';
+          img.style.display = 'none';
+        };
+        thumb.innerHTML = '';
+        thumb.appendChild(img);
+      }));
+
       setTimeout(() => { 
         els.happyMsg.style.display = 'block'; 
         els.compileBtn.style.display = 'block';
@@ -440,8 +458,12 @@ No extra text, no markdown.`;
     // ==============================
     // 6. FORM SUBMIT
     // ==============================
+    let submitting = false;
     document.getElementById('autoForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (submitting) return;
+      submitting = true;
+
       const gmail = els.gmail.value.trim();
       const phone = els.phone.value.trim();
       const instagram = els.instagram.value.trim();
@@ -453,6 +475,7 @@ No extra text, no markdown.`;
 
       if (!gmail || !phone || !budget || occasion === 'Select occasion...' || relationship === 'Select relationship...') {
         showToast('Fill all required fields.');
+        submitting = false;
         return;
       }
 
@@ -470,16 +493,18 @@ No extra text, no markdown.`;
         setTimeout(() => { 
           els.submitBtn.disabled = false; 
           els.submitBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Gift Suggestion'; 
+          submitting = false;
         }, 1500);
       } catch (err) {
         els.resultGrid.innerHTML = `<div style="color:#c92a2a;padding:20px">Error: ${err.message}</div>`;
         els.submitBtn.innerHTML = 'Try Again';
         els.submitBtn.disabled = false;
+        submitting = false;
       }
     });
 
     // ==============================
-    // 7. THEME & DROPDOWNS
+    // 7. THEME & DROPDOWNS & TOAST
     // ==============================
     const themeToggle = document.getElementById('themeToggle');
     const html = document.documentElement;
@@ -503,8 +528,16 @@ No extra text, no markdown.`;
 
       function open() { listbox.classList.remove('hidden', 'opacity-0'); listbox.classList.add('opacity-100'); combobox.setAttribute('aria-expanded', 'true'); chevron.classList.add('rotate-180'); isOpen = true; focusOption(0); }
       function close() { listbox.classList.add('hidden', 'opacity-0'); listbox.classList.remove('opacity-100'); combobox.setAttribute('aria-expanded', 'false'); chevron.classList.remove('rotate-180'); isOpen = false; focusedIndex = -1; }
-      function focusOption(i) { options.forEach((o,j)=>{o.setAttribute('aria-selected',j===i);o.classList.toggle('bg-pink-100',j===i);o.classList.toggle('dark:bg-pink-900/50',j===i);}); if(i>=0) options[i].scrollIntoView({block:'nearest'}); focusedIndex=i; }
-      function selectOption(i) { selectedText.textContent = options[i].textContent; close(); updateProgress(); }
+      function focusOption(i) { 
+        options.forEach((o,j)=>{o.setAttribute('aria-selected',j===i);o.classList.toggle('bg-pink-100',j===i);o.classList.toggle('dark:bg-pink-900/50',j===i);}); 
+        if(i>=0) options[i].scrollIntoView({block:'nearest'}); 
+        focusedIndex=i; 
+      }
+      function selectOption(i) { 
+        selectedText.textContent = options[i].textContent; 
+        close(); 
+        updateProgress(); 
+      }
 
       combobox.addEventListener('click', () => isOpen ? close() : open());
       combobox.addEventListener('keydown', e => {
@@ -517,8 +550,8 @@ No extra text, no markdown.`;
           case 'Enter': case ' ': e.preventDefault(); if(focusedIndex>=0) selectOption(focusedIndex); break;
         }
       });
-      options.forEach((o,i)=>o.addEventListener('click',()=>selectOption(i)));
-      document.addEventListener('click', e=>{ if(!combobox.contains(e.target) && !listbox.contains(e.target)) close(); });
+      options.forEach((opt,i) => opt.addEventListener('click', () => selectOption(i)));
+      document.addEventListener('click', e => { if(!combobox.contains(e.target) && !listbox.contains(e.target)) close(); });
     }
     createDropdown('occasionCombobox','occasion-list','occasion-selected','occasion-chevron');
     createDropdown('relationshipCombobox','relationship-list','relationship-selected','relationship-chevron');
