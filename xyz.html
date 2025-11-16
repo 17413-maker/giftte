@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gifté+ | Automatic Mode v4</title>
+  <title>Gifté+ | Automatic Mode v7</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -36,52 +36,42 @@
     .giftThumb img { width: 100%; height: 100%; object-fit: cover; }
     .giftTitle { font-size: 14px; margin: 0; font-weight: 600; }
     .giftMeta { font-size: 12px; color: #6b7280; margin-top: 4px; line-height: 1.3; }
-    .smallBadge { display: inline-block; padding: 4px 6px; border-radius: 6px; background: rgba(15,23,42,0.04); font-size: 11px; color: #6b7280; margin-top: 6px; }
     .linkBtn { display: inline-block; padding: 6px 8px; border-radius: 6px; color: white; text-decoration: none; font-size: 12px; font-weight: 600; }
     .linkBtn:hover { filter: brightness(1.05); }
     .linkBtn.google { background: linear-gradient(90deg, #3b82f6, #06b6d4); }
     .linkBtn.amazon { background: linear-gradient(90deg, #ff9900, #ff6600); }
     .resultGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 12px; }
-    #loader { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; color: #6b7280; }
     .spinner { width: 32px; height: 32px; border: 4px solid #f3f3f3; border-top: 4px solid var(--pink-600); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 12px; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .osint-panel, .debug-panel { background: #f0f9ff; border-radius: 1rem; padding: 1rem; margin-top: 1rem; font-size: 0.85rem; border: 1px solid #bfdbfe; }
-    [data-theme="dark"] .osint-panel, [data-theme="dark"] .debug-panel { background: #172554; border-color: #1e40af; color: #dbeafe; }
+    .osint-panel { background: #f0f9ff; border-radius: 1rem; padding: 1rem; margin-top: 1rem; font-size: 0.85rem; border: 1px solid #bfdbfe; }
+    [data-theme="dark"] .osint-panel { background: #172554; border-color: #1e40af; color: #dbeafe; }
+    .insight-box { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 0.75rem; margin: 0.5rem 0; font-size: 0.8rem; }
     .dropdown-container { position: relative; }
     .dropdown-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 1rem; max-height: 200px; overflow-y: auto; z-index: 50; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
     [data-theme="dark"] .dropdown-list { background: #1f2937; border-color: #374151; }
     .dropdown-list.show { opacity: 1; visibility: visible; }
     .dropdown-option { padding: 0.75rem 1rem; cursor: pointer; transition: background 0.2s; }
     .dropdown-option:hover { background: #f472b6; color: white; }
-    [data-theme="dark"] .dropdown-option:hover { background: #ec4899; }
     .chip-container { display: flex; flex-wrap: wrap; gap: 8px; max-height: 120px; overflow-y: auto; padding: 8px; border: 1px solid #ddd; border-radius: 1rem; background: rgba(255,255,255,0.8); }
     [data-theme="dark"] .chip-container { background: rgba(31,41,55,0.8); border-color: #374151; }
   </style>
 </head>
 <body class="text-gray-800">
 
-  <!-- Navbar -->
   <nav class="flex justify-between items-center px-6 md:px-12 py-5 bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-40">
     <h1 class="text-2xl md:text-3xl font-bold text-pink-600 flex items-center gap-2">
-      <i class="fas fa-gift"></i> Gifté+
+      <i class="fas fa-gift"></i> Gifté+ v7
     </h1>
-    <div class="flex items-center gap-4">
-      <a href="index.html" class="text-gray-700 hover:text-pink-600 transition flex items-center gap-1 text-sm md:text-base">
-        <i class="fas fa-arrow-left"></i> Back
-      </a>
-      <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode"></button>
-    </div>
+    <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode"></button>
   </nav>
 
-  <!-- Header -->
   <section class="text-center py-12 md:py-16">
-    <h2 class="text-3xl md:text-5xl font-extrabold text-gray-800 mb-4">Automatic Gift Finder v4</h2>
+    <h2 class="text-3xl md:text-5xl font-extrabold text-gray-800 mb-4">Automatic Gift Finder v7</h2>
     <p class="text-base md:text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed px-6">
-      AI + Abstract API → 16 hyper-personalized gifts
+      AI + Abstract + FREE OSINT → 16 hyper-personalized gifts
     </p>
   </section>
 
-  <!-- Main Form -->
   <main class="flex justify-center px-6 py-8 md:py-12">
     <div class="glass-card w-full max-w-2xl">
       <h3 class="text-2xl md:text-3xl font-bold mb-6 text-center text-gray-800">Recipient Details</h3>
@@ -115,7 +105,6 @@
           <label for="budget">Budget (INR) <span class="text-pink-500">*</span></label>
         </div>
 
-        <!-- OCCASION -->
         <div class="dropdown-container">
           <label class="block text-lg font-semibold text-gray-800 mb-3">Occasion <span class="text-pink-500">*</span></label>
           <div role="combobox" tabindex="0" class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl text-left font-medium cursor-pointer transition-all duration-300 flex justify-between items-center bg-white/90" id="occasionCombobox">
@@ -125,7 +114,6 @@
           <ul role="listbox" id="occasion-list" class="dropdown-list mt-2"></ul>
         </div>
 
-        <!-- RELATIONSHIP -->
         <div class="dropdown-container">
           <label class="block text-lg font-semibold text-gray-800 mb-3">Relationship <span class="text-pink-500">*</span></label>
           <div role="combobox" tabindex="0" class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl text-left font-medium cursor-pointer transition-all duration-300 flex justify-between items-center bg-white/90" id="relationshipCombobox">
@@ -135,7 +123,6 @@
           <ul role="listbox" id="relationship-list" class="dropdown-list mt-2"></ul>
         </div>
 
-        <!-- INTERESTS (30+ OPTIONS) -->
         <div>
           <label class="block text-lg font-semibold text-gray-800 mb-3">Interests (optional)</label>
           <div id="interestsContainer" class="chip-container"></div>
@@ -152,7 +139,7 @@
       </form>
 
       <div id="osintPanel" class="osint-panel" style="display:none;"></div>
-      <div id="debugPanel" class="debug-panel" style="display:none;"></div>
+      <div id="debugPanel" class="osint-panel" style="display:none;"></div>
 
       <div id="resultsPanel" class="mt-10" style="display:none;">
         <div class="flex justify-between items-center mb-4">
@@ -170,122 +157,116 @@
     </div>
   </main>
 
-  <footer class="text-center py-8 text-gray-500 text-sm">
-    © 2025 Gifté+. Built with <span class="text-pink-500">BRO ENERGY</span>
-  </footer>
-
   <div id="toast" class="toast"></div>
 
   <script>
-    // KEYS
-    const ABSTRACT = { email: 'a714f117250d428aa7c475b6f44f3b83', phone: '521155e18b15415aadd705a035a57fd9', ip: 'c60344fcdad24bec87d9dc674c3891ae' };
+    // YOUR KEYS (CORRECTED)
+    const ABSTRACT = {
+      email: 'a714f117250d428aa7c475b6f44f3b83',
+      phone: '950742cea86947d2a4929ecf4478aa7d',
+      ip: 'c60344fcdad24bec87d9dc674c3891ae'
+    };
     const GEMINI_API_KEY = "AIzaSyDBuMd-lH5V5MGchFkJ2BSb0D9mtpHoqUQ";
 
-    // DOM
     const els = {
-      form: document.getElementById('autoForm'),
-      gmail: document.getElementById('gmail'), phone: document.getElementById('phone'),
+      form: document.getElementById('autoForm'), gmail: document.getElementById('gmail'), phone: document.getElementById('phone'),
       instagram: document.getElementById('instagram'), facebook: document.getElementById('facebook'),
-      budget: document.getElementById('budget'),
-      occasionSelected: document.getElementById('occasion-selected'),
-      relationshipSelected: document.getElementById('relationship-selected'),
-      interestsContainer: document.getElementById('interestsContainer'),
-      submitBtn: document.getElementById('submitBtn'),
-      resultsPanel: document.getElementById('resultsPanel'),
-      resultGrid: document.getElementById('resultGrid'),
-      matchSummary: document.getElementById('matchSummary'),
-      happyMsg: document.getElementById('happyMsg'),
-      progressBar: document.getElementById('progressBarInner'),
-      debugPanel: document.getElementById('debugPanel'),
-      osintPanel: document.getElementById('osintPanel'),
-      showDebug: document.getElementById('showDebug'),
-      compileBtn: document.getElementById('compileBtn')
+      budget: document.getElementById('budget'), occasionSelected: document.getElementById('occasion-selected'),
+      relationshipSelected: document.getElementById('relationship-selected'), interestsContainer: document.getElementById('interestsContainer'),
+      submitBtn: document.getElementById('submitBtn'), resultsPanel: document.getElementById('resultsPanel'),
+      resultGrid: document.getElementById('resultGrid'), matchSummary: document.getElementById('matchSummary'),
+      happyMsg: document.getElementById('happyMsg'), progressBar: document.getElementById('progressBarInner'),
+      debugPanel: document.getElementById('debugPanel'), osintPanel: document.getElementById('osintPanel'),
+      showDebug: document.getElementById('showDebug'), compileBtn: document.getElementById('compileBtn')
     };
 
     let lastRawResponse = '', lastGifts = [], lastSelections = {}, lastOSINT = {};
 
-    // 30+ INTERESTS
-    const allInterests = [
-      'Tech','Gaming','Music','Books','Fashion','Travel','Fitness','Photography','Art',
-      'Food & Drink','Coffee','Wine','Cooking','Baking','Movies','Anime','K-Drama',
-      'Sports','Cricket','Football','Yoga','Meditation','Gardening','DIY','Crafts',
-      'Pets','Dogs','Cats','Cars','Bikes','Nature','Camping','Hiking','Beach',
-      'Luxury','Minimalist','Vintage','Sustainability','Eco-Friendly'
-    ];
+    // INTERESTS
+    const allInterests = ['Tech','Gaming','Music','Books','Fashion','Travel','Fitness','Photography','Art','Food & Drink','Coffee','Wine','Cooking','Baking','Movies','Anime','K-Drama','Sports','Cricket','Football','Yoga','Meditation','Gardening','DIY','Crafts','Pets','Dogs','Cats','Cars','Bikes','Nature','Camping','Hiking','Beach','Luxury','Minimalist','Vintage','Sustainability','Eco-Friendly'];
     allInterests.forEach(name => {
       const chip = document.createElement('div');
       chip.className = 'px-3 py-1 rounded-full bg-gradient-to-r from-pink-100 to-pink-200 text-pink-700 text-xs font-medium cursor-pointer transition chip';
       chip.textContent = name; chip.role = 'checkbox'; chip.tabIndex = 0;
       chip.setAttribute('aria-checked', 'false');
-      chip.onclick = () => toggleChip(chip);
+      chip.onclick = () => { const on = chip.getAttribute('aria-checked') === 'true'; chip.setAttribute('aria-checked', !on); chip.classList.toggle('from-pink-500', !on); chip.classList.toggle('to-pink-600', !on); chip.classList.toggle('text-white', !on); };
       els.interestsContainer.appendChild(chip);
     });
-    function toggleChip(chip) {
-      const on = chip.getAttribute('aria-checked') === 'true';
-      chip.setAttribute('aria-checked', !on);
-      chip.classList.toggle('from-pink-500', !on); chip.classList.toggle('to-pink-600', !on);
-      chip.classList.toggle('text-white', !on);
-    }
-    function getInterests() {
-      return Array.from(els.interestsContainer.children)
-        .filter(c => c.getAttribute('aria-checked') === 'true')
-        .map(c => c.textContent);
-    }
+    function getInterests() { return Array.from(els.interestsContainer.children).filter(c => c.getAttribute('aria-checked') === 'true').map(c => c.textContent); }
 
     // DROPDOWNS
     const occasions = ["Birthday","Anniversary","Valentine's Day","Diwali","Christmas","Wedding","Graduation","Just Because"];
     const relationships = ["Partner","Best Friend","Parent","Sibling","Colleague","Crush","Boss","Child"];
-    function setupDropdown(comboId, listId, selectedId, chevronId, options) {
-      const combo = document.getElementById(comboId);
-      const list = document.getElementById(listId);
-      const selected = document.getElementById(selectedId);
-      const chevron = document.getElementById(chevronId);
-      options.forEach(opt => {
-        const li = document.createElement('li');
-        li.className = 'dropdown-option'; li.textContent = opt;
-        li.onclick = () => { selected.textContent = opt; list.classList.remove('show'); updateProgress(); };
-        list.appendChild(li);
-      });
+    function setupDropdown(comboId, listId, selectedId, options) {
+      const combo = document.getElementById(comboId), list = document.getElementById(listId), selected = document.getElementById(selectedId);
+      options.forEach(opt => { const li = document.createElement('li'); li.className = 'dropdown-option'; li.textContent = opt; li.onclick = () => { selected.textContent = opt; list.classList.remove('show'); updateProgress(); }; list.appendChild(li); });
       combo.onclick = () => list.classList.toggle('show');
       document.addEventListener('click', e => !combo.contains(e.target) && !list.contains(e.target) && list.classList.remove('show'));
     }
-    setupDropdown('occasionCombobox', 'occasion-list', 'occasion-selected', 'occasion-chevron', occasions);
-    setupDropdown('relationshipCombobox', 'relationship-list', 'relationship-selected', 'relationship-chevron', relationships);
+    setupDropdown('occasionCombobox', 'occasion-list', 'occasion-selected', occasions);
+    setupDropdown('relationshipCombobox', 'relationship-list', 'relationship-selected', relationships);
 
-    // PROGRESS
     function updateProgress() {
-      const fields = [els.gmail.value, els.phone.value, els.budget.value, 
-                      els.occasionSelected.textContent !== 'Select occasion...',
-                      els.relationshipSelected.textContent !== 'Select relationship...'];
+      const fields = [els.gmail.value, els.phone.value, els.budget.value, els.occasionSelected.textContent !== 'Select occasion...', els.relationshipSelected.textContent !== 'Select relationship...'];
       const percent = (fields.filter(Boolean).length / 5) * 100;
       els.progressBar.style.width = percent + '%';
     }
     document.querySelectorAll('input, [role="combobox"]').forEach(el => el.addEventListener('input', updateProgress));
 
-    // OSINT
+    // OSINT — FREE + YOUR KEYS
     async function runOSINT(s) {
       const osint = { email: {}, phone: {}, ip: {}, insights: [] };
+
+      // EMAIL: Abstract + Disify (FREE)
       try {
-        const e = await (await fetch(`https://emailvalidation.abstractapi.com/v1/?api_key=${ABSTRACT.email}&email=${s.gmail}`)).json();
-        osint.email = { quality: e.quality_score, provider: e.provider };
-        if (e.quality_score < 0.7) osint.insights.push(`Low email quality`);
+        const res = await fetch(`https://emailvalidation.abstractapi.com/v1/?api_key=${ABSTRACT.email}&email=${s.gmail}`);
+        if (res.ok) {
+          const data = await res.json();
+          osint.email = { quality: data.quality_score, provider: data.smtp_check?.deliverability || 'unknown', disposable: data.is_disposable_email?.value };
+          if (data.quality_score < 0.7) osint.insights.push(`Low email quality: ${data.quality_score}`);
+        }
       } catch {}
       try {
-        const p = await (await fetch(`https://phoneintelligence.abstractapi.com/v1/?api_key=${ABSTRACT.phone}&phone=${s.phone}`)).json();
-        osint.phone = { valid: p.valid, country: p.country?.name };
-        if (p.valid) osint.insights.push(`Phone valid in ${p.country?.name}`);
+        const dis = await (await fetch(`https://www.disify.com/api/v1/check?email=${s.gmail}`)).json();
+        if (dis.disposable) osint.insights.push(`Disposable email detected`);
+      } catch {}
+
+      // PHONE: Abstract + Numlookup (FREE)
+      try {
+        const res = await fetch(`https://phoneintelligence.abstractapi.com/v1/?api_key=${ABSTRACT.phone}&phone=${s.phone}`);
+        if (res.ok) {
+          const data = await res.json();
+          osint.phone = { valid: data.valid, country: data.country?.name, carrier: data.carrier };
+          if (data.valid) osint.insights.push(`Phone valid in ${data.country?.name}`);
+        }
       } catch {}
       try {
-        const i = await (await fetch(`https://ipgeolocation.abstractapi.com/v1/?api_key=${ABSTRACT.ip}`)).json();
-        osint.ip = { city: i.city, isp: i.connection?.isp_name };
-        osint.insights.push(`Location: ${i.city}`);
+        const num = await (await fetch(`https://api.numlookupapi.com/v1/validate/${s.phone}`)).json();
+        if (num.valid) osint.insights.push(`Carrier: ${num.carrier}`);
       } catch {}
+
+      // IP: Abstract + ipapi.co (FREE)
+      try {
+        const res = await fetch(`https://ipgeolocation.abstractapi.com/v1/?api_key=${ABSTRACT.ip}`);
+        if (res.ok) {
+          const data = await res.json();
+          osint.ip = { city: data.city, country: data.country, isp: data.connection?.isp_name };
+          osint.insights.push(`Location: ${data.city}, ${data.country}`);
+        }
+      } catch {}
+      try {
+        const ip = await (await fetch('https://ipapi.co/json/')).json();
+        osint.ip.city = osint.ip.city || ip.city;
+        osint.ip.country = osint.ip.country || ip.country_name;
+        osint.insights.push(`You're in ${ip.city || 'unknown city'}`);
+      } catch {}
+
       return osint;
     }
 
     function renderOSINT(o) {
-      els.osintPanel.innerHTML = `<div class="font-bold mb-2">OSINT</div>
-        ${o.insights.map(i => `<div class="insight-box p-2 bg-yellow-100 rounded">${i}</div>`).join('')}
+      els.osintPanel.innerHTML = `<div class="font-bold mb-2">OSINT Intel</div>
+        ${o.insights.map(i => `<div class="insight-box">${i}</div>`).join('')}
         <pre class="mt-2 text-xs">${JSON.stringify(o, null, 2)}</pre>`;
       els.osintPanel.style.display = 'block';
     }
@@ -293,8 +274,8 @@
     // GEMINI
     async function callGemini(s, o) {
       const prompt = `16 gifts. Budget: ₹${s.budget}. Occasion: ${s.occasion}. For: ${s.relationship}. Interests: ${s.interests.join(', ')}. 
-OSINT: Email ${o.email.provider || 'unknown'}, Phone in ${o.phone.country || 'unknown'}, Location ${o.ip.city || 'unknown'}.
-Return ONLY JSON array: [{"title":"","short":"Why: [OSINT insight]","price":"₹X–₹Y"}]`;
+OSINT: Email from ${o.email.provider || 'unknown'}, Phone in ${o.phone.country || 'unknown'}, Location ${o.ip.city || 'unknown'}.
+Return ONLY JSON array: [{"title":"","short":"Why: [Use OSINT insight]","price":"₹X–₹Y"}]`;
       const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] })
@@ -305,15 +286,15 @@ Return ONLY JSON array: [{"title":"","short":"Why: [OSINT insight]","price":"₹
       lastRawResponse = raw;
       if (els.showDebug.checked) {
         els.debugPanel.style.display = 'block';
-        els.debugPanel.textContent = raw;
+        els.debugPanel.innerHTML = `<pre>${raw}</pre>`;
       }
       return JSON.parse(raw.match(/\[[\s\S]*\]/)[0]);
     }
 
-    // SUBMIT — NO RELOAD
+    // SUBMIT
     let submitting = false;
     els.form.addEventListener('submit', async e => {
-      e.preventDefault(); // ← CRITICAL: STOP PAGE RELOAD
+      e.preventDefault();
       if (submitting) return;
       submitting = true;
 
@@ -335,7 +316,7 @@ Return ONLY JSON array: [{"title":"","short":"Why: [OSINT insight]","price":"₹
       els.submitBtn.disabled = true;
       els.submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running OSINT...';
       els.resultsPanel.style.display = 'block';
-      els.resultGrid.innerHTML = '<div id="loader"><div class="spinner"></div><div>Scanning...</div></div>';
+      els.resultGrid.innerHTML = '<div class="text-center p-8"><div class="spinner"></div><div>Scanning intel...</div></div>';
 
       try {
         const osint = await runOSINT(s);
@@ -380,7 +361,7 @@ Return ONLY JSON array: [{"title":"","short":"Why: [OSINT insight]","price":"₹
       const data = { timestamp: new Date().toISOString(), input: lastSelections, osint: lastOSINT, raw_ai: lastRawResponse, gifts: lastGifts };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = `gifte_${Date.now()}.json`; a.click();
+      const a = document.createElement('a'); a.href = url; a.download = `gifte_v7_${Date.now()}.json`; a.click();
       URL.revokeObjectURL(url);
       showToast('Downloaded!');
     };
@@ -391,10 +372,10 @@ Return ONLY JSON array: [{"title":"","short":"Why: [OSINT insight]","price":"₹
       setTimeout(() => t.classList.remove('show'), 3000);
     }
 
-    // THEME
     document.getElementById('themeToggle').onclick = () => {
-      const isDark = document.documentElement.hasAttribute('data-theme');
-      isDark ? document.documentElement.removeAttribute('data-theme') : document.documentElement.setAttribute('data-theme', 'dark');
+      document.documentElement.hasAttribute('data-theme') 
+        ? document.documentElement.removeAttribute('data-theme') 
+        : document.documentElement.setAttribute('data-theme', 'dark');
     };
 
     updateProgress();
