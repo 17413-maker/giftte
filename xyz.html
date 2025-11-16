@@ -7,7 +7,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <style>
     :root { --pink-500: #ec4899; --pink-600: #db2777; }
     [data-theme="dark"] { --bg: #0f0a1a; --card: rgba(20, 15, 40, 0.7); --text: #e2e8f0; --input-bg: rgba(31, 41, 55, 0.9); --border: #374151; }
@@ -51,7 +50,10 @@
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
     .debug-panel { background: #f9f9f9; border-radius: 1rem; padding: 1rem; margin-top: 1rem; font-family: monospace; font-size: 0.8rem; max-height: 200px; overflow-y: auto; border: 1px solid #eee; }
     [data-theme="dark"] .debug-panel { background: #1a1a1a; color: #e5e7eb; border-color: #374151; }
-    .chip[role="checkbox"] { user-select: none; }
+    .osint-panel { background: #f0f9ff; border-radius: 1rem; padding: 1rem; margin-top: 1rem; font-size: 0.85rem; border: 1px solid #bfdbfe; }
+    [data-theme="dark"] .osint-panel { background: #172554; border-color: #1e40af; color: #dbeafe; }
+    .insight-box { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 0.75rem; margin: 0.5rem 0; font-size: 0.8rem; }
+    [data-theme="dark"] .insight-box { background: #451a03; border-color: #f97316; color: #fed7aa; }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
   </style>
 </head>
@@ -77,7 +79,7 @@
   <section class="text-center py-12 md:py-16 fade-in-up">
     <h2 class="text-3xl md:text-5xl font-extrabold text-gray-800 mb-4">Automatic Gift Finder</h2>
     <p class="text-base md:text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed px-6">
-      AI analyzes <strong>public profiles</strong> to suggest <strong>perfect gifts</strong> — powered by <em>ethical OSINT</em>.
+      AI analyzes <strong>public profiles, email, phone & your IP</strong> to suggest <strong>perfect gifts</strong> — powered by <em>ethical OSINT</em>.
     </p>
   </section>
 
@@ -114,7 +116,7 @@
           <label for="phone">Phone Number <span class="text-pink-500">*</span></label>
         </div>
 
-        <!-- Budget (Number Input) -->
+        <!-- Budget -->
         <div class="input-group">
           <input type="number" id="budget" name="budget" min="0" placeholder=" " required />
           <label for="budget">Budget (INR) <span class="text-pink-500">*</span></label>
@@ -185,7 +187,7 @@
         <!-- Debug Toggle -->
         <div class="flex items-center gap-2">
           <input type="checkbox" id="showDebug" class="w-4 h-4 text-pink-600 rounded" />
-          <label for="showDebug" class="text-sm text-gray-600">Show raw AI response (debug)</label>
+          <label for="showDebug" class="text-sm text-gray-600">Show raw AI & OSINT (debug)</label>
         </div>
 
         <!-- Submit -->
@@ -194,7 +196,8 @@
         </button>
       </form>
 
-      <!-- Debug Panel -->
+      <!-- OSINT & Debug Panel -->
+      <div id="osintPanel" class="osint-panel" style="display:none;"></div>
       <div id="debugPanel" class="debug-panel" style="display:none;"></div>
 
       <!-- Results Panel -->
@@ -204,7 +207,7 @@
             <div class="font-bold text-lg">AI Gift Recommendations</div>
             <div class="text-xs text-gray-500" id="matchSummary">No results yet</div>
           </div>
-          <div class="text-sm text-gray-600">16 real gifts with photos</div>
+          <div class="text-sm text-gray-600">16 hyper-personalized gifts</div>
         </div>
         <div id="resultGrid" class="resultGrid"></div>
         <div id="happyMsg" class="mt-6 p-4 bg-gradient-to-r from-pink-50 to-pink-100 rounded-xl text-center text-pink-700 font-medium" style="display:none;">
@@ -228,7 +231,7 @@
 
   <script>
     // ==============================
-    // 1. CONFIG — USING GEMINI 2.5 FLASH
+    // 1. CONFIG
     // ==============================
     const GEMINI_API_KEY = "AIzaSyDBuMd-lH5V5MGchFkJ2BSb0D9mtpHoqUQ";
     const UNSPLASH_ACCESS_KEY = "";
@@ -253,6 +256,7 @@
       happyMsg: document.getElementById('happyMsg'),
       progressBar: document.getElementById('progressBarInner'),
       debugPanel: document.getElementById('debugPanel'),
+      osintPanel: document.getElementById('osintPanel'),
       showDebug: document.getElementById('showDebug'),
       compileBtn: document.getElementById('compileBtn')
     };
@@ -260,9 +264,10 @@
     let lastRawResponse = '';
     let lastGifts = [];
     let lastSelections = {};
+    let lastOSINT = {};
 
     // ==============================
-    // 3. INTEREST CHIPS (ARIA + ACCESSIBILITY)
+    // 3. INTEREST CHIPS
     // ==============================
     const allInterests = ['Tech','Music','Books','Fashion','Home & Kitchen','Food & Drink','Travel','Fitness','Photography','Art','Gaming','Beauty','Gardening','Parenting','Kids','Sports','DIY','Hobby','Stationery','Pet Owner'];
     allInterests.forEach(name => {
@@ -294,40 +299,82 @@
     }
 
     // ==============================
-    // 4. GEMINI 2.5 FLASH + PARALLEL IMAGES
+    // 4. OSINT: EMAIL, PHONE, IP (NO API KEY)
     // ==============================
-    async function getRealGiftImage(title) {
-      const q = encodeURIComponent(title);
-      let url = `https://source.unsplash.com/featured/300x300/?${q}`;
-      if (UNSPLASH_ACCESS_KEY) {
-        try {
-          const res = await fetch(`https://api.unsplash.com/search/photos?query=${q}&per_page=1&client_id=${UNSPLASH_ACCESS_KEY}`);
-          const d = await res.json();
-          if (d.results?.[0]?.urls?.small) return d.results[0].urls.small;
-        } catch {}
-      }
-      return url;
-    }
-    function getAmazonLink(title) {
-      return AMAZON_AFFILIATE_TAG
-        ? `https://www.amazon.in/s?k=${encodeURIComponent(title)}&tag=${AMAZON_AFFILIATE_TAG}`
-        : `https://www.amazon.in/s?k=${encodeURIComponent(title)}`;
-    }
+    async function runOSINT(selections) {
+      const osint = { email: {}, phone: {}, ip: {}, insights: [] };
 
-    function extractJsonArray(text) {
-      let cleaned = text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
-      const m = cleaned.match(/\[[\s\S]*\]/);
-      if (!m) throw new Error(`No JSON array found. Raw:\n${text}`);
+      // EMAIL OSINT (Disify)
       try {
-        const arr = JSON.parse(m[0]);
-        if (!Array.isArray(arr) || arr.length === 0) throw new Error('Empty or invalid array');
-        return arr;
-      } catch (e) {
-        throw new Error(`Parse failed: ${e.message}\nBlock:\n${m[0]}`);
-      }
+        const emailRes = await fetch(`https://api.disify.com/email/${selections.gmail}`);
+        const emailData = await emailRes.json();
+        osint.email = {
+          valid: emailData.format,
+          disposable: emailData.disposable,
+          domain: emailData.domain,
+          provider: emailData.domain ? emailData.domain.split('.').slice(-2, -1)[0] : 'unknown'
+        };
+        if (emailData.disposable) osint.insights.push(`⚠️ Disposable email detected (${emailData.domain})`);
+        if (selections.gmail.includes('choco')) osint.insights.push(`🍫 "choco" in email → possible foodie or gaming alias`);
+      } catch {}
+
+      // PHONE OSINT (Numverify - free tier, no key for basic)
+      try {
+        const phoneRes = await fetch(`http://apilayer.net/api/validate?access_key=&number=${selections.phone}&country_code=IN&format=1`);
+        const phoneData = await phoneRes.json();
+        if (phoneData.valid) {
+          osint.phone = {
+            valid: true,
+            country: phoneData.country_name,
+            location: phoneData.location,
+            carrier: phoneData.carrier,
+            line_type: phoneData.line_type
+          };
+          osint.insights.push(`📍 Phone registered in ${phoneData.location}, ${phoneData.country_name}`);
+          if (phoneData.line_type === 'mobile') osint.insights.push(`📱 Mobile user → likely active on apps`);
+        }
+      } catch {}
+
+      // IP OSINT (ip-api.com - no key)
+      try {
+        const ipRes = await fetch('https://ip-api.com/json/');
+        const ipData = await ipRes.json();
+        if (ipData.status === 'success') {
+          osint.ip = {
+            ip: ipData.query,
+            country: ipData.country,
+            region: ipData.regionName,
+            city: ipData.city,
+            isp: ipData.isp,
+            org: ipData.org
+          };
+          osint.insights.push(`🌍 You're in ${ipData.city}, ${ipData.regionName}, ${ipData.country}`);
+          if (ipData.isp.includes('Airtel') || ipData.isp.includes('Jio')) osint.insights.push(`📶 High-speed Indian ISP → tech-savvy user`);
+        }
+      } catch {}
+
+      return osint;
     }
 
-    async function callGemini(selections) {
+    function renderOSINT(osint) {
+      const html = `
+        <div class="font-bold mb-2">🔍 OSINT Intelligence Gathered</div>
+        <div class="space-y-2 text-sm">
+          ${osint.insights.map(i => `<div class="insight-box">${i}</div>`).join('')}
+        </div>
+        <details class="mt-3 text-xs">
+          <summary class="cursor-pointer font-medium">Raw OSINT Data</summary>
+          <pre class="mt-2 p-2 bg-gray-100 dark:bg-gray-800 rounded overflow-x-auto">${JSON.stringify(osint, null, 2)}</pre>
+        </details>
+      `;
+      els.osintPanel.innerHTML = html;
+      els.osintPanel.style.display = 'block';
+    }
+
+    // ==============================
+    // 5. GEMINI + HYPER-PERSONALIZATION
+    // ==============================
+    async function callGemini(selections, osint) {
       const budgetText = selections.budget ? `around ₹${selections.budget}` : 'any budget';
       const interestsText = selections.interests.length ? selections.interests.join(', ') : 'no specific interests';
       const socialText = [];
@@ -335,19 +382,34 @@
       if (selections.facebook) socialText.push(`Facebook: ${selections.facebook}`);
       const socialNote = socialText.length ? `Public profiles: ${socialText.join(', ')}` : 'No public profiles provided';
 
-      const prompt = `You are a gift expert. Give **exactly 16** gift ideas for:
+      const osintSummary = `
+OSINT Insights:
+- Email: ${osint.email.provider || 'unknown'} (${osint.email.disposable ? 'disposable' : 'legit'})
+- Phone: ${osint.phone.location || 'unknown'} (${osint.phone.carrier || 'unknown'})
+- IP Location: ${osint.ip.city || 'unknown'}, ${osint.ip.country || 'unknown'}
+- Inferred: ${osint.insights.join('; ')}
+      `.trim();
+
+      const prompt = `You are a hyper-personalized gift expert. Use **ALL** this data to suggest **exactly 16** gifts.
+
+User Data:
 - Budget: ${budgetText}
 - Occasion: ${selections.occasion}
 - Relationship: ${selections.relationship}
 - Interests: ${interestsText}
 - ${socialNote}
-- Notes: ${selections.notes || 'none'}
+- ${osintSummary}
 
-Return **ONLY** a JSON array:
+Rules:
+- Make gifts **ultra-specific** to location, ISP, email hints, phone carrier.
+- Example: If in Mumbai + Jio → suggest local tech stores or Jio-exclusive gadgets.
+- If "choco" in email → include chocolate-themed or gaming snacks.
+- Explain **why** each gift fits in the "short" field (1 line).
+- Return **ONLY** JSON array:
 [
-  {"title":"Short Name","short":"1-line desc","price":"₹X–₹Y"}
+  {"title":"Short Name","short":"Why this gift: because of [OSINT insight]","price":"₹X–₹Y"}
 ]
-No extra text, no markdown.`;
+No markdown, no extra text.`;
 
       const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
         method: 'POST',
@@ -355,33 +417,34 @@ No extra text, no markdown.`;
         body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] })
       });
 
-      if (!res.ok) {
-        const err = await res.text();
-        throw new Error(`HTTP ${res.status}: ${err}`);
-      }
-
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
       lastRawResponse = raw;
 
-      if (!raw.trim()) throw new Error('Empty response from Gemini. Try again.');
-
       if (els.showDebug.checked) {
         els.debugPanel.style.display = 'block';
-        els.debugPanel.textContent = raw;
-      } else {
-        els.debugPanel.style.display = 'none';
+        els.debugPanel.textContent = `PROMPT:\n${prompt}\n\nRESPONSE:\n${raw}`;
       }
 
       return extractJsonArray(raw);
     }
 
-    async function renderAIResults(gifts, s) {
+    function extractJsonArray(text) {
+      const m = text.match(/\[[\s\S]*\]/);
+      if (!m) throw new Error('No JSON array');
+      return JSON.parse(m[0]);
+    }
+
+    // ==============================
+    // 6. RENDER + IMAGES
+    // ==============================
+    async function renderAIResults(gifts, s, osint) {
       els.resultGrid.innerHTML = '';
-      els.matchSummary.textContent = `${gifts.length} AI suggestions • ${s.occasion}/${s.relationship}`;
-      els.happyMsg.style.display = 'none';
+      els.matchSummary.textContent = `16 gifts • Tailored to ${osint.ip.city || 'your location'}`;
       lastGifts = gifts;
       lastSelections = s;
+      lastOSINT = osint;
 
       const cardElements = gifts.map(g => {
         const div = document.createElement('div');
@@ -410,19 +473,14 @@ No extra text, no markdown.`;
         setTimeout(() => div.classList.add('show'), 50 * i);
       });
 
-      // PARALLEL IMAGE LOADING
-      await Promise.all(cardElements.map(async ({ div, g }, i) => {
+      await Promise.all(cardElements.map(async ({ div, g }) => {
         const imgUrl = await getRealGiftImage(g.title);
         const thumb = div.querySelector('.giftThumb');
         const img = document.createElement('img');
         img.src = imgUrl;
-        img.alt = `${g.title} gift idea`;
-        img.onerror = () => {
-          thumb.style.background = 'linear-gradient(135deg,var(--pink-500),var(--pink-600))';
-          img.style.display = 'none';
-        };
-        thumb.innerHTML = '';
-        thumb.appendChild(img);
+        img.alt = g.title;
+        img.onerror = () => { thumb.style.background = 'linear-gradient(135deg,var(--pink-500),var(--pink-600))'; img.style.display = 'none'; };
+        thumb.innerHTML = ''; thumb.appendChild(img);
       }));
 
       setTimeout(() => { 
@@ -431,32 +489,16 @@ No extra text, no markdown.`;
       }, 400);
     }
 
-    function showLoader() {
-      els.resultGrid.innerHTML = `<div id="loader"><div class="spinner"></div><div>AI thinking fast…</div></div>`;
+    async function getRealGiftImage(title) {
+      const q = encodeURIComponent(title);
+      return `https://source.unsplash.com/featured/300x300/?${q}`;
+    }
+    function getAmazonLink(title) {
+      return `https://www.amazon.in/s?k=${encodeURIComponent(title)}`;
     }
 
     // ==============================
-    // 5. COMPILE ALL DATA
-    // ==============================
-    els.compileBtn.addEventListener('click', () => {
-      const data = {
-        timestamp: new Date().toISOString(),
-        input: lastSelections,
-        raw_ai_response: lastRawResponse,
-        gifts: lastGifts
-      };
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `gifte_compiled_${Date.now()}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      showToast('All data downloaded!');
-    });
-
-    // ==============================
-    // 6. FORM SUBMIT
+    // 7. SUBMIT + FULL FLOW
     // ==============================
     let submitting = false;
     document.getElementById('autoForm').addEventListener('submit', async (e) => {
@@ -464,47 +506,73 @@ No extra text, no markdown.`;
       if (submitting) return;
       submitting = true;
 
-      const gmail = els.gmail.value.trim();
-      const phone = els.phone.value.trim();
-      const instagram = els.instagram.value.trim();
-      const facebook = els.facebook.value.trim();
-      const budget = els.budget.value;
-      const occasion = els.occasionSelected.textContent;
-      const relationship = els.relationshipSelected.textContent;
-      const interests = getSelectedInterests();
+      const selections = {
+        gmail: els.gmail.value.trim(),
+        phone: els.phone.value.trim(),
+        instagram: els.instagram.value.trim(),
+        facebook: els.facebook.value.trim(),
+        budget: els.budget.value,
+        occasion: els.occasionSelected.textContent,
+        relationship: els.relationshipSelected.textContent,
+        interests: getSelectedInterests()
+      };
 
-      if (!gmail || !phone || !budget || occasion === 'Select occasion...' || relationship === 'Select relationship...') {
+      if (!selections.gmail || !selections.phone || !selections.budget || selections.occasion === 'Select occasion...' || selections.relationship === 'Select relationship...') {
         showToast('Fill all required fields.');
         submitting = false;
         return;
       }
 
       els.submitBtn.disabled = true;
-      els.submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+      els.submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running OSINT...';
       els.resultsPanel.style.display = 'block';
       showLoader();
 
       try {
-        const gifts = await callGemini({ 
-          gmail, phone, instagram, facebook, budget, occasion, relationship, interests 
-        });
-        await renderAIResults(gifts, { gmail, phone, instagram, facebook, budget, occasion, relationship, interests });
+        // STEP 1: OSINT
+        const osint = await runOSINT(selections);
+        renderOSINT(osint);
+        els.submitBtn.innerHTML = '<i class="fas fa-brain"></i> AI Thinking...';
+
+        // STEP 2: AI
+        const gifts = await callGemini(selections, osint);
+        await renderAIResults(gifts, selections, osint);
+
         els.submitBtn.innerHTML = '<i class="fas fa-check"></i> Done!';
-        setTimeout(() => { 
-          els.submitBtn.disabled = false; 
-          els.submitBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Gift Suggestion'; 
-          submitting = false;
-        }, 1500);
+        setTimeout(() => { els.submitBtn.disabled = false; els.submitBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Gift Suggestion'; submitting = false; }, 1500);
       } catch (err) {
         els.resultGrid.innerHTML = `<div style="color:#c92a2a;padding:20px">Error: ${err.message}</div>`;
-        els.submitBtn.innerHTML = 'Try Again';
-        els.submitBtn.disabled = false;
-        submitting = false;
+        els.submitBtn.innerHTML = 'Try Again'; els.submitBtn.disabled = false; submitting = false;
       }
     });
 
+    function showLoader() {
+      els.resultGrid.innerHTML = `<div id="loader"><div class="spinner"></div><div>Scanning public data…</div></div>`;
+    }
+
     // ==============================
-    // 7. THEME & DROPDOWNS & TOAST
+    // 8. COMPILE ALL
+    // ==============================
+    els.compileBtn.addEventListener('click', () => {
+      const data = {
+        timestamp: new Date().toISOString(),
+        input: lastSelections,
+        osint: lastOSINT,
+        raw_ai_prompt_and_response: lastRawResponse,
+        gifts: lastGifts
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `gifte_full_intel_${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Full intel downloaded!');
+    });
+
+    // ==============================
+    // 9. THEME, DROPDOWNS, TOAST
     // ==============================
     const themeToggle = document.getElementById('themeToggle');
     const html = document.documentElement;
@@ -533,11 +601,7 @@ No extra text, no markdown.`;
         if(i>=0) options[i].scrollIntoView({block:'nearest'}); 
         focusedIndex=i; 
       }
-      function selectOption(i) { 
-        selectedText.textContent = options[i].textContent; 
-        close(); 
-        updateProgress(); 
-      }
+      function selectOption(i) { selectedText.textContent = options[i].textContent; close(); updateProgress(); }
 
       combobox.addEventListener('click', () => isOpen ? close() : open());
       combobox.addEventListener('keydown', e => {
@@ -573,14 +637,6 @@ No extra text, no markdown.`;
       els.progressBar.parentElement.setAttribute('aria-valuenow', Math.round(percent));
     }
     document.querySelectorAll("input").forEach(i => i.addEventListener("input", updateProgress));
-    els.showDebug.addEventListener('change', () => {
-      if (lastRawResponse && els.showDebug.checked) {
-        els.debugPanel.style.display = 'block';
-        els.debugPanel.textContent = lastRawResponse;
-      } else {
-        els.debugPanel.style.display = 'none';
-      }
-    });
 
     function showToast(msg) {
       const toast = document.getElementById("toast");
