@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gifté+ — AI + OSINT</title>
+
+  <!-- Tailwind (for layout) + Font Awesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    :root{--bg:linear-gradient(135deg,#fff0f8 0%,#ffe6f2 30%,#fff0ff 60%,#f0f5ff 100%);--accent-1:#ff6fa3;--accent-2:#8b5cf6;--muted:#6b7280;--card:#ffffff;--radius:16px}
+    [data-theme="dark"]{--bg:linear-gradient(135deg,#1a0033,#0f0a1a,#2d1b3d);--card:#1a1730;--muted:#94a3b8}
+    *{box-sizing:border-box}html,body{height:100%;margin:0;background:var(--bg);color:#0f172a;font-family:Inter,sans-serif}
+    .wrap{max-width:1200px;margin:28px auto;padding:20px}
+    .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;background:linear-gradient(90deg,var(--accent-1),var(--accent-2));color:white;box-shadow:0 14px 40px rgba(139,92,246,.12)}
+    h1{margin:0;font-size:20px}.subtitle{color:var(--muted);font-size:13px}
+    .grid{display:grid;grid-template-columns:1fr 460px;gap:24px;margin-top:20px}
+    @media(max-width:980px){.grid{grid-template-columns:1fr}.rightColumn{order:2}}
+    .panel{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:0 10px 30px rgba(15,23,42,.06)}
+    label{display:block;margin-top:12px;color:var(--muted);font-size:13px}
+    input,select,textarea{width:100%;padding:12px;border-radius:10px;border:1px solid #eef2ff;margin-top:8px;font-size:14px}
+    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    .chip{padding:8px 10px;border-radius:999px;background:linear-gradient(90deg,rgba(139,92,246,.08),rgba(255,111,163,.06));border:1px solid rgba(139,92,246,.06);cursor:pointer;font-size:13px}
+    .chip.active{background:linear-gradient(90deg,var(--accent-1),var(--accent-2));color:white;border:0;box-shadow:0 8px 30px rgba(139,92,246,.12)}
+    .btn{display:inline-block;padding:12px 16px;border-radius:12px;border:0;background:linear-gradient(90deg,var(--accent-2),var(--accent-1));color:white;font-weight:700;cursor:pointer;margin-top:14px;font-size:14px}
+    .btn.secondary{background:transparent;border:1px solid rgba(15,23,42,.06);color:var(--muted);font-weight:600}
+    .hint{font-size:13px;color:var(--muted);margin-top:8px}
+    .links{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+    .linkBtn{display:inline-block;padding:6px 8px;border-radius:6px;background:linear-gradient(90deg,#3b82f6,#06b6d4);color:white;text-decoration:none;font-size:12px;font-weight:600}
+    .linkBtn:hover{filter:brightness(1.05)}.linkBtn.amazon{background:linear-gradient(90deg,#ff9900,#ff6600)}
+    .resultHeader{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .resultGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:12px}
+    .giftCard{background:linear-gradient(180deg,rgba(255,255,255,.95),#fff);border-radius:14px;padding:14px;box-shadow:0 12px 30px rgba(15,23,42,.06);overflow:hidden;transform:translateY(6px);opacity:0;transition:transform .35s ease,opacity .35s ease}
+    .giftCard.show{transform:translateY(0);opacity:1}
+    .giftTop{display:flex;gap:12px;align-items:center}
+    .giftThumb{width:60px;height:60px;border-radius:10px;flex-shrink:0;background:linear-gradient(135deg,var(--accent-1),var(--accent-2));display:flex;align-items:center;justify-content:center;color:white;font-weight:800;overflow:hidden}
+    .giftThumb img{width:100%;height:100%;object-fit:cover}
+    .giftTitle{font-size:14px;margin:0;font-weight:600}
+    .giftMeta{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.3}
+    .smallBadge{display:inline-block;padding:4px 6px;border-radius:6px;background:rgba(15,23,42,.04);font-size:11px;color:var(--muted);margin-top:6px}
+    .happy{margin-top:16px;padding:14px;border-radius:12px;background:linear-gradient(90deg,#fff7fb,#fffefc);text-align:center;box-shadow:0 10px 30px rgba(255,111,163,.06)}
+    .clearBtn{background:transparent;border:1px dashed rgba(15,23,42,.06);padding:8px 10px;border-radius:8px;cursor:pointer;color:var(--muted);font-size:13px}
+    footer{margin-top:26px;text-align:center;color:var(--muted);font-size:13px}
+    /* OSINT Tabs */
+    .tabs{display:flex;margin-top:1.5rem;border-bottom:1px solid #e5e7eb;overflow-x:auto;scrollbar-width:none}
+    .tabs::-webkit-scrollbar{display:none}
+    .tab{padding:.75rem 1rem;cursor:pointer;font-weight:600;color:#666;border-bottom:3px solid transparent;transition:all .3s;white-space:nowrap}
+    .tab.active{color:var(--accent-2);border-bottom:3px solid var(--accent-2)}
+    .tab-content{display:none;padding:1rem;background:#f9fafb;border-radius:1rem;margin-top:1rem;font-family:'Courier New',monospace;font-size:.85rem;max-height:400px;overflow-y:auto;position:relative}
+    .tab-content.active{display:block}
+    .result-item{margin-bottom:1rem;padding:.75rem;background:rgba(255,255,255,.1);border-radius:.75rem;display:flex;justify-content:space-between;align-items:center}
+    .copy-btn{background:rgba(0,0,0,.1);color:#1f2937;border:none;padding:.25rem .5rem;border-radius:.5rem;cursor:pointer;font-size:.8rem;transition:.2s}
+    .copy-btn:hover{background:rgba(0,0,0,.2)}
+    .copy-feedback{position:absolute;top:10px;right:10px;background:#10b981;color:white;padding:4px 8px;border-radius:4px;font-size:.7rem;opacity:0;transition:opacity .3s}
+    .copy-feedback.show{opacity:1}
+    .export-btn{background:var(--accent-2);color:white;padding:.5rem 1rem;border-radius:.75rem;font-size:.9rem;margin-top:1rem;display:inline-flex;align-items:center;gap:.5rem;cursor:pointer;border:none;transition:.2s}
+    .export-btn:hover{transform:scale(1.05)}
+    .spinner{width:16px;height:16px;border:2px solid #fff;border-top:2px solid transparent;border-radius:50%;animation:spin 1s linear infinite;margin-right:8px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loading-tab::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:24px;height:24px;border:3px solid var(--accent-2);border-top:3px solid transparent;border-radius:50%;animation:spin 1s linear infinite}
+    .status{font-size:.8rem;color:#666;text-align:center;margin-top:.5rem;font-weight:500}
+    #loader{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 0;color:var(--muted)}
+    .spinner-big{width:32px;height:32px;border:4px solid #f3f3f3;border-top:4px solid var(--accent-2);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:12px}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+  </style>
+</head>
+<body class="text-gray-800">
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">G+</div>
+      <div><h1>Gifté+ — AI + OSINT</h1><div class="subtitle">16 real gifts + OSINT lookup in one click</div></div>
+    </div>
+    <div class="subtitle">Signed-in: <strong id="signedEmail">(local)</strong></div>
+  </div>
+
+  <div class="grid">
+    <!-- LEFT: FORM + OSINT TABS -->
+    <div>
+      <div class="panel" id="formPanel">
+        <h2 style="margin:0">Tell us about the recipient</h2>
+        <p class="hint">Fill required fields. Interests optional.</p>
+
+        <!-- OSINT INPUTS -->
+        <label>Gmail ID <span class="text-pink-500">*</span></label>
+        <input type="email" id="gmail" placeholder="e.g. user@gmail.com" required>
+
+        <label>Phone Number <span class="text-pink-500">*</span></label>
+        <input type="tel" id="phone" placeholder="e.g. +919876543210" required>
+
+        <label>Budget (INR) — required</label>
+        <input id="budget" type="number" min="0" placeholder="e.g. 2500" required>
+
+        <label>Occasion — required</label>
+        <select id="occasion" required>
+          <option value="">Choose occasion</option>
+          <option>Birthday</option><option>Anniversary</option><option>Graduation</option>
+          <option>Farewell</option><option>Wedding</option><option>Baby Shower</option>
+          <option>Festival</option><option>Just Because</option><option>Valentine's</option>
+        </select>
+
+        <label>Relationship — required</label>
+        <select id="relationship" required>
+          <option value="">Choose relationship</option>
+          <option>Partner</option><option>Daughter</option><option>Son</option>
+          <option>Friend</option><option>Parent</option><option>Sibling</option>
+          <option>Colleague</option><option>Teacher</option><option>Child</option>
+        </select>
+
+        <label>Interests — choose any (click chips)</label>
+        <div class="chips" id="interests"></div>
+
+        <label>Additional notes (optional)</label>
+        <textarea id="notes" rows="3" placeholder="Favourite colour, allergy, etc."></textarea>
+
+        <div class="controls">
+          <button id="runAllBtn" class="btn">Run AI + OSINT</button>
+          <button id="saveBtn" class="btn secondary">Save Session</button>
+          <button id="clearBtn" class="clearBtn">Clear</button>
+        </div>
+        <div class="hint" id="formError" style="display:none;color:#c92a2a"></div>
+      </div>
+
+      <!-- OSINT TABS -->
+      <div class="status" id="status">Detecting your IP…</div>
+      <div class="tabs" id="tabs">
+        <div class="tab active" data-tab="phone">Phone</div>
+        <div class="tab" data-tab="email1">Email</div>
+        <div class="tab" data-tab="ip">IP</div>
+      </div>
+      <div id="phone" class="tab-content active"></div>
+      <div id="email1" class="tab-content"></div>
+      <div id="ip" class="tab-content"></div>
+      <button class="export-btn" id="exportBtn" style="display:none;">
+        <i class="fas fa-download"></i> Download OSINT JSON
+      </button>
+    </div>
+
+    <!-- RIGHT: AI GIFT GRID -->
+    <div class="rightColumn">
+      <div class="panel" id="resultsPanel">
+        <div class="resultHeader">
+          <div><div style="font-weight:700">AI Recommendations</div><div class="smallBadge" id="matchSummary">No results yet</div></div>
+          <div class="hint">16 real gifts with photos.</div>
+        </div>
+        <div class="resultGrid" id="resultGrid" style="margin-top:10px"></div>
+        <div id="fallback" style="display:none;margin-top:12px;color:var(--muted)">No suggestions – try changing the inputs.</div>
+        <div class="happy" id="happyMsg" style="display:none">We’re happy you found your gift with Gifté+ AI!</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>© 2025 Gifté+. Designed by Delta-1 & Commander.</footer>
+</div>
+
+<script>
+/* ==================== 1. CONFIG ==================== */
+const GEMINI_API_KEY = "AIzaSyDBuMd-lH5V5MGchFkJ2BSb0D9mtpHoqUQ"; // ← YOUR GEMINI KEY
+const UNSPLASH_ACCESS_KEY = ""; // ← Optional
+const AMAZON_AFFILIATE_TAG = ""; // ← Optional
+
+const OSINT_API = {
+  phone: "521155e18b15415aadd705a035a57fd9",
+  emailAbs: "a714f117250d428aa7c475b6f44f3b83",
+  ip: "c60344fcdad24bec87d9dc674c3891ae"
+};
+
+/* ==================== 2. DOM REFS ==================== */
+const els = {
+  gmail: document.getElementById('gmail'),
+  phone: document.getElementById('phone'),
+  budget: document.getElementById('budget'),
+  occasion: document.getElementById('occasion'),
+  relationship: document.getElementById('relationship'),
+  notes: document.getElementById('notes'),
+  interestsDiv: document.getElementById('interests'),
+  runBtn: document.getElementById('runAllBtn'),
+  status: document.getElementById('status'),
+  tabs: document.querySelectorAll('.tab'),
+  contents: document.querySelectorAll('.tab-content'),
+  exportBtn: document.getElementById('exportBtn'),
+  resultGrid: document.getElementById('resultGrid'),
+  matchSummary: document.getElementById('matchSummary'),
+  happyMsg: document.getElementById('happyMsg'),
+  formError: document.getElementById('formError')
+};
+
+let osintResults = {};
+
+/* ==================== 3. INTEREST CHIPS ==================== */
+const allInterests = ['Tech','Music','Books','Fashion','Home & Kitchen','Food & Drink','Travel','Fitness','Photography','Art','Gaming','Beauty','Gardening','Parenting','Kids','Sports','DIY','Hobby','Stationery','Pet Owner'];
+allInterests.forEach(i => {
+  const chip = document.createElement('div');
+  chip.className = 'chip';
+  chip.textContent = i;
+  chip.dataset.tag = i;
+  chip.addEventListener('click', () => chip.classList.toggle('active'));
+  els.interestsDiv.appendChild(chip);
+});
+function getSelectedInterests(){ return Array.from(els.interestsDiv.querySelectorAll('.chip.active')).map(c=>c.dataset.tag); }
+
+/* ==================== 4. OSINT UTILS ==================== */
+const httpGet = (url) => fetch(url,{cache:"no-store"})
+  .then(r=>r.ok?r.json():Promise.reject(`HTTP ${r.status}`))
+  .catch(()=>({error:"Network Error"}));
+
+const copyToClipboard = (text,btn) => {
+  navigator.clipboard.writeText(text).then(()=>{
+    const fb = btn.parentElement.querySelector('.copy-feedback')||document.createElement('div');
+    fb.className='copy-feedback'; fb.textContent='Copied!';
+    btn.parentElement.appendChild(fb);
+    setTimeout(()=>fb.classList.add('show'),10);
+    setTimeout(()=>{fb.classList.remove('show');setTimeout(()=>fb.remove(),300);},1000);
+  });
+};
+const escapeTemplate = s=>s.replace(/`/g,"\\`").replace(/\$/g,"\\$");
+const showResult = (id,data,title) => {
+  const el=document.getElementById(id);
+  const json=JSON.stringify(data,null,2);
+  el.innerHTML = `
+    <div class="result-item"><strong>${title}</strong>
+      <button class="copy-btn" onclick="copyToClipboard(\`${escapeTemplate(json)}\`,this)">Copy</button>
+    </div><pre>${json}</pre>`;
+  el.classList.remove('loading-tab');
+};
+const setLoading = id => { const el=document.getElementById(id); el.innerHTML=''; el.classList.add('loading-tab'); };
+
+const getUserIP = async () => {
+  try{ const r=await fetch("https://api.ipify.org?format=json"); const {ip}=await r.json(); return ip; }
+  catch{ return "146.70.246.148"; }
+};
+
+const lookupPhone = p => {
+  const clean=p.replace(/[\s\-()]/g,"");
+  const fmt=clean.startsWith("+")?clean:"+"+clean;
+  return httpGet(`https://phoneintelligence.abstractapi.com/v1/?api_key=${OSINT_API.phone}&phone=${fmt}`);
+};
+const lookupEmailRapid = e => httpGet(`https://rapid-email-validator.com/api/validate?email=${encodeURIComponent(e)}`)
+  .catch(()=>({error:"Rapid API down",email:e}));
+const lookupEmailAbstract = e => httpGet(`https://emailreputation.abstractapi.com/v1/?api_key=${OSINT_API.emailAbs}&email=${e}`)
+  .catch(()=>({error:"Abstract API down",email:e}));
+const lookupIP = ip => httpGet(`https://ip-intelligence.abstractapi.com/v1/?api_key=${OSINT_API.ip}&ip_address=${ip}`)
+  .catch(()=>({error:"IP API down",ip}));
+
+/* ==================== 5. GEMINI + IMAGES ==================== */
+async function getRealGiftImage(title){
+  const q=encodeURIComponent(title);
+  let url=`https://source.unsplash.com/featured/300x300/?${q}`;
+  if(UNSPLASH_ACCESS_KEY){
+    try{
+      const res=await fetch(`https://api.unsplash.com/search/photos?query=${q}&per_page=1&client_id=${UNSPLASH_ACCESS_KEY}`);
+      const d=await res.json();
+      if(d.results?.[0]?.urls?.small) return d.results[0].urls.small;
+    }catch{}
+  }
+  return url;
+}
+function getAmazonLink(title){
+  if(!AMAZON_AFFILIATE_TAG) return `https://www.amazon.in/s?k=${encodeURIComponent(title)}`;
+  return `https://www.amazon.in/s?k=${encodeURIComponent(title)}&tag=${AMAZON_AFFILIATE_TAG}`;
+}
+function buildPrompt(s){
+  const bgt=s.budget?`around ₹${s.budget}`:'any budget';
+  const int=s.interests.length?s.interests.join(', '):'no specific interests';
+  return `You are a gift expert. Give **exactly 16** gift ideas for:
+- Budget: ${bgt}
+- Occasion: ${s.occasion}
+- Relationship: ${s.relationship}
+- Interests: ${int}
+- Notes: ${s.notes||'none'}
+For each gift, return ONLY this JSON:
+{ "title": "short catchy name", "short": "1-line description", "price": "₹X–₹Y"}
+Return ONLY the JSON array. No extra text.`;
+}
+async function callGemini(s){
+  const prompt=buildPrompt(s);
+  const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}]})
+  });
+  const d=await res.json();
+  const raw=d?.candidates?.[0]?.content?.parts?.[0]?.text||'';
+  const m=raw.match(/\[[\s\S]*\]/);
+  if(!m) throw new Error('No JSON array');
+  const gifts=JSON.parse(m[0]);
+  if(!Array.isArray(gifts)||gifts.length===0) throw new Error('Invalid JSON');
+  return gifts;
+}
+async function renderAIResults(gifts,s){
+  els.resultGrid.innerHTML=''; els.matchSummary.innerText=`${gifts.length} AI suggestions • ${s.occasion}/${s.relationship}`;
+  for(let i=0;i<gifts.length;i++){
+    const g=gifts[i];
+    const div=document.createElement('div'); div.className='giftCard';
+    div.innerHTML=`
+      <div class="giftTop">
+        <div class="giftThumb" style="background:#eee;animation:pulse 1.5s infinite"></div>
+        <div style="flex:1">
+          <h4 class="giftTitle">${g.title}</h4>
+          <div class="giftMeta">${g.short}</div>
+          <div style="text-align:right">
+            <div style="font-weight:800;font-size:14px">${g.price}</div>
+            <div class="smallBadge">AI</div>
+          </div>
+          <div class="links">
+            <a href="https://www.google.com/search?q=${encodeURIComponent(g.title)}" target="_blank" class="linkBtn">Google</a>
+            <a href="${getAmazonLink(g.title)}" target="_blank" class="linkBtn amazon">Amazon</a>
+          </div>
+        </div>
+      </div>`;
+    els.resultGrid.appendChild(div);
+    setTimeout(()=>div.classList.add('show'),50*i);
+    const imgUrl=await getRealGiftImage(g.title);
+    const thumb=div.querySelector('.giftThumb');
+    thumb.innerHTML=`<img src="${imgUrl}" alt="${g.title}" onerror="this.parentNode.style.background='linear-gradient(135deg,var(--accent-1),var(--accent-2))';this.style.display='none'">`;
+    thumb.style.background='none';
+  }
+  setTimeout(()=>{els.happyMsg.style.display='block';},400);
+}
+function showLoader(){ els.resultGrid.innerHTML=`<div id="loader"><div class="spinner-big"></div><div>AI thinking fast…</div></div>`; }
+
+/* ==================== 6. MAIN RUN ==================== */
+els.runBtn.addEventListener('click', async () => {
+  els.formError.style.display='none';
+  const gmail=els.gmail.value.trim(), phone=els.phone.value.trim(), budget=els.budget.value,
+        occasion=els.occasion.value, relationship=els.relationship.value,
+        interests=getSelectedInterests(), notes=els.notes.value.trim();
+
+  if(!gmail||!phone||!budget||!occasion||!relationship){
+    els.formError.style.display='block';
+    els.formError.innerText='Please fill Gmail, Phone, Budget, Occasion and Relationship.';
+    return;
+  }
+
+  els.runBtn.disabled=true; els.runBtn.innerHTML=`<i class="fas fa-spinner fa-spin"></i> Running...`;
+  els.status.textContent="Detecting IP..."; showLoader();
+
+  try{
+    const userIP=await getUserIP(); els.status.textContent=`IP: ${userIP} → Validating...`;
+    ['phone','email1','ip'].forEach(setLoading);
+
+    const [phoneData, eRapid, eAbs, ipData] = await Promise.all([
+      lookupPhone(phone),
+      lookupEmailRapid(gmail),
+      lookupEmailAbstract(gmail),
+      lookupIP(userIP)
+    ]);
+
+    osintResults = { phone: phoneData, email: {rapid:eRapid, abstract:eAbs}, ip:{address:userIP, data:ipData} };
+    showResult('phone',phoneData,'Phone Lookup');
+    showResult('email1',osintResults.email,`Email: ${gmail}`);
+    showResult('ip',{ip:userIP,...ipData},'IP Geolocation');
+    els.exportBtn.style.display='inline-flex';
+
+    // AI Gifts
+    const gifts=await callGemini({budget,occasion,relationship,interests,notes});
+    await renderAIResults(gifts,{budget,occasion,relationship,interests,notes});
+
+    els.runBtn.innerHTML=`<i class="fas fa-check"></i> Done!`;
+    setTimeout(()=>{els.runBtn.disabled=false; els.runBtn.innerHTML=`Run AI + OSINT`;},1500);
+  }catch(err){
+    els.status.textContent=`Error: ${err.message}`;
+    els.resultGrid.innerHTML=`<div style="grid-column:1/-1;color:#c92a2a;padding:20px">Error: ${err.message}</div>`;
+    els.runBtn.innerHTML=`Try Again`; els.runBtn.disabled=false;
+  }
+});
+
+/* ==================== 7. TABS ==================== */
+els.tabs.forEach(t=>t.addEventListener('click',()=>{
+  els.tabs.forEach(x=>x.classList.remove('active'));
+  els.contents.forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById(t.dataset.tab).classList.add('active');
+}));
+
+/* ==================== 8. EXPORT OSINT ==================== */
+els.exportBtn.addEventListener('click',()=>{
+  const fn=`osint_${els.phone.value.replace(/[^\d]/g,'')}_${Date.now()}.json`;
+  const blob=new Blob([JSON.stringify(osintResults,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=fn; a.click(); URL.revokeObjectURL(url);
+});
+
+/* ==================== 9. SAVE / CLEAR ==================== */
+document.getElementById('saveBtn').addEventListener('click',()=>{
+  const s={gmail:els.gmail.value,phone:els.phone.value,budget:els.budget.value,occasion:els.occasion.value,relationship:els.relationship.value,interests:getSelectedInterests(),notes:els.notes.value,ts:new Date().toISOString()};
+  const arr=JSON.parse(localStorage.getItem('gift_sessions')||'[]'); arr.push(s); localStorage.setItem('gift_sessions',JSON.stringify(arr));
+  alert('Session saved locally.');
+});
+document.getElementById('clearBtn').addEventListener('click',()=>{ if(confirm('Clear everything?')) location.reload(); });
+
+/* ==================== 10. INIT ==================== */
+(async()=>{ const ip=await getUserIP(); els.status.textContent=`Ready • Your IP: ${ip}`; })();
+</script>
+</body>
+</html>
