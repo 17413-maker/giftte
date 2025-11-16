@@ -54,10 +54,10 @@
     .dropdown-option:hover { background: #f472b6; color: white; }
     .chip-container { display: flex; flex-wrap: wrap; gap: 8px; max-height: 120px; overflow-y: auto; padding: 8px; border: 1px solid #ddd; border-radius: 1rem; background: rgba(255,255,255,0.8); }
     [data-theme="dark"] .chip-container { background: rgba(31,41,55,0.8); border-color: #374151; }
+    .chip { user-select: none; }
   </style>
 </head>
 <body class="text-gray-800">
-
   <nav class="flex justify-between items-center px-6 md:px-12 py-5 bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-40">
     <h1 class="text-2xl md:text-3xl font-bold text-pink-600 flex items-center gap-2">
       <i class="fas fa-gift"></i> Gifté+ v7
@@ -96,12 +96,14 @@
           <input type="email" id="gmail" required placeholder=" " />
           <label for="gmail">Gmail ID <span class="text-pink-500">*</span></label>
         </div>
+
         <div class="input-group">
-          <input type="tel" id="phone" required placeholder=" " />
+          <input type="tel" id="phone" required placeholder=" " pattern="^\+?[0-9\s\-]{7,15}$" />
           <label for="phone">Phone Number <span class="text-pink-500">*</span></label>
         </div>
+
         <div class="input-group">
-          <input type="number" id="budget" min="0" required placeholder=" " />
+          <input type="number" id="budget" min="1" required placeholder=" " />
           <label for="budget">Budget (INR) <span class="text-pink-500">*</span></label>
         </div>
 
@@ -133,7 +135,8 @@
           <label for="showDebug" class="text-sm text-gray-600">Show raw AI & OSINT</label>
         </div>
 
-        <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-pink-500 to-pink-600 text-white py-4 rounded-full text-lg font-bold hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 mt-8">
+        <button type="submit" id="submitBtn"
+                class="w-full bg-gradient-to-r from-pink-500 to-pink-600 text-white py-4 rounded-full text-lg font-bold hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 mt-8">
           <i class="fas fa-magic"></i> Generate Gift Suggestion
         </button>
       </form>
@@ -143,7 +146,10 @@
 
       <div id="resultsPanel" class="mt-10" style="display:none;">
         <div class="flex justify-between items-center mb-4">
-          <div><div class="font-bold text-lg">AI Gift Recommendations</div><div class="text-xs text-gray-500" id="matchSummary"></div></div>
+          <div>
+            <div class="font-bold text-lg">AI Gift Recommendations</div>
+            <div class="text-xs text-gray-500" id="matchSummary"></div>
+          </div>
           <div class="text-sm text-gray-600">16 gifts</div>
         </div>
         <div id="resultGrid" class="resultGrid"></div>
@@ -160,7 +166,7 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    // YOUR KEYS (CORRECTED)
+    // === YOUR KEYS ===
     const ABSTRACT = {
       email: 'a714f117250d428aa7c475b6f44f3b83',
       phone: '950742cea86947d2a4929ecf4478aa7d',
@@ -168,130 +174,254 @@
     };
     const GEMINI_API_KEY = "AIzaSyDBuMd-lH5V5MGchFkJ2BSb0D9mtpHoqUQ";
 
+    // === ELEMENTS ===
     const els = {
-      form: document.getElementById('autoForm'), gmail: document.getElementById('gmail'), phone: document.getElementById('phone'),
-      instagram: document.getElementById('instagram'), facebook: document.getElementById('facebook'),
-      budget: document.getElementById('budget'), occasionSelected: document.getElementById('occasion-selected'),
-      relationshipSelected: document.getElementById('relationship-selected'), interestsContainer: document.getElementById('interestsContainer'),
-      submitBtn: document.getElementById('submitBtn'), resultsPanel: document.getElementById('resultsPanel'),
-      resultGrid: document.getElementById('resultGrid'), matchSummary: document.getElementById('matchSummary'),
-      happyMsg: document.getElementById('happyMsg'), progressBar: document.getElementById('progressBarInner'),
-      debugPanel: document.getElementById('debugPanel'), osintPanel: document.getElementById('osintPanel'),
-      showDebug: document.getElementById('showDebug'), compileBtn: document.getElementById('compileBtn')
+      form: document.getElementById('autoForm'),
+      gmail: document.getElementById('gmail'),
+      phone: document.getElementById('phone'),
+      instagram: document.getElementById('instagram'),
+      facebook: document.getElementById('facebook'),
+      budget: document.getElementById('budget'),
+      occasionSelected: document.getElementById('occasion-selected'),
+      relationshipSelected: document.getElementById('relationship-selected'),
+      interestsContainer: document.getElementById('interestsContainer'),
+      submitBtn: document.getElementById('submitBtn'),
+      resultsPanel: document.getElementById('resultsPanel'),
+      resultGrid: document.getElementById('resultGrid'),
+      matchSummary: document.getElementById('matchSummary'),
+      happyMsg: document.getElementById('happyMsg'),
+      progressBar: document.getElementById('progressBarInner'),
+      debugPanel: document.getElementById('debugPanel'),
+      osintPanel: document.getElementById('osintPanel'),
+      showDebug: document.getElementById('showDebug'),
+      compileBtn: document.getElementById('compileBtn')
     };
 
     let lastRawResponse = '', lastGifts = [], lastSelections = {}, lastOSINT = {};
 
-    // INTERESTS
-    const allInterests = ['Tech','Gaming','Music','Books','Fashion','Travel','Fitness','Photography','Art','Food & Drink','Coffee','Wine','Cooking','Baking','Movies','Anime','K-Drama','Sports','Cricket','Football','Yoga','Meditation','Gardening','DIY','Crafts','Pets','Dogs','Cats','Cars','Bikes','Nature','Camping','Hiking','Beach','Luxury','Minimalist','Vintage','Sustainability','Eco-Friendly'];
+    // === INTERESTS CHIPS ===
+    const allInterests = [
+      'Tech','Gaming','Music','Books','Fashion','Travel','Fitness','Photography','Art',
+      'Food & Drink','Coffee','Wine','Cooking','Baking','Movies','Anime','K-Drama',
+      'Sports','Cricket','Football','Yoga','Meditation','Gardening','DIY','Crafts',
+      'Pets','Dogs','Cats','Cars','Bikes','Nature','Camping','Hiking','Beach',
+      'Luxury','Minimalist','Vintage','Sustainability','Eco-Friendly'
+    ];
+
     allInterests.forEach(name => {
       const chip = document.createElement('div');
       chip.className = 'px-3 py-1 rounded-full bg-gradient-to-r from-pink-100 to-pink-200 text-pink-700 text-xs font-medium cursor-pointer transition chip';
-      chip.textContent = name; chip.role = 'checkbox'; chip.tabIndex = 0;
+      chip.textContent = name;
+      chip.role = 'checkbox';
+      chip.tabIndex = 0;
       chip.setAttribute('aria-checked', 'false');
-      chip.onclick = () => { const on = chip.getAttribute('aria-checked') === 'true'; chip.setAttribute('aria-checked', !on); chip.classList.toggle('from-pink-500', !on); chip.classList.toggle('to-pink-600', !on); chip.classList.toggle('text-white', !on); };
+      chip.onclick = () => {
+        const checked = chip.getAttribute('aria-checked') === 'true';
+        chip.setAttribute('aria-checked', !checked);
+        chip.classList.toggle('from-pink-500', !checked);
+        chip.classList.toggle('to-pink-600', !checked);
+        chip.classList.toggle('text-white', !checked);
+        updateProgress();
+      };
       els.interestsContainer.appendChild(chip);
     });
-    function getInterests() { return Array.from(els.interestsContainer.children).filter(c => c.getAttribute('aria-checked') === 'true').map(c => c.textContent); }
 
-    // DROPDOWNS
+    function getInterests() {
+      return Array.from(els.interestsContainer.children)
+        .filter(c => c.getAttribute('aria-checked') === 'true')
+        .map(c => c.textContent);
+    }
+
+    // === DROPDOWNS ===
     const occasions = ["Birthday","Anniversary","Valentine's Day","Diwali","Christmas","Wedding","Graduation","Just Because"];
     const relationships = ["Partner","Best Friend","Parent","Sibling","Colleague","Crush","Boss","Child"];
+
     function setupDropdown(comboId, listId, selectedId, options) {
-      const combo = document.getElementById(comboId), list = document.getElementById(listId), selected = document.getElementById(selectedId);
-      options.forEach(opt => { const li = document.createElement('li'); li.className = 'dropdown-option'; li.textContent = opt; li.onclick = () => { selected.textContent = opt; list.classList.remove('show'); updateProgress(); }; list.appendChild(li); });
-      combo.onclick = () => list.classList.toggle('show');
-      document.addEventListener('click', e => !combo.contains(e.target) && !list.contains(e.target) && list.classList.remove('show'));
+      const combo = document.getElementById(comboId),
+            list = document.getElementById(listId),
+            selected = document.getElementById(selectedId);
+
+      options.forEach(opt => {
+        const li = document.createElement('li');
+        li.className = 'dropdown-option';
+        li.textContent = opt;
+        li.onclick = () => {
+          selected.textContent = opt;
+          list.classList.remove('show');
+          combo.setAttribute('aria-expanded', 'false');
+          document.getElementById(comboId.replace('Combobox', '-chevron')).classList.remove('rotate-180');
+          updateProgress();
+        };
+        list.appendChild(li);
+      });
+
+      combo.onclick = (e) => {
+        e.stopPropagation();
+        const isOpen = list.classList.contains('show');
+        document.querySelectorAll('.dropdown-list').forEach(l => l.classList.remove('show'));
+        if (!isOpen) {
+          list.classList.add('show');
+          combo.setAttribute('aria-expanded', 'true');
+          document.getElementById(comboId.replace('Combobox', '-chevron')).classList.add('rotate-180');
+        } else {
+          list.classList.remove('show');
+          combo.setAttribute('aria-expanded', 'false');
+          document.getElementById(comboId.replace('Combobox', '-chevron')).classList.remove('rotate-180');
+        }
+      };
+
+      document.addEventListener('click', e => {
+        if (!combo.contains(e.target) && !list.contains(e.target)) {
+          list.classList.remove('show');
+          combo.setAttribute('aria-expanded', 'false');
+          document.getElementById(comboId.replace('Combobox', '-chevron')).classList.remove('rotate-180');
+        }
+      });
     }
+
     setupDropdown('occasionCombobox', 'occasion-list', 'occasion-selected', occasions);
     setupDropdown('relationshipCombobox', 'relationship-list', 'relationship-selected', relationships);
 
+    // === PROGRESS BAR ===
     function updateProgress() {
-      const fields = [els.gmail.value, els.phone.value, els.budget.value, els.occasionSelected.textContent !== 'Select occasion...', els.relationshipSelected.textContent !== 'Select relationship...'];
+      const fields = [
+        els.gmail.value.trim(),
+        els.phone.value.trim(),
+        els.budget.value > 0,
+        els.occasionSelected.textContent !== 'Select occasion...',
+        els.relationshipSelected.textContent !== 'Select relationship...'
+      ];
       const percent = (fields.filter(Boolean).length / 5) * 100;
       els.progressBar.style.width = percent + '%';
     }
-    document.querySelectorAll('input, [role="combobox"]').forEach(el => el.addEventListener('input', updateProgress));
 
-    // OSINT — FREE + YOUR KEYS
+    document.querySelectorAll('input, [role="combobox"]').forEach(el => {
+      el.addEventListener('input', updateProgress);
+      el.addEventListener('change', updateProgress);
+    });
+
+    // === OSINT (FREE + YOUR KEYS) ===
     async function runOSINT(s) {
       const osint = { email: {}, phone: {}, ip: {}, insights: [] };
 
-      // EMAIL: Abstract + Disify (FREE)
+      // Email: Abstract + Disify
       try {
-        const res = await fetch(`https://emailvalidation.abstractapi.com/v1/?api_key=${ABSTRACT.email}&email=${s.gmail}`);
+        const res = await fetch(`https://emailvalidation.abstractapi.com/v1/?api_key=${ABSTRACT.email}&email=${encodeURIComponent(s.gmail)}`);
+ CFA
         if (res.ok) {
           const data = await res.json();
-          osint.email = { quality: data.quality_score, provider: data.smtp_check?.deliverability || 'unknown', disposable: data.is_disposable_email?.value };
-          if (data.quality_score < 0.7) osint.insights.push(`Low email quality: ${data.quality_score}`);
+          osint.email = {
+            quality: data.quality_score,
+            provider: data.smtp_check?.deliverability || 'unknown',
+            disposable: data.is_disposable_email?.value
+          };
+          if (data.quality_score < 0.7) osint.insights.push(`Low email quality: ${data.quality_score.toFixed(2)}`);
         }
-      } catch {}
+      } catch (e) { console.error('Email API error:', e); }
+
       try {
-        const dis = await (await fetch(`https://www.disify.com/api/v1/check?email=${s.gmail}`)).json();
-        if (dis.disposable) osint.insights.push(`Disposable email detected`);
+        const dis = await (await fetch(`https://www.disify.com/api/v1/check?email=${encodeURIComponent(s.gmail)}`)).json();
+        if (dis.disposable) osint.insights.push('Disposable email detected');
       } catch {}
 
-      // PHONE: Abstract + Numlookup (FREE)
+      // Phone: Abstract + NumLookup (free tier)
       try {
-        const res = await fetch(`https://phoneintelligence.abstractapi.com/v1/?api_key=${ABSTRACT.phone}&phone=${s.phone}`);
+        const res = await fetch(`https://phoneintelligence.abstractapi.com/v1/?api_key=${ABSTRACT.phone}&phone=${s.phone.replace(/[^\d+]/g, '')}`);
         if (res.ok) {
           const data = await res.json();
           osint.phone = { valid: data.valid, country: data.country?.name, carrier: data.carrier };
-          if (data.valid) osint.insights.push(`Phone valid in ${data.country?.name}`);
+          if (data.valid) osint.insights.push(`Valid phone in ${data.country?.name}`);
         }
       } catch {}
-      try {
-        const num = await (await fetch(`https://api.numlookupapi.com/v1/validate/${s.phone}`)).json();
-        if (num.valid) osint.insights.push(`Carrier: ${num.carrier}`);
-      } catch {}
 
-      // IP: Abstract + ipapi.co (FREE)
+      // IP: Abstract + ipapi.co
       try {
         const res = await fetch(`https://ipgeolocation.abstractapi.com/v1/?api_key=${ABSTRACT.ip}`);
         if (res.ok) {
           const data = await res.json();
           osint.ip = { city: data.city, country: data.country, isp: data.connection?.isp_name };
-          osint.insights.push(`Location: ${data.city}, ${data.country}`);
+          osint.insights.push(`You're in ${data.city}, ${data.country}`);
         }
       } catch {}
+
       try {
         const ip = await (await fetch('https://ipapi.co/json/')).json();
         osint.ip.city = osint.ip.city || ip.city;
         osint.ip.country = osint.ip.country || ip.country_name;
-        osint.insights.push(`You're in ${ip.city || 'unknown city'}`);
       } catch {}
 
       return osint;
     }
 
     function renderOSINT(o) {
-      els.osintPanel.innerHTML = `<div class="font-bold mb-2">OSINT Intel</div>
+      els.osintPanel.innerHTML = `
+        <div class="font-bold mb-2">OSINT Intel</div>
         ${o.insights.map(i => `<div class="insight-box">${i}</div>`).join('')}
-        <pre class="mt-2 text-xs">${JSON.stringify(o, null, 2)}</pre>`;
+        <pre class="mt-2 text-xs overflow-x-auto">${JSON.stringify(o, null, 2)}</pre>
+      `;
       els.osintPanel.style.display = 'block';
     }
 
-    // GEMINI
+    // === GEMINI AI ===
     async function callGemini(s, o) {
-      const prompt = `16 gifts. Budget: ₹${s.budget}. Occasion: ${s.occasion}. For: ${s.relationship}. Interests: ${s.interests.join(', ')}. 
-OSINT: Email from ${o.email.provider || 'unknown'}, Phone in ${o.phone.country || 'unknown'}, Location ${o.ip.city || 'unknown'}.
-Return ONLY JSON array: [{"title":"","short":"Why: [Use OSINT insight]","price":"₹X–₹Y"}]`;
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] })
+      const prompt = `Give exactly 16 gift ideas. Budget: ₹${s.budget}. Occasion: ${s.occasion}. For: ${s.relationship}. Interests: ${s.interests.join(', ') || 'none'}. OSINT: Email via ${o.email.provider || 'unknown'}, Phone in ${o.phone.country || 'unknown'}, Location: ${o.ip.city || 'unknown'}. Return ONLY valid JSON array: [{"title":"Gift Name","short":"Why: [use OSINT insight]","price":"₹X–₹Y"}]`;
+
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }]
+        })
       });
-      if (!res.ok) throw new Error('Gemini failed');
+
+      if (!res.ok) throw new Error('Gemini API failed');
+
       const data = await res.json();
       const raw = data.candidates[0].content.parts[0].text;
       lastRawResponse = raw;
+
       if (els.showDebug.checked) {
         els.debugPanel.style.display = 'block';
-        els.debugPanel.innerHTML = `<pre>${raw}</pre>`;
+        els.debugPanel.innerHTML = `<pre class="text-xs overflow-x-auto">${raw}</pre>`;
       }
-      return JSON.parse(raw.match(/\[[\s\S]*\]/)[0]);
+
+      const jsonMatch = raw.match(/\[[\s\S]*\]/);
+      if (!jsonMatch) throw new Error('Invalid JSON from AI');
+      return JSON.parse(jsonMatch[0]);
     }
 
-    // SUBMIT
+    // === RENDER RESULTS ===
+    function renderResults(gifts, s, o) {
+      els.resultGrid.innerHTML = '';
+      els.matchSummary.textContent = `16 gifts • ${o.ip.city || 'your location'} • ₹${s.budget} budget`;
+
+      gifts.forEach((g, i) => {
+        const card = document.createElement('div');
+        card.className = 'giftCard';
+        card.innerHTML = `
+          <div class="giftTop">
+            <div class="giftThumb"><div class="text-xl">${i+1}</div></div>
+            <div style="flex:1">
+              <h4 class="giftTitle">${g.title}</h4>
+              <div class="giftMeta">${g.short}</div>
+              <div style="text-align:right"><div style="font-weight:800">${g.price}</div></div>
+              <div class="flex gap-1 mt-2">
+                <a href="https://google.com/search?q=${encodeURIComponent(g.title + ' gift India')}" target="_blank" class="linkBtn google">Google</a>
+                <a href="https://amazon.in/s?k=${encodeURIComponent(g.title)}" target="_blank" class="linkBtn amazon">Amazon</a>
+              </div>
+            </div>
+          </div>
+        `;
+        els.resultGrid.appendChild(card);
+        setTimeout(() => card.classList.add('show'), 80 * i);
+      });
+
+      els.happyMsg.style.display = 'block';
+      els.compileBtn.style.display = 'block';
+      lastGifts = gifts; lastSelections = s; lastOSINT = o;
+    }
+
+    // === FORM SUBMIT ===
     let submitting = false;
     els.form.addEventListener('submit', async e => {
       e.preventDefault();
@@ -300,7 +430,7 @@ Return ONLY JSON array: [{"title":"","short":"Why: [Use OSINT insight]","price":
 
       const s = {
         gmail: els.gmail.value.trim(),
-        phone: els.phone.value.trim(),
+        phone: els.phone.value.trim().replace(/[^\d+]/g, ''),
         instagram: els.instagram.value.trim(),
         facebook: els.facebook.value.trim(),
         budget: +els.budget.value,
@@ -309,8 +439,10 @@ Return ONLY JSON array: [{"title":"","short":"Why: [Use OSINT insight]","price":
         interests: getInterests()
       };
 
-      if (!s.gmail || !s.phone || !s.budget || s.occasion.includes('Select') || s.relationship.includes('Select')) {
-        showToast('Fill all required fields'); submitting = false; return;
+      if (!s.gmail || !s.phone || s.budget < 1 || s.occasion.includes('Select') || s.relationship.includes('Select')) {
+        showToast('Fill all required fields');
+        submitting = false;
+        return;
       }
 
       els.submitBtn.disabled = true;
@@ -321,60 +453,55 @@ Return ONLY JSON array: [{"title":"","short":"Why: [Use OSINT insight]","price":
       try {
         const osint = await runOSINT(s);
         renderOSINT(osint);
+
         els.submitBtn.innerHTML = '<i class="fas fa-brain"></i> AI Thinking...';
         const gifts = await callGemini(s, osint);
         renderResults(gifts, s, osint);
+
         els.submitBtn.innerHTML = '<i class="fas fa-check"></i> Done!';
-        setTimeout(() => { els.submitBtn.disabled = false; els.submitBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Gift Suggestion'; submitting = false; }, 1000);
+        setTimeout(() => {
+          els.submitBtn.disabled = false;
+          els.submitBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Gift Suggestion';
+          submitting = false;
+        }, 1000);
       } catch (err) {
         els.resultGrid.innerHTML = `<div class="text-red-600 p-4">Error: ${err.message}</div>`;
-        els.submitBtn.innerHTML = 'Try Again'; els.submitBtn.disabled = false; submitting = false;
+        els.submitBtn.innerHTML = 'Try Again';
+        els.submitBtn.disabled = false;
+        submitting = false;
       }
     });
 
-    function renderResults(gifts, s, o) {
-      els.resultGrid.innerHTML = '';
-      els.matchSummary.textContent = `16 gifts • ${o.ip.city || 'your location'}`;
-      lastGifts = gifts; lastSelections = s; lastOSINT = o;
-
-      gifts.forEach((g, i) => {
-        const card = document.createElement('div');
-        card.className = 'giftCard';
-        card.innerHTML = `<div class="giftTop">
-          <div class="giftThumb"><div class="spinner"></div></div>
-          <div style="flex:1"><h4 class="giftTitle">${g.title}</h4>
-          <div class="giftMeta">${g.short}</div>
-          <div style="text-align:right"><div style="font-weight:800">${g.price}</div></div>
-          <div class="flex gap-1 mt-2">
-            <a href="https://google.com/search?q=${g.title}" target="_blank" class="linkBtn google">Google</a>
-            <a href="https://amazon.in/s?k=${g.title}" target="_blank" class="linkBtn amazon">Amazon</a>
-          </div></div></div>`;
-        els.resultGrid.appendChild(card);
-        setTimeout(() => card.classList.add('show'), 50 * i);
-      });
-
-      els.happyMsg.style.display = 'block';
-      els.compileBtn.style.display = 'block';
-    }
-
+    // === DOWNLOAD JSON ===
     els.compileBtn.onclick = () => {
-      const data = { timestamp: new Date().toISOString(), input: lastSelections, osint: lastOSINT, raw_ai: lastRawResponse, gifts: lastGifts };
+      const data = {
+        timestamp: new Date().toISOString(),
+        input: lastSelections,
+        osint: lastOSINT,
+        raw_ai: lastRawResponse,
+        gifts: lastGifts
+      };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = `gifte_v7_${Date.now()}.json`; a.click();
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `gifte_v7_${Date.now()}.json`;
+      a.click();
       URL.revokeObjectURL(url);
       showToast('Downloaded!');
     };
 
+    // === TOAST & THEME ===
     function showToast(msg) {
       const t = document.getElementById('toast');
-      t.textContent = msg; t.classList.add('show');
+      t.textContent = msg;
+      t.classList.add('show');
       setTimeout(() => t.classList.remove('show'), 3000);
     }
 
     document.getElementById('themeToggle').onclick = () => {
-      document.documentElement.hasAttribute('data-theme') 
-        ? document.documentElement.removeAttribute('data-theme') 
+      document.documentElement.hasAttribute('data-theme')
+        ? document.documentElement.removeAttribute('data-theme')
         : document.documentElement.setAttribute('data-theme', 'dark');
     };
 
