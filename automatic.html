@@ -231,7 +231,7 @@
       chip.setAttribute('aria-checked', 'false');
       chip.onclick = () => {
         const checked = chip.getAttribute('aria-checked') === 'true';
-        chip5.setAttribute('aria-checked', !checked);
+        chip.setAttribute('aria-checked', !checked);
         chip.classList.toggle('from-pink-500', !checked);
         chip.classList.toggle('to-pink-600', !checked);
         chip.classList.toggle('text-white', !checked);
