@@ -191,7 +191,7 @@
       ip: '5392658eba984b4bb576d9a729e43f1e'
     };
     const NUMVERIFY_KEY = "2729f1d455b03a998432b6e2161b0651"; // YOUR FREE KEY
-    const GEMINI_API_KEY = "AIzaSyB2emhpdbRNIn8RkWEASiKTEWaFez2kW8g"; // WORKING
+    const OPENAI_KEY = "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"; // ← PASTE YOUR OPENAI KEY HERE
 
     const els = {
       form: document.getElementById('autoForm'), 
@@ -389,42 +389,63 @@
       els.osintPanel = panel;
     }
 
-    // === GEMINI 2.5 FLASH ===
+        // === OPENAI GPT-4o-mini (UNLIMITED + NEVER DIES) ===
     async function callGemini(s, o) {
-      const prompt = `Generate exactly 16 gift ideas in strict JSON format. Budget: ₹${s.budget}. Occasion: ${s.occasion}. For: ${s.relationship}. Interests: ${s.interests.join(', ') || 'none'}. OSINT insights: Email from ${o.email.provider||'unknown'}, Phone in ${o.phone.country||'unknown'}, Location ${o.ip.city||'unknown'}. Return ONLY this JSON array: [{"title":"Gift Name","short":"Why: [use OSINT insight]","price":"₹X–₹Y"}]`;
+      const prompt = `Generate exactly 16 gift ideas as a clean JSON array (no markdown, no extra text).
 
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          contents: [{ role: 'user', parts: [{ text: prompt }] }],
-          generationConfig: { response_mime_type: "application/json" }
+Budget: ₹${s.budget}
+Occasion: ${s.occasion}
+Relationship: ${s.relationship}
+Interests: ${s.interests.join(', ') || 'none'}
+Location hints: ${o.ip.city || 'India'}, ${o.phone.country || 'unknown'}
+
+Return ONLY this JSON (16 items max):
+[{"title":"Short Gift Name","short":"1-line reason (use location/interests)","price":"₹800–₹1500"}]`; 
+
+      const res = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${OPENAI_KEY}`
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [{ role: "user", content: prompt }],
+          temperature: 0.85,
+          max_tokens: 2000
         })
       });
 
       if (!res.ok) {
-        const err = await res.text();
-        throw new Error(`Gemini API Error: ${res.status} - ${err}`);
+        const err = await res.json();
+        throw new Error(err.error?.message || "OpenAI failed");
       }
 
       const data = await res.json();
-      const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      lastRawResponse = raw;
+      let text = data.choices[0].message.content.trim();
 
+      // Debug panel
       if (els.showDebug.checked) {
         els.debugPanel.style.display = 'block';
-        els.debugPanel.innerHTML = `<pre class="text-xs p-2 bg-gray-100 rounded">${raw}</pre>`;
+        els.debugPanel.innerHTML = `<pre class="text-xs p-3 bg-black text-green-400 rounded">RAW OPENAI:\n${text}</pre>`;
       }
+      lastRawResponse = text;
 
+      // Clean code blocks
+      text = text.replace(/```json|```/g, '').trim();
+
+      let gifts;
       try {
-        return JSON.parse(raw);
+        gifts = JSON.parse(text);
       } catch {
-        const match = raw.match(/\[[\s\S]*\]/);
-        if (match) return JSON.parse(match[0]);
-        throw new Error('Invalid JSON from Gemini');
+        const match = text.match(/\[[\s\S]*\]/);
+        gifts = match ? JSON.parse(match[0]) : [];
       }
-    }
 
+      if (!Array.isArray(gifts) || gifts.length === 0) throw new Error("No gifts returned");
+
+      return gifts.slice(0, 16);
+    }
     // === SUBMIT ===
     let submitting = false;
     els.form.addEventListener('submit', async e => {
