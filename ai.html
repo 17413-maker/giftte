@@ -1,4 +1,4 @@
-1234<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -6,11 +6,7 @@
   <title>Aditya Chatbot — Aditya 2.5</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet"
-  />
-  <!-- Tailwind CDN -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -18,23 +14,23 @@
         extend: {
           fontFamily: { sans: ["Inter", "sans-serif"] },
           colors: {
-            grok: { bg: "#0f0f0f", card: "#1a1a1a", text: "#e4e4e7", muted: "#71717a", border: "#27272a" },
-            accent: "#10a37f", // Grok green
+            grok: {
+              bg: "#0f0f0f",
+              card: "#1a1a1a",
+              text: "#e4e4e7",
+              muted: "#71717a",
+              border: "#27272a"
+            },
+            accent: "#10a37f",
           },
         },
       },
     };
   </script>
   <style>
-    /* Grok-style scrollbar */
     #chatBox::-webkit-scrollbar { width: 4px; }
-    #chatBox::-webkit-scrollbar-thumb {
-      background: #27272a;
-      border-radius: 2px;
-    }
+    #chatBox::-webkit-scrollbar-thumb { background: #27272a; border-radius: 2px; }
     #chatBox::-webkit-scrollbar-track { background: transparent; }
-
-    /* Typing indicator - Grok style */
     .typing span {
       @apply inline-block w-1.5 h-1.5 mx-0.5 bg-grok-muted rounded-full;
       animation: grokTyping 1.4s infinite;
@@ -45,29 +41,18 @@
       0%, 80%, 100% { opacity: 0.4; transform: translateY(0); }
       40% { opacity: 1; transform: translateY(-2px); }
     }
-
-    /* Message fade-in */
     .message {
       opacity: 0;
       transform: translateY(8px);
       animation: fadeIn 0.3s ease-out forwards;
     }
-    @keyframes fadeIn {
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Input focus glow */
-    #userInput:focus {
-      box-shadow: 0 0 0 2px rgba(16, 163, 127, 0.3);
-    }
+    @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+    #userInput:focus { box-shadow: 0 0 0 2px rgba(16, 163, 127, 0.3); }
   </style>
 </head>
 <body class="bg-grok-bg text-grok-text min-h-screen flex items-center justify-center p-3 md:p-6 font-sans">
-  <div
-    id="container"
-    class="w-full max-w-3xl bg-grok-card rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[88vh] md:h-[780px] border border-grok-border"
-  >
-    <!-- Header - Grok Style -->
+  <div id="container" class="w-full max-w-3xl bg-grok-card rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[88vh] md:h-[780px] border border-grok-border">
+    <!-- Header -->
     <header class="border-b border-grok-border px-5 py-4 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 rounded-full bg-gradient-to-br from-accent to-emerald-600 flex items-center justify-center shadow-lg">
@@ -77,70 +62,57 @@
         </div>
         <div>
           <h1 class="text-lg font-semibold text-white">Aditya Chatbot</h1>
-          <p class="text-xs text-grok-muted">Aditya 2.5 • Built for truth-seeking</p>
+          <p class="text-xs text-grok-muted">Aditya 2.5 • Powered by GPT-4o</p>
         </div>
       </div>
       <div class="flex items-center gap-2 text-grok-muted text-xs">
-        <span class="hidden md:inline">Nov 16, 2025</span>
+        <span class="hidden md:inline">Nov 19, 2025</span>
         <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
       </div>
     </header>
 
     <!-- Chat Area -->
-    <div
-      id="chatBox"
-      class="flex-1 overflow-y-auto p-5 space-y-5 bg-gradient-to-b from-grok-card to-grok-bg"
-    >
-      <!-- Initial Message - Grok Tone -->
+    <div id="chatBox" class="flex-1 overflow-y-auto p-5 space-y-5 bg-gradient-to-b from-grok-card to-grok-bg">
       <div class="bot message max-w-xl">
         <div class="bg-grok-card text-grok-text p-4 rounded-2xl rounded-tl-sm border border-grok-border shadow-sm">
-          Hi, I'm Aditya — your AI powered by Aditya 2.5.  
-          Ask me anything. I aim for clarity, honesty, and usefulness.
+          Yo bro, I'm Aditya 2.5 — your no-BS, fast, honest AI. Ask me anything. I got you.
         </div>
       </div>
     </div>
 
-    <!-- Input Area - Grok Style -->
+    <!-- Input Area -->
     <div class="border-t border-grok-border p-4 bg-grok-card">
       <div class="flex gap-3 items-end">
         <div class="flex-1 relative">
-          <input
-            type="text"
-            id="userInput"
-            placeholder="Ask anything..."
-            class="w-full px-4 py-3 pr-12 bg-grok-bg text-grok-text rounded-xl border border-grok-border focus:border-accent focus:outline-none transition-all duration-200 text-sm md:text-base placeholder-grok-muted"
-          />
-          <kbd class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-grok-muted opacity-60">⏎</kbd>
+          <input type="text" id="userInput" placeholder="Type your message..." 
+                 class="w-full px-4 py-3 pr-12 bg-grok-bg text-grok-text rounded-xl border border-grok-border focus:border-accent focus:outline-none transition-all duration-200 text-sm md:text-base placeholder-grok-muted" />
+          <kbd class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-grok-muted opacity-60">Enter</kbd>
         </div>
-        <button
-          onclick="sendMsg()"
-          class="p-3 rounded-xl bg-accent text-white hover:bg-emerald-600 active:scale-95 transition-all duration-150 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-          id="sendBtn"
-        >
+        <button onclick="sendMsg()" id="sendBtn"
+                class="p-3 rounded-xl bg-accent text-white hover:bg-emerald-600 active:scale-95 transition-all duration-150 shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd" />
           </svg>
         </button>
       </div>
-      <p class="text-xs text-grok-muted text-center mt-2 opacity-70">
-        Secure • No logs • Press Enter to send
-      </p>
+      <p class="text-xs text-grok-muted text-center mt-2 opacity-70">Powered by OpenAI • No logs • Press Enter to send</p>
     </div>
   </div>
 
-  <!-- Core Logic (100% unchanged - only UI adapted to Grok aesthetic) -->
+  <!-- CORE SCRIPT - OPENAI GPT-4o-mini (FREE TIER = NO 429) -->
   <script>
-    const API_KEY = "AIzaSyA9XdnhSEMWshJaSKreGN6lheFJ9DYk5UI";
+    // ←←←←←←←←←←←←←←←← PUT YOUR OPENAI KEY HERE ←←←←←←←←←←←←←←←←
+    const OPENAI_KEY = "sk-proj-UvdFjI4WkjL66MrOxeyAXWgf1vO2uaAu3lgWqzfYJmpekrWaBdZnn54kisvVCwOh9ERRxd2njMT3BlbkFJ-_6jXqqnxZTN2DtesTEhg_esPnI13UDiNIcXPUKvYxn4_6xFS1CRQ0SbfE5xnX2FoJIIkgOXUA"; 
+    // Get free key instantly → https://platform.openai.com/api-keys
 
     function addMessage(role, text, typing = false) {
       const chatBox = document.getElementById("chatBox");
       const div = document.createElement("div");
       div.className = `message max-w-xl ${role === "user" ? "ml-auto" : ""}`;
-
       const bubble = document.createElement("div");
       bubble.className = `p-4 rounded-2xl shadow-sm border border-grok-border ${
-        role === "user"
-          ? "bg-accent text-white rounded-tr-sm"
+        role === "user" 
+          ? "bg-accent text-white rounded-tr-sm" 
           : "bg-grok-card text-grok-text rounded-tl-sm"
       }`;
 
@@ -149,7 +121,6 @@
       } else {
         bubble.textContent = text;
       }
-
       div.appendChild(bubble);
       chatBox.appendChild(div);
       chatBox.scrollTop = chatBox.scrollHeight;
@@ -168,34 +139,51 @@
       const typingDiv = addMessage("bot", "", true);
 
       try {
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents: [{ role: "user", parts: [{ text }] }] }),
-          }
-        );
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${OPENAI_KEY}`
+          },
+          body: JSON.stringify({
+            model: "gpt-4o-mini",
+            messages: [{ role: "user", content: text }],
+            temperature: 0.8,
+            max_tokens: 1500
+          })
+        });
+
+        if (!response.ok) {
+          const err = await response.json();
+          throw new Error(err.error?.message || "OpenAI error");
+        }
+
         const data = await response.json();
-        const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Warning: No response";
+        const reply = data.choices[0].message.content.trim();
+
         typingDiv.remove();
         addMessage("bot", reply);
+
       } catch (err) {
         typingDiv.remove();
-        addMessage("bot", "Warning: Network error. Check connection.");
+        addMessage("bot", `Error bro: ${err.message}`);
         console.error(err);
       } finally {
         btn.disabled = false;
+        input.focus();
       }
     }
 
     // Enter key support
-    document.getElementById("userInput").addEventListener("keyup", function (e) {
+    document.getElementById("userInput").addEventListener("keyup", e => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         sendMsg();
       }
     });
+
+    // Auto-focus input
+    document.getElementById("userInput").focus();
   </script>
 </body>
 </html>
