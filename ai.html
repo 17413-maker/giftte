@@ -9,46 +9,46 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
   :root{
-    --black:#0a0908;
-    --charcoal:#151312;
-    --panel:#1c1917;
-    --panel-2:#221e1b;
-    --line:#332d29;
-    --white:#f7f3ee;
-    --smoke:#b9b0a6;
-    --muted:#7a7168;
-    --sunset:#ff7a3d;
-    --coral:#ff5d5d;
-    --coral-deep:#e8433f;
-    --gold:#ffb454;
+    --black:#4a2f3e;
+    --charcoal:#fff5f9;
+    --panel:#ffffff;
+    --panel-2:#fff0f6;
+    --line:#ffd6e6;
+    --white:#3f2c3a;
+    --smoke:#8a6f7d;
+    --muted:#c79fb2;
+    --sunset:#ffc2d9;
+    --coral:#ff9dc0;
+    --coral-deep:#f26fa0;
+    --gold:#e0447e;
     --grad-sunset: linear-gradient(120deg, var(--sunset) 0%, var(--coral) 55%, var(--coral-deep) 100%);
-    --shadow-glow: 0 0 40px rgba(255,122,61,0.18);
+    --shadow-glow: 0 0 40px rgba(242,111,160,0.22);
   }
   *{box-sizing:border-box;}
   html,body{height:100%;}
   body{
     margin:0;
     background:
-      radial-gradient(1200px 600px at 15% -10%, rgba(255,122,61,0.10), transparent 60%),
-      radial-gradient(900px 500px at 100% 0%, rgba(255,93,93,0.08), transparent 55%),
-      var(--black);
+      radial-gradient(1200px 600px at 15% -10%, rgba(255,157,192,0.14), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgba(255,194,217,0.16), transparent 55%),
+      #fffafc;
     color:var(--white);
     font-family:'Inter',system-ui,sans-serif;
     display:flex;
     min-height:100vh;
     overflow:hidden;
   }
-  ::selection{ background:rgba(255,122,61,0.35); }
+  ::selection{ background:rgba(242,111,160,0.28); }
   ::-webkit-scrollbar{width:6px;height:6px;}
   ::-webkit-scrollbar-thumb{background:var(--line);border-radius:10px;}
-  ::-webkit-scrollbar-thumb:hover{background:var(--sunset);}
+  ::-webkit-scrollbar-thumb:hover{background:var(--coral-deep);}
   ::-webkit-scrollbar-track{background:transparent;}
 
   /* ---------- Sidebar ---------- */
   #sidebar{
     width:272px;
     min-width:272px;
-    background:linear-gradient(180deg, var(--charcoal), var(--black));
+    background:linear-gradient(180deg, var(--charcoal), var(--panel-2));
     border-right:1px solid var(--line);
     display:flex;
     flex-direction:column;
@@ -168,7 +168,7 @@
     justify-content:space-between;
     padding:16px 26px;
     border-bottom:1px solid var(--line);
-    background:linear-gradient(180deg, rgba(255,122,61,0.05), transparent);
+    background:linear-gradient(180deg, rgba(255,157,192,0.10), transparent);
   }
   .header-left{ display:flex; align-items:center; gap:12px; }
   #toggleSidebar{
@@ -177,7 +177,7 @@
     display:flex;align-items:center;justify-content:center;
     transition:border-color .15s, color .15s;
   }
-  #toggleSidebar:hover{ border-color:var(--sunset); color:var(--sunset); }
+  #toggleSidebar:hover{ border-color:var(--coral-deep); color:var(--coral-deep); }
   .header-title{ font-family:'Fraunces',serif; font-size:18px; font-weight:600; }
   .header-title span{
     background:var(--grad-sunset);
@@ -195,7 +195,7 @@
     display:flex;align-items:center;justify-content:center;
     transition:border-color .15s, color .15s;
   }
-  #settingsBtn:hover{ border-color:var(--sunset); color:var(--sunset); }
+  #settingsBtn:hover{ border-color:var(--coral-deep); color:var(--coral-deep); }
 
   /* ---------- Chat area ---------- */
   #chatBox{
@@ -231,7 +231,7 @@
     border:1px solid var(--line); padding:8px 13px; border-radius:11px;
     cursor:pointer; background:var(--panel); transition:all .15s ease;
   }
-  .suggestion-chip:hover{ border-color:var(--sunset); color:var(--white); transform:translateY(-1px); }
+  .suggestion-chip:hover{ border-color:var(--coral-deep); color:var(--white); transform:translateY(-1px); }
 
   .msg-row{
     display:flex;
@@ -251,7 +251,7 @@
     display:flex;align-items:center;justify-content:center;
     font-size:13px; font-weight:700;
   }
-  .avatar.bot{ background:var(--grad-sunset); color:var(--black); box-shadow:0 0 14px rgba(255,122,61,0.25); }
+  .avatar.bot{ background:var(--grad-sunset); color:var(--black); box-shadow:0 0 14px rgba(242,111,160,0.3); }
   .avatar.user{ background:var(--panel-2); color:var(--smoke); border:1px solid var(--line); }
 
   .bubble-wrap{ display:flex; flex-direction:column; gap:5px; max-width:calc(100% - 46px); }
@@ -272,19 +272,19 @@
   }
   .msg-row.user .bubble{
     background:linear-gradient(135deg, var(--sunset), var(--coral-deep));
-    color:#1a0e08;
+    color:var(--black);
     border-top-right-radius:5px;
     font-weight:500;
   }
   .msg-row.bot .bubble strong{ color:var(--gold); }
   .msg-row.bot .bubble code{
-    background:rgba(255,122,61,0.12);
-    border:1px solid rgba(255,122,61,0.25);
+    background:rgba(242,111,160,0.10);
+    border:1px solid rgba(242,111,160,0.25);
     padding:1px 6px; border-radius:5px;
     font-family:'JetBrains Mono',monospace; font-size:12.8px; color:var(--gold);
   }
   .bubble pre{
-    background:#100d0b;
+    background:#fff2f7;
     border:1px solid var(--line);
     border-radius:10px;
     padding:12px 14px;
@@ -306,16 +306,16 @@
   @keyframes bounce{ 0%,80%,100%{ opacity:.35; transform:translateY(0);} 40%{ opacity:1; transform:translateY(-3px);} }
 
   .error-bubble{
-    border-color:rgba(255,93,93,0.4) !important;
-    background:rgba(255,93,93,0.08) !important;
-    color:#ffb3ac !important;
+    border-color:rgba(220,53,69,0.35) !important;
+    background:rgba(220,53,69,0.07) !important;
+    color:#a3283a !important;
   }
 
   /* ---------- Composer ---------- */
   #composer{
     padding:16px 10% 20px;
     border-top:1px solid var(--line);
-    background:linear-gradient(0deg, rgba(255,122,61,0.04), transparent);
+    background:linear-gradient(0deg, rgba(255,157,192,0.08), transparent);
   }
   @media (max-width: 900px){ #composer{ padding:14px 5% 16px; } }
   .composer-inner{
@@ -331,8 +331,8 @@
     transition:border-color .15s ease, box-shadow .15s ease;
   }
   .composer-inner:focus-within{
-    border-color:var(--sunset);
-    box-shadow:0 0 0 3px rgba(255,122,61,0.14);
+    border-color:var(--coral-deep);
+    box-shadow:0 0 0 3px rgba(242,111,160,0.16);
   }
   #userInput{
     flex:1;
@@ -396,7 +396,7 @@
     outline:none;
   }
   #systemPromptInput{ font-family:'Inter',sans-serif; resize:vertical; min-height:64px; }
-  #apiKeyInput:focus, #systemPromptInput:focus{ border-color:var(--sunset); }
+  #apiKeyInput:focus, #systemPromptInput:focus{ border-color:var(--coral-deep); }
   .warn-box{
     background:rgba(255,180,84,0.08);
     border:1px solid rgba(255,180,84,0.3);
@@ -426,10 +426,10 @@
   <div class="brand">
     <div class="brand-mark">
       <svg viewBox="0 0 24 24" fill="none">
-        <path d="M4 19.5 11.3 4.8a.8.8 0 0 1 1.4 0L20 19.5" stroke="#0a0908" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M8.6 14.4h6.8" stroke="#0a0908" stroke-width="1.7" stroke-linecap="round"/>
-        <circle cx="12" cy="8.1" r="1.15" fill="#0a0908"/>
-        <path d="M12 5.4v-1M14.1 6.6l.7-.75M9.9 6.6l-.7-.75" stroke="#0a0908" stroke-width="1.1" stroke-linecap="round"/>
+        <path d="M4 19.5 11.3 4.8a.8.8 0 0 1 1.4 0L20 19.5" stroke="#4a2f3e" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8.6 14.4h6.8" stroke="#4a2f3e" stroke-width="1.7" stroke-linecap="round"/>
+        <circle cx="12" cy="8.1" r="1.15" fill="#4a2f3e"/>
+        <path d="M12 5.4v-1M14.1 6.6l.7-.75M9.9 6.6l-.7-.75" stroke="#4a2f3e" stroke-width="1.1" stroke-linecap="round"/>
       </svg>
     </div>
     <div>
@@ -439,7 +439,7 @@
   </div>
 
   <button class="new-chat-btn" onclick="newConversation()">
-    <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M10 4v12M4 10h12" stroke="#0a0908" stroke-width="2" stroke-linecap="round"/></svg>
+    <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M10 4v12M4 10h12" stroke="#4a2f3e" stroke-width="2" stroke-linecap="round"/></svg>
     New chat
   </button>
 
@@ -501,7 +501,7 @@
    below. Get one at aistudio.google.com/apikey — it starts with "AIzaSy".
    Do NOT share this file with the key filled in — anyone who opens it
    can read it and use your key. */
-let apiKey = "AQ.Ab8RN6In8TOcofq3pWn3GCup-auR8IPMTopVC5Wno0eSepH5Fw";
+let apiKey = "AQ.Ab8RN6ITtNDBxNoT82sVwQ5So9ws5KpVqXcznAerUVELzyXUuQ";
 /* ================================================ */
 
 let systemPrompt = "You are Aditya, a sharp, warm, and direct AI assistant. Give clear, honest, useful answers. Keep a friendly, casual tone without being sloppy.";
@@ -568,10 +568,10 @@ function renderChat(){
       <div class="empty-state">
         <div class="glyph">
           <svg viewBox="0 0 24 24" fill="none">
-            <path d="M4 19.5 11.3 4.8a.8.8 0 0 1 1.4 0L20 19.5" stroke="#0a0908" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M8.6 14.4h6.8" stroke="#0a0908" stroke-width="1.7" stroke-linecap="round"/>
-            <circle cx="12" cy="8.1" r="1.15" fill="#0a0908"/>
-            <path d="M12 5.4v-1M14.1 6.6l.7-.75M9.9 6.6l-.7-.75" stroke="#0a0908" stroke-width="1.1" stroke-linecap="round"/>
+            <path d="M4 19.5 11.3 4.8a.8.8 0 0 1 1.4 0L20 19.5" stroke="#4a2f3e" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8.6 14.4h6.8" stroke="#4a2f3e" stroke-width="1.7" stroke-linecap="round"/>
+            <circle cx="12" cy="8.1" r="1.15" fill="#4a2f3e"/>
+            <path d="M12 5.4v-1M14.1 6.6l.7-.75M9.9 6.6l-.7-.75" stroke="#4a2f3e" stroke-width="1.1" stroke-linecap="round"/>
           </svg>
         </div>
         <h2>What's on your mind?</h2>
